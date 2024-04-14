@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "807456808102",
+    "project_id": "unistyle-940e2",
+    "storage_bucket": "unistyle-940e2.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:807456808102:android:5f2c2610d19d62cdbda867",
+        "android_client_info": {
+          "package_name": "edu.co.icesi.unistyle"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCXONz1kJGBCbAAi6Q3OkYPqdoq2xpLZS8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
