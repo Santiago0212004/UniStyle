@@ -1,5 +1,6 @@
 package edu.co.icesi.unistyle
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.viewModels
@@ -33,6 +34,10 @@ class SignupActivity : AppCompatActivity() {
                 binding.nameET.text.toString(),
                 binding.usernameET.text.toString()
             )
+        }
+
+        binding.igotaccountBtn.setOnClickListener{
+            startActivity(Intent(this, LoginActivity::class.java))
         }
 
         viewModel.authStatus.observe(this) {

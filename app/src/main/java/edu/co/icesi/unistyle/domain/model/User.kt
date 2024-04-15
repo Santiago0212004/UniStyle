@@ -1,5 +1,6 @@
 package edu.co.icesi.unistyle.domain.model
 
+import java.io.Serializable
 import java.lang.reflect.Array
 
 data class User(
@@ -9,6 +10,10 @@ data class User(
     var username: String,
     var password: String,
     var picture: String?,
-    var reservationRefs: Array?,
+    var reservationRefs: Array? ,
     var commentsRef:Array?
-)
+) : Serializable {
+    override fun toString(): String {
+        return name
+    }
+}
