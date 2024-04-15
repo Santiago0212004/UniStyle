@@ -8,6 +8,7 @@ import edu.co.icesi.unistyle.services.AuthServices
 
 interface AuthRepository {
     suspend fun signup(email: String, pass: String): AppAuthState
+    suspend fun login(email: String, pass: String): AppAuthState
 }
 
 class AuthRepositoryImpl(val service:AuthServices = AuthServices()):AuthRepository{
@@ -17,6 +18,19 @@ class AuthRepositoryImpl(val service:AuthServices = AuthServices()):AuthReposito
             result.user?.let {
                 return AppAuthState.Success(it.uid)
             } ?: run {
+                return AppAuthState.Error("Something went wrong")
+            }
+        }catch (ex: FirebaseAuthException){
+            return AppAuthState.Error(ex.errorCode)
+        }
+    }
+
+    override suspend fun login(email: String, pass: String) : AppAuthState{
+        try {
+            val result = service.logIn(email, pass)
+            result.user?.let {
+                return  AppAuthState.Success(it.uid)
+            }?: run {
                 return AppAuthState.Error("Something went wrong")
             }
         }catch (ex: FirebaseAuthException){
