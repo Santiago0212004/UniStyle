@@ -8,7 +8,6 @@ data class User(
     var email: String,
     var name: String,
     var username: String,
-    var password: String,
     var picture: String?,
     var reservationRefs: Array? ,
     var commentsRef:Array?

@@ -4,23 +4,37 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import edu.co.icesi.unistyle.domain.model.AppAuthState
+import edu.co.icesi.unistyle.domain.model.User
+import edu.co.icesi.unistyle.domain.model.Worker
 import edu.co.icesi.unistyle.repository.AuthRepository
 import edu.co.icesi.unistyle.repository.AuthRepositoryImpl
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class SignupViewmodel(val repo:AuthRepository = AuthRepositoryImpl()) : ViewModel() {
+class SignUpViewmodel(val repo:AuthRepository = AuthRepositoryImpl()) : ViewModel() {
 
-    val authStatus = MutableLiveData<AppAuthState?>()
+    val authStatus = MutableLiveData<AppAuthState>()
 
-    fun signup(email: String, pass: String, toString: String, toString1: String) {
+    fun signupUser(user: User, pass:String) {
         viewModelScope.launch(Dispatchers.IO) {
 
             withContext(Dispatchers.Main){
                 authStatus.value = AppAuthState.Loading("Cargando...")
             }
-            val status = repo.signup(email,pass) //10s
+            val status = repo.signupUser(user, pass)
+            withContext(Dispatchers.Main){authStatus.value = status}
+
+        }
+    }
+
+    fun signupWorker(worker: Worker, pass:String) {
+        viewModelScope.launch(Dispatchers.IO) {
+
+            withContext(Dispatchers.Main){
+                authStatus.value = AppAuthState.Loading("Cargando...")
+            }
+            val status = repo.signupWorker(worker, pass)
             withContext(Dispatchers.Main){authStatus.value = status}
 
         }
