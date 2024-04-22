@@ -68,6 +68,9 @@ class SignupActivity : AppCompatActivity() {
                     }
 
                 }
+                is AppAuthState.SuccessLogin->{
+
+                }
 
                 null -> TODO()
             }

@@ -19,6 +19,9 @@
             android:name=".MainActivity"
             android:exported="true" />
         <activity
+            android:name=".WorkerSelectActivity"
+            android:exported="true" />
+        <activity
             android:name=".SignupActivity"
             android:exported="true" >
             <intent-filter>

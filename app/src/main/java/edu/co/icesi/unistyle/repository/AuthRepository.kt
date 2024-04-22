@@ -1,5 +1,6 @@
 package edu.co.icesi.unistyle.repository
 
+import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthException
 import edu.co.icesi.unistyle.domain.model.AppAuthState
@@ -9,6 +10,7 @@ import edu.co.icesi.unistyle.services.AuthServices
 interface AuthRepository {
     suspend fun signup(email: String, pass: String): AppAuthState
     suspend fun login(email: String, pass: String): AppAuthState
+
 }
 
 class AuthRepositoryImpl(val service:AuthServices = AuthServices()):AuthRepository{
@@ -27,9 +29,11 @@ class AuthRepositoryImpl(val service:AuthServices = AuthServices()):AuthReposito
 
     override suspend fun login(email: String, pass: String) : AppAuthState{
         try {
+            var role =""
             val result = service.logIn(email, pass)
             result.user?.let {
-                return  AppAuthState.Success(it.uid)
+                role = service.checkRole(it.uid)
+                return  AppAuthState.SuccessLogin(it.uid,role)
             }?: run {
                 return AppAuthState.Error("Something went wrong")
             }
