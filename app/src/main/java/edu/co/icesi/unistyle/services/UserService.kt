@@ -13,10 +13,6 @@ class UserService {
         Firebase.firestore.collection("customer").document(user.id).set(user).await()
     }
 
-    suspend fun createWorker(worker: Worker) {
-        Firebase.firestore.collection("worker").document(worker.id).set(worker).await()
-    }
-
     suspend fun loadUser(id: String): DocumentSnapshot {
         val output = Firebase.firestore.collection("users").document(id).get().await()
         return output

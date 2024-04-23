@@ -1,13 +1,12 @@
 package edu.co.icesi.unistyle.repository
 
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthException
 import edu.co.icesi.unistyle.domain.model.AppAuthState
-import edu.co.icesi.unistyle.domain.model.AuthStatus
 import edu.co.icesi.unistyle.domain.model.User
 import edu.co.icesi.unistyle.domain.model.Worker
 import edu.co.icesi.unistyle.services.AuthServices
 import edu.co.icesi.unistyle.services.UserService
+import edu.co.icesi.unistyle.services.WorkerService
 
 interface AuthRepository {
     suspend fun signupUser(user: User, pass: String): AppAuthState
@@ -15,8 +14,11 @@ interface AuthRepository {
     suspend fun login(email: String, pass: String): AppAuthState
 }
 
-class AuthRepositoryImpl( val authServices: AuthServices = AuthServices(),
-                          val userServices: UserService = UserService()) : AuthRepository {
+class AuthRepositoryImpl(
+    val authServices: AuthServices = AuthServices(),
+    val userServices: UserService = UserService(),
+    val workerServices: WorkerService = WorkerService()
+) : AuthRepository {
     override suspend fun signupUser(user: User, pass: String): AppAuthState {
         try {
             val result = authServices.signUp(user.email, pass)
@@ -39,7 +41,7 @@ class AuthRepositoryImpl( val authServices: AuthServices = AuthServices(),
             val result = authServices.signUp(worker.email, pass)
             result.user?.let {
                 worker.id = it.uid
-                userServices.createWorker(worker)
+                workerServices.createWorker(worker)
 
 
                 return AppAuthState.Success(it.uid)
