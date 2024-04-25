@@ -7,6 +7,7 @@ import edu.co.icesi.unistyle.services.EstablishmentService
 
 interface EstablishmentRepository {
     suspend fun loadEstablishmentList() : ArrayList<Establishment?>?
+    suspend fun addWorker(id : String, idWorker: String)
 }
 
 class EstablishmentRepositoryImpl(
@@ -20,5 +21,9 @@ class EstablishmentRepositoryImpl(
             establishments.add(est)
         }
         return establishments
+    }
+
+    override suspend fun addWorker(id : String, idWorker: String){
+        establishmentServices.addWorker(id,idWorker)
     }
 }

@@ -13,6 +13,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.OnLifecycleEvent
 import edu.co.icesi.unistyle.databinding.ActivitySignupBinding
 import edu.co.icesi.unistyle.domain.model.AppAuthState
+import edu.co.icesi.unistyle.domain.model.Establishment
 import edu.co.icesi.unistyle.domain.model.User
 import edu.co.icesi.unistyle.domain.model.Worker
 import edu.co.icesi.unistyle.repository.EstablishmentRepository
@@ -31,6 +32,18 @@ class SignupActivity : AppCompatActivity() {
 
     private var items = mutableListOf<String?>()
 
+    private var gEstablishments = mutableListOf<Establishment?>()
+
+    private var wasChecked = false
+
+    private var selectedEstablishmentString: String? = null
+
+    private var selectedEstablishment: Establishment? = null
+
+    private var isWorker = false
+
+    private var createdWorker:Worker? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
@@ -39,28 +52,42 @@ class SignupActivity : AppCompatActivity() {
             if (isChecked) {
                 binding.spinnerLabel.visibility = View.VISIBLE
                 binding.establishmentSPN.visibility = View.VISIBLE
-                viewmodelEst.loadEstablishmentList()
 
-                viewmodelEst.establishmentState.observe(this) { establishments ->
-                    establishments?.let {
-                        establishments.forEach{
-                            items.add(it?.name)
+                if (!wasChecked) {
+                    wasChecked = true
+                    viewmodelEst.loadEstablishmentList()
+
+                    viewmodelEst.establishmentState.observe(this) { establishments ->
+                        establishments?.let {
+                            establishments.forEach {
+                                gEstablishments.add(it)
+                                items.add(it?.name)
+                            }
+                            val adapter =
+                                ArrayAdapter(this, android.R.layout.simple_spinner_item, items)
+                            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+                            binding.establishmentSPN.adapter = adapter
                         }
-                        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, items)
-                        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-                        binding.establishmentSPN.adapter = adapter
                     }
                 }
-                /*binding.establishmentSPN.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-                    override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                        val selectedItem = items[position]
-                        Toast.makeText(this@SignupActivity, "$selectedItem", Toast.LENGTH_SHORT).show()
-                    }
 
-                    override fun onNothingSelected(parent: AdapterView<*>?) {
-                        TODO("Not yet implemented")
+                binding.establishmentSPN.onItemSelectedListener =
+                    object : AdapterView.OnItemSelectedListener {
+                        override fun onItemSelected(
+                            parent: AdapterView<*>?,
+                            view: View?,
+                            position: Int,
+                            id: Long
+                        ) {
+                            selectedEstablishmentString = items[position]
+                            selectedEstablishment = gEstablishments[position]
+
+                        }
+
+                        override fun onNothingSelected(parent: AdapterView<*>?) {
+                            TODO("Not yet implemented")
+                        }
                     }
-                }*/
             } else {
                 binding.establishmentSPN.visibility = View.GONE
                 binding.spinnerLabel.visibility = View.INVISIBLE
@@ -69,7 +96,7 @@ class SignupActivity : AppCompatActivity() {
 
 
         binding.signupBtn.setOnClickListener {
-            if(!binding.workerBtn.isChecked){
+            if (!binding.workerBtn.isChecked) {
                 viewModel.signupUser(
                     User(
                         "",
@@ -78,48 +105,33 @@ class SignupActivity : AppCompatActivity() {
                         binding.usernameET.text.toString(),
                         "",
                         null,
-                        null),
+                        null
+                    ),
                     binding.passET.text.toString()
                 )
-            } else if(binding.workerBtn.isChecked){
-                val items = listOf("xd", "xd2", "xd3")
-                val adapter = ArrayAdapter(this,android.R.layout.simple_spinner_item, items)
-                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-                binding.establishmentSPN.adapter = adapter
-                binding.establishmentSPN.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
-                    override fun onItemSelected(
-                        parent: AdapterView<*>?,
-                        view: View?,
-                        position: Int,
-                        id: Long
-                    ) {
-                        val selectedItem = items [position]
-                        Toast.makeText(this@SignupActivity, "$selectedItem", Toast.LENGTH_SHORT).show()
-                    }
-
-                    override fun onNothingSelected(parent: AdapterView<*>?) {
-                        TODO("Not yet implemented")
-                    }
-
-                }
+            } else if (binding.workerBtn.isChecked) {
+                isWorker = true
+                createdWorker = Worker(
+                    "",
+                    binding.emailET.text.toString(),
+                    binding.nameET.text.toString(),
+                    binding.usernameET.text.toString(),
+                    "",
+                    null,
+                    null,
+                    selectedEstablishment!!.id,
+                    null
+                )
                 viewModel.signupWorker(
-                    Worker(
-                        "",
-                        binding.emailET.text.toString(),
-                        binding.nameET.text.toString(),
-                        binding.usernameET.text.toString(),
-                        "",
-                        null,
-                        null,
-                        null,
-                        null),
+                    createdWorker!!,
                     binding.passET.text.toString()
                 )
+
             }
         }
 
 
-        binding.igotaccountBtn.setOnClickListener{
+        binding.igotaccountBtn.setOnClickListener {
             startActivity(Intent(this, LoginActivity::class.java))
         }
 
@@ -128,10 +140,15 @@ class SignupActivity : AppCompatActivity() {
                 is AppAuthState.Loading -> {
                     Toast.makeText(this, it.message, Toast.LENGTH_LONG).show()
                 }
+
                 is AppAuthState.Error -> {
                     Toast.makeText(this, it.message, Toast.LENGTH_LONG).show()
                 }
+
                 is AppAuthState.Success -> {
+                    if(isWorker){
+                        viewmodelEst.addWorker(selectedEstablishment!!.id, createdWorker!!.id)
+                    }
                     Toast.makeText(this, "Bienvenido ${it.userID}", Toast.LENGTH_LONG).show()
                 }
 

@@ -19,7 +19,15 @@ class EstablishmentViewmodel(val repo: EstablishmentRepository = EstablishmentRe
     fun loadEstablishmentList() {
         viewModelScope.launch(Dispatchers.IO) {
             val establishments = repo.loadEstablishmentList()
-            _establishmentState.postValue(establishments)
+            withContext(Dispatchers.Main){
+                _establishmentState.value = establishments
+            }
+        }
+    }
+
+    fun addWorker(id : String, idWorker: String){
+        viewModelScope.launch(Dispatchers.IO){
+            repo.addWorker(id, idWorker)
         }
     }
 }

@@ -10,6 +10,6 @@ data class Worker(
     var picture: String?,
     var reservationRefs: Array?,
     var commentsRef: Array?,
-    var establishmentRef: Array?,
+    var establishmentRef: String?,
     var servicesRef: Array?
 )
