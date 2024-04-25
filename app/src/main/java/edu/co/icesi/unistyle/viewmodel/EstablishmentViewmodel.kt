@@ -13,8 +13,8 @@ import kotlinx.coroutines.withContext
 
 class EstablishmentViewmodel(val repo: EstablishmentRepository = EstablishmentRepositoryImpl()) : ViewModel() {
 
-    private val _establishmentState = MutableLiveData<ArrayList<String?>?>()
-    val establishmentState: LiveData<ArrayList<String?>?> get() = _establishmentState
+    private val _establishmentState = MutableLiveData<ArrayList<Establishment?>?>()
+    val establishmentState: LiveData<ArrayList<Establishment?>?> get() = _establishmentState
 
     fun loadEstablishmentList() {
         viewModelScope.launch(Dispatchers.IO) {

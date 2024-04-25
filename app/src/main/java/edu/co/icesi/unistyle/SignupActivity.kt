@@ -29,7 +29,7 @@ class SignupActivity : AppCompatActivity() {
 
     val viewmodelEst: EstablishmentViewmodel by viewModels()
 
-    private var items = listOf<String?>()
+    private var items = mutableListOf<String?>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,13 +43,15 @@ class SignupActivity : AppCompatActivity() {
 
                 viewmodelEst.establishmentState.observe(this) { establishments ->
                     establishments?.let {
-                        items = listOf(establishments)
+                        establishments.forEach{
+                            items.add(it?.name)
+                        }
                         val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, items)
                         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
                         binding.establishmentSPN.adapter = adapter
                     }
                 }
-                binding.establishmentSPN.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                /*binding.establishmentSPN.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
                     override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                         val selectedItem = items[position]
                         Toast.makeText(this@SignupActivity, "$selectedItem", Toast.LENGTH_SHORT).show()
@@ -58,7 +60,7 @@ class SignupActivity : AppCompatActivity() {
                     override fun onNothingSelected(parent: AdapterView<*>?) {
                         TODO("Not yet implemented")
                     }
-                }
+                }*/
             } else {
                 binding.establishmentSPN.visibility = View.GONE
                 binding.spinnerLabel.visibility = View.INVISIBLE
