@@ -8,15 +8,11 @@ import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.isVisible
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.OnLifecycleEvent
 import edu.co.icesi.unistyle.databinding.ActivitySignupBinding
 import edu.co.icesi.unistyle.domain.model.AppAuthState
+import edu.co.icesi.unistyle.domain.model.Customer
 import edu.co.icesi.unistyle.domain.model.Establishment
-import edu.co.icesi.unistyle.domain.model.User
 import edu.co.icesi.unistyle.domain.model.Worker
-import edu.co.icesi.unistyle.repository.EstablishmentRepository
 import edu.co.icesi.unistyle.viewmodel.EstablishmentViewmodel
 import edu.co.icesi.unistyle.viewmodel.SignUpViewmodel
 
@@ -98,7 +94,7 @@ class SignupActivity : AppCompatActivity() {
         binding.signupBtn.setOnClickListener {
             if (!binding.workerBtn.isChecked) {
                 viewModel.signupUser(
-                    User(
+                    Customer(
                         "",
                         binding.emailET.text.toString(),
                         binding.nameET.text.toString(),

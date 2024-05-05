@@ -10,8 +10,7 @@ import com.google.firebase.Firebase
 import com.google.firebase.firestore.firestore
 import edu.co.icesi.unistyle.databinding.ActivityLoginBinding
 import edu.co.icesi.unistyle.domain.model.AppAuthState
-import edu.co.icesi.unistyle.domain.model.User
-import edu.co.icesi.unistyle.domain.model.UsersDTO
+import edu.co.icesi.unistyle.domain.model.CustomerDTO
 import edu.co.icesi.unistyle.viewmodel.LogInViewmodel
 
 class LoginActivity : AppCompatActivity() {
@@ -48,18 +47,15 @@ class LoginActivity : AppCompatActivity() {
                 is AppAuthState.Success -> {
                     Toast.makeText(this, "Bienvenido ${it.userID}", Toast.LENGTH_LONG).show()
                     val email = binding.emailET.text.toString()
-                    val password = binding.passET.text.toString()
-
                     val query = Firebase.firestore.collection("customer").whereEqualTo("email",email)
-
-                    query.get().addOnCompleteListener{task->
-                       lateinit var existingUser: UsersDTO
+                    query.get().addOnCompleteListener{ task ->
+                        lateinit var existingUser: CustomerDTO
                         for(document in task.result!!){
-                            existingUser = document.toObject(UsersDTO::class.java)
-                           break
+                            existingUser = document.toObject(CustomerDTO::class.java)
+                            break
                         }
-                        if (existingUser.password == password){
-                           val intent = Intent(this, MainActivity::class.java)
+                        if (existingUser.id == it.userID){
+                            val intent = Intent(this, MainCustomerActivity::class.java).putExtra("customerId",it.userID)
                             startActivity(intent)
                         }else{
                             showAlert()
