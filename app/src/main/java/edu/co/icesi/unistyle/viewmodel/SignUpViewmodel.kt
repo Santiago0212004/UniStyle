@@ -4,7 +4,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import edu.co.icesi.unistyle.domain.model.AppAuthState
-import edu.co.icesi.unistyle.domain.model.User
+import edu.co.icesi.unistyle.domain.model.Customer
 import edu.co.icesi.unistyle.domain.model.Worker
 import edu.co.icesi.unistyle.repository.AuthRepository
 import edu.co.icesi.unistyle.repository.AuthRepositoryImpl
@@ -16,13 +16,13 @@ class SignUpViewmodel(val repo:AuthRepository = AuthRepositoryImpl()) : ViewMode
 
     val authStatus = MutableLiveData<AppAuthState>()
 
-    fun signupUser(user: User, pass:String) {
+    fun signupUser(customer: Customer, pass:String) {
         viewModelScope.launch(Dispatchers.IO) {
 
             withContext(Dispatchers.Main){
                 authStatus.value = AppAuthState.Loading("Cargando...")
             }
-            val status = repo.signupUser(user, pass)
+            val status = repo.signupUser(customer, pass)
             withContext(Dispatchers.Main){authStatus.value = status}
 
         }
