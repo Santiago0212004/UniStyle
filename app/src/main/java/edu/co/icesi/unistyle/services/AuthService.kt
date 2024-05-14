@@ -7,8 +7,6 @@ import com.google.firebase.Firebase
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.auth
 import com.google.firebase.firestore.firestore
-import edu.co.icesi.unistyle.MainActivity
-import edu.co.icesi.unistyle.WorkerSelectActivity
 import kotlinx.coroutines.tasks.await
 import kotlin.math.log
 
@@ -28,10 +26,12 @@ class AuthServices {
             val workerDocument = Firebase.firestore.collection("worker").document(uid).get().await()
             if (workerDocument.exists()) {
                 role = "worker"
+                Log.e(">>>>>>>>>>>", "WORKER")
             } else {
                 val customerDocument = Firebase.firestore.collection("customer").document(uid).get().await()
                 if (customerDocument.exists()) {
                     role = "customer"
+                    Log.e(">>>>>>>>>>>", "CUSTOMER")
                 } else {
                     Log.e("error", "No se encontró el usuario con el ID: $uid")
                 }

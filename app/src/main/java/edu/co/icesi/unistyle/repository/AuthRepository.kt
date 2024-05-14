@@ -59,7 +59,6 @@ class AuthRepositoryImpl(
 
     override suspend fun login(email: String, pass: String) : AppAuthState{
         try {
-
             var role =""
             val result = authServices.logIn(email, pass)
             result.user?.let {

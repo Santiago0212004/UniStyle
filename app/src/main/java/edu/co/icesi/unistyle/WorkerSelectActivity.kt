@@ -1,5 +1,6 @@
 package edu.co.icesi.unistyle
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import edu.co.icesi.unistyle.databinding.ActivityWorkerselectBinding
@@ -11,6 +12,11 @@ class WorkerSelectActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
+
+        binding.workerProfileButton.setOnClickListener {
+            val intent = Intent(this, WorkerProfileActivity::class.java)
+            startActivity(intent)
+        }
     }
 
 }

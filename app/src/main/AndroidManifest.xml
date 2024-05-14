@@ -22,6 +22,9 @@
             android:name=".WorkerSelectActivity"
             android:exported="true" />
         <activity
+            android:name=".WorkerProfileActivity"
+            android:exported="true" />
+        <activity
             android:name=".SignupActivity"
             android:exported="true" >
             <intent-filter>
