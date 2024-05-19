@@ -46,20 +46,17 @@ class LoginActivity : AppCompatActivity() {
                 }
                 is AppAuthState.Success -> {
                     Toast.makeText(this, "Bienvenido ${it.userID}", Toast.LENGTH_LONG).show()
-                    val email = binding.emailET.text.toString()
-                    val query = Firebase.firestore.collection("customer").whereEqualTo("email",email)
-                    query.get().addOnCompleteListener{ task ->
-                        lateinit var existingUser: CustomerDTO
-                        for(document in task.result!!){
-                            existingUser = document.toObject(CustomerDTO::class.java)
-                            break
-                        }
-                        if (existingUser.id == it.userID){
-                            val intent = Intent(this, MainCustomerActivity::class.java).putExtra("customerId",it.userID)
-                            startActivity(intent)
-                        }else{
-                            showAlert()
-                        }
+                }
+                is AppAuthState.SuccessLogin -> {
+                    Toast.makeText(this, "Bienvenido ${it.userID}", Toast.LENGTH_LONG).show()
+                    if (it.role=="worker"){
+                        val intent = Intent(this, WorkerSelectActivity::class.java)
+                        startActivity(intent)
+                    }else if(it.role=="customer"){
+                        val intent = Intent(this, MainCustomerActivity::class.java).putExtra("customerId",it.userID)
+                        startActivity(intent)
+                    }else{
+                        Toast.makeText(this, "No se pudo confirmar tu rol correctamente", Toast.LENGTH_LONG).show()
                     }
                 }
                 null -> TODO()

@@ -147,6 +147,9 @@ class SignupActivity : AppCompatActivity() {
                     }
                     Toast.makeText(this, "Bienvenido ${it.userID}", Toast.LENGTH_LONG).show()
                 }
+                is AppAuthState.SuccessLogin->{
+
+                }
 
                 null -> TODO()
             }

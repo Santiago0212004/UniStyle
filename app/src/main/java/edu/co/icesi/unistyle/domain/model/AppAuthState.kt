@@ -4,5 +4,6 @@ sealed class AppAuthState {
     data class Loading(val message: String) : AppAuthState()
     data class Error(val message: String) : AppAuthState()
     data class Success(val userID: String) : AppAuthState()
+    data class SuccessLogin(val userID: String,val role: String) : AppAuthState()
 
 }
