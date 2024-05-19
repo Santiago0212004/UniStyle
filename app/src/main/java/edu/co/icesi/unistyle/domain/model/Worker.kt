@@ -7,7 +7,7 @@ data class Worker(
     var email: String="",
     var name: String="",
     var username: String="",
-    var picture: String?="",
+    var picture: String?=null,
     var reservationRefs: Array?= null,
     var commentsRef: Array?= null,
     var establishmentRef: String?= null,

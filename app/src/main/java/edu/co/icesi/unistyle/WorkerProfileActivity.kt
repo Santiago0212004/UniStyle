@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import com.bumptech.glide.Glide
 import com.google.firebase.Firebase
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.auth
@@ -29,12 +30,10 @@ class WorkerProfileActivity : AppCompatActivity() {
             viewmodel.userState.observe(this) {
                 binding.profileMailTV.text = it.email
                 binding.profileNameTV.text = it.name
-                /*
-                it.profilePic?.let {
+                it.picture?.let {
                     Glide.with(this@WorkerProfileActivity).load(it).into(binding.profileImageIV)
                 }
-                Log.e(">>>", it.profilePic.toString())
-                */
+                Log.e(">>>", it.picture.toString())
             }
 
 

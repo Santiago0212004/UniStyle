@@ -41,7 +41,8 @@ android {
 }
 
 dependencies {
-
+    //Libreria de imagenes
+    implementation("com.github.bumptech.glide:glide:4.16.0")
     //Nos permite usar las corutinas en el contexto de ViewModel
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.2")
     //Nos permite instanciar el viewmodel de forma simple por medio del delegado
