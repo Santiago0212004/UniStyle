@@ -53,7 +53,7 @@ class LoginActivity : AppCompatActivity() {
                         val intent = Intent(this, WorkerSelectActivity::class.java)
                         startActivity(intent)
                     }else if(it.role=="customer"){
-                        val intent = Intent(this, MainCustomerActivity::class.java).putExtra("customerId",it.userID)
+                        val intent = Intent(this, MainCustomerActivity::class.java)
                         startActivity(intent)
                     }else{
                         Toast.makeText(this, "No se pudo confirmar tu rol correctamente", Toast.LENGTH_LONG).show()
