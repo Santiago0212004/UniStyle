@@ -29,10 +29,9 @@ class AuthRepositoryImpl(
             result.user?.let {
                 customer.id = it.uid
                 customerServices.createUser(customer)
-
-
-                return AppAuthState.Success(it.uid)
-            } ?: run {
+                val role = authServices.checkRole(it.uid)
+                return AppAuthState.SuccessLogin(it.uid, role)
+            }?: run {
                 return AppAuthState.Error("Something went wrong")
             }
         } catch (ex: FirebaseAuthException) {
@@ -46,10 +45,9 @@ class AuthRepositoryImpl(
             result.user?.let {
                 worker.id = it.uid
                 workerServices.createWorker(worker)
-
-
-                return AppAuthState.Success(it.uid)
-            } ?: run {
+                val role = authServices.checkRole(it.uid)
+                return AppAuthState.SuccessLogin(it.uid, role)
+            }?: run {
                 return AppAuthState.Error("Something went wrong")
             }
         } catch (ex: FirebaseAuthException) {
