@@ -116,7 +116,6 @@ fun SignUpScreen(navController: NavHostController, viewModel: SignUpViewmodel = 
         if (isWorker) {
             Text(text = "Establecimiento asociado:", modifier = Modifier.padding(vertical = 8.dp))
 
-            // Exposed Dropdown Menu for establishments
             ExposedDropdownMenuBox(
                 expanded = expanded,
                 onExpandedChange = { expanded = !expanded }
