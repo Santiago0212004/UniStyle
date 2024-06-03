@@ -43,19 +43,19 @@ class MainCustomerViewModel(
         }
     }
 
-    fun filterEstablishments(query: String?){
-        viewModelScope.launch(Dispatchers.IO){
-            if(query != null){
-                val filteredEstablishments = ArrayList<Establishment?>()
-                for(establishment in _establishments.value!!){
-                    if (establishment != null) {
-                        if(establishment.name.lowercase(Locale.ROOT).contains(query)){
-                            filteredEstablishments.add(establishment)
-                        }
-                    }
-                    withContext(Dispatchers.Main){
-                        _establishments.value = filteredEstablishments
-                    }
+    fun filterEstablishments(query: String?) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val allEstablishments = establishmentRepository.loadEstablishmentList()
+            if (query.isNullOrEmpty()) {
+                withContext(Dispatchers.Main) {
+                    _establishments.value = allEstablishments
+                }
+            } else {
+                val filteredEstablishments = allEstablishments?.filter {
+                    it?.name?.lowercase(Locale.ROOT)?.contains(query.lowercase(Locale.ROOT)) == true
+                }
+                withContext(Dispatchers.Main) {
+                    _establishments.value = filteredEstablishments?.let { ArrayList(it) }
                 }
             }
         }
