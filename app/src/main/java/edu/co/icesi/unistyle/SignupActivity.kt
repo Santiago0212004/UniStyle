@@ -44,6 +44,8 @@ class SignupActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
+
+
         binding.workerBtn.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
                 binding.spinnerLabel.visibility = View.VISIBLE
@@ -131,6 +133,7 @@ class SignupActivity : AppCompatActivity() {
             startActivity(Intent(this, LoginActivity::class.java))
         }
 
+
         viewModel.authStatus.observe(this) {
             when (it) {
                 is AppAuthState.Loading -> {
@@ -140,17 +143,23 @@ class SignupActivity : AppCompatActivity() {
                 is AppAuthState.Error -> {
                     Toast.makeText(this, it.message, Toast.LENGTH_LONG).show()
                 }
-
                 is AppAuthState.Success -> {
-                    if(isWorker){
-                        viewmodelEst.addWorker(selectedEstablishment!!.id, createdWorker!!.id)
-                    }
-                    Toast.makeText(this, "Bienvenido ${it.userID}", Toast.LENGTH_LONG).show()
                 }
                 is AppAuthState.SuccessLogin->{
-
+                    val role = it.role
+                    if (role == "worker") {
+                        Toast.makeText(this, "Bienvenido ${it.userID}", Toast.LENGTH_LONG).show()
+                        viewmodelEst.addWorker(selectedEstablishment!!.id, createdWorker!!.id)
+                        val intent = Intent(this, WorkerSelectActivity::class.java)
+                        startActivity(intent)
+                    } else if (role == "customer") {
+                        Toast.makeText(this, "Bienvenido ${it.userID}", Toast.LENGTH_LONG).show()
+                        val intent = Intent(this, MainCustomerActivity::class.java)
+                        startActivity(intent)
+                    } else {
+                        Toast.makeText(this, "No se pudo confirmar tu rol correctamente", Toast.LENGTH_LONG).show()
+                    }
                 }
-
                 null -> TODO()
             }
         }
