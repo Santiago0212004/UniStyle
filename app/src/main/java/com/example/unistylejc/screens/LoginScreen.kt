@@ -118,7 +118,7 @@ fun LoginScreen(navController: NavHostController, loginViewModel: LogInViewmodel
             is AppAuthState.SuccessLogin -> {
                 Toast.makeText(context, "Bienvenido ${state.userID}", Toast.LENGTH_LONG).show()
                  when (state.role) {
-                    "worker" -> navController.navigate("worker/main")
+                    "worker" -> navController.navigate("worker/profile")
                     "customer" -> navController.navigate("customer/main")
                 }
             }

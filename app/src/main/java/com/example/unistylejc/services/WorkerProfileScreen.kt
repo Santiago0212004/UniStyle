@@ -1,10 +1,13 @@
 package com.example.unistylejc.services
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.runtime.*
@@ -16,34 +19,30 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
+import coil.compose.rememberAsyncImagePainter
 import com.example.unistylejc.R
-
-@Preview
-@Composable
-fun MyApp() {
-    MaterialTheme {
-        Surface(
-            modifier = Modifier.fillMaxSize(),
-            color = MaterialTheme.colorScheme.background
-        ) {
-            ScreenContent()
-        }
-    }
-}
+import com.example.unistylejc.domain.model.Worker
+import com.example.unistylejc.viewmodel.WorkerProfileViewModel
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
 
 @Composable
-fun ScreenContent() {
+fun ScreenContent(userState: Worker?) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp),
+            .padding(16.dp)
+            .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.Start
     ) {
@@ -54,7 +53,7 @@ fun ScreenContent() {
             modifier = Modifier.padding(bottom = 16.dp)
         )
 
-        ProfileSection()
+        ProfileSection(userState)
 
         Spacer(modifier = Modifier.height(32.dp))
 
@@ -63,6 +62,8 @@ fun ScreenContent() {
         OptionButton(text = "Acerca de nosotros", iconResId = R.drawable.ic_about)
         Spacer(modifier = Modifier.height(32.dp))
         OptionButton(text = "Cerrar sesión", iconResId = R.drawable.ic_logout)
+        Spacer(modifier = Modifier.height(32.dp))
+        OptionButton(text = "Desvincular", iconResId = R.drawable.ic_logout)
         Spacer(modifier = Modifier.height(32.dp))
         OptionButton(
             text = "Eliminar cuenta",
@@ -74,7 +75,7 @@ fun ScreenContent() {
 }
 
 @Composable
-fun ProfileSection() {
+fun ProfileSection(userState: Worker?) {
     Box(
         modifier = Modifier
             .size(width = 400.dp, height = 230.dp)
@@ -85,13 +86,13 @@ fun ProfileSection() {
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.fillMaxSize()
         ) {
-            Icon(
-                painter = painterResource(id = R.drawable.ic_about), // Replace with user image icon
-                contentDescription = null,
+            Image(
+                painter = rememberAsyncImagePainter("${userState?.picture}"),
+                contentDescription = "Imagen de perfil",
                 modifier = Modifier
-                    .size(100.dp)
-                    .padding(16.dp)
-                    .border(0.dp, color = Color.Transparent, shape = CircleShape),
+                    .size(124.dp)
+                    .clip(CircleShape),
+                contentScale = ContentScale.Crop
             )
             Spacer(modifier = Modifier.width(16.dp))
             Box(
@@ -100,26 +101,26 @@ fun ProfileSection() {
                     .shadow(3.dp,  shape = RoundedCornerShape(16.dp))
                     .background(color = Color.White, shape = RoundedCornerShape(16.dp))
                     .padding(16.dp)
-                    ,
+                ,
 
 
-            ) {
+                ) {
                 Column(
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.Start
                 ) {
-                Text(
-                    text = "Zara usuario",
-                    fontSize = 28.sp,
-                    fontWeight = FontWeight.Bold
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = "usuario@gmail.com",
-                    fontSize = 16.sp,
-                    color = Color.Gray
-                )
-            }
+                    Text(
+                        text = "${userState?.name}",
+                        fontSize = 28.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "${userState?.email}",
+                        fontSize = 14.sp,
+                        color = Color.Gray
+                    )
+                }
             }
         }
     }
@@ -161,3 +162,24 @@ fun OptionButton(
         )
     }
 }
+@Composable
+fun WorkerProfileScreen(navController: NavHostController, viewModel: WorkerProfileViewModel = viewModel()) {
+    val isAuthenticated by remember { mutableStateOf(Firebase.auth.currentUser != null) }
+    val userState by viewModel.userState.observeAsState()
+
+    if (isAuthenticated) {
+        LaunchedEffect(true) {
+            viewModel.loadUser()
+        }
+
+        MaterialTheme {
+            Surface(
+                modifier = Modifier.fillMaxSize(),
+                color = MaterialTheme.colorScheme.background
+            ) {
+                ScreenContent(userState)
+            }
+        }
+    }
+}
+
