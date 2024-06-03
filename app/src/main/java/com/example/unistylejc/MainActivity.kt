@@ -17,6 +17,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.unistylejc.screens.LoginScreen
+import com.example.unistylejc.screens.MainCustomerScreen
+import com.example.unistylejc.screens.MainWorkerScreen
+import com.example.unistylejc.screens.SignUpScreen
 import com.example.unistylejc.ui.theme.UniStyleJCTheme
 
 class MainActivity : ComponentActivity() {
@@ -39,6 +42,9 @@ class MainActivity : ComponentActivity() {
 fun App(navController: NavHostController = rememberNavController()){
     NavHost(navController = navController, startDestination = "login") {
         composable("login") { LoginScreen(navController) }
+        composable("signup") { SignUpScreen(navController)}
+        composable("customer/main") { MainCustomerScreen(navController) }
+        composable("worker/main") { MainWorkerScreen(navController) }
     }
 }
 

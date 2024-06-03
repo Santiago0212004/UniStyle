@@ -117,12 +117,10 @@ fun LoginScreen(navController: NavHostController, loginViewModel: LogInViewmodel
             }
             is AppAuthState.SuccessLogin -> {
                 Toast.makeText(context, "Bienvenido ${state.userID}", Toast.LENGTH_LONG).show()
-                /*val intent = when (state.role) {
-                    "worker" -> Intent(context, WorkerSelectActivity::class.java)
-                    "customer" -> Intent(context, MainCustomerActivity::class.java)
-                    else -> null
+                 when (state.role) {
+                    "worker" -> navController.navigate("worker/main")
+                    "customer" -> navController.navigate("customer/main")
                 }
-                intent?.let { context.startActivity(it) }*/
             }
             else -> Unit
         }
