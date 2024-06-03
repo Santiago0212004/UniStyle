@@ -9,6 +9,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.runtime.livedata.observeAsState
 import android.widget.Toast
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
@@ -21,7 +22,10 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import com.example.unistylejc.domain.model.Customer
@@ -37,6 +41,7 @@ import com.example.unistylejc.viewmodel.EstablishmentViewmodel
 @Composable
 fun SignUpScreen(navController: NavHostController, viewModel: SignUpViewmodel = viewModel(), viewmodelEst: EstablishmentViewmodel = viewModel()) {
     val context = LocalContext.current
+    val focusManager = LocalFocusManager.current
 
     var name by remember { mutableStateOf("") }
     var username by remember { mutableStateOf("") }
@@ -59,27 +64,34 @@ fun SignUpScreen(navController: NavHostController, viewModel: SignUpViewmodel = 
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
+            .pointerInput(Unit) {
+                detectTapGestures(onTap = {
+                    focusManager.clearFocus()
+                })
+            },
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(text = "Registro", style = MaterialTheme.typography.titleSmall, modifier = Modifier.padding(bottom = 16.dp))
 
         OutlinedTextField(
             value = name,
             onValueChange = { name = it },
-            label = { Text("Nombre") },
+            label = { Text("Nombre completo") },
             modifier = Modifier.fillMaxWidth()
         )
 
         OutlinedTextField(
             value = username,
             onValueChange = { username = it },
-            label = { Text("Username") },
+            label = { Text("Nombre de usuario") },
             modifier = Modifier.fillMaxWidth()
         )
 
         OutlinedTextField(
             value = email,
             onValueChange = { email = it },
-            label = { Text("Email") },
+            label = { Text("Correo electrónico") },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
             modifier = Modifier.fillMaxWidth()
         )
@@ -87,7 +99,7 @@ fun SignUpScreen(navController: NavHostController, viewModel: SignUpViewmodel = 
         OutlinedTextField(
             value = password,
             onValueChange = { password = it },
-            label = { Text("Password") },
+            label = { Text("Contraseña") },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
             modifier = Modifier.fillMaxWidth()
         )
@@ -95,7 +107,7 @@ fun SignUpScreen(navController: NavHostController, viewModel: SignUpViewmodel = 
         OutlinedTextField(
             value = confirmPassword,
             onValueChange = { confirmPassword = it },
-            label = { Text("Confirm Password") },
+            label = { Text("Confirmar contraseña") },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
             modifier = Modifier.fillMaxWidth()
         )
