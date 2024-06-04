@@ -1,18 +1,20 @@
 package com.example.unistylejc.screens
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.runtime.livedata.observeAsState
 import android.widget.Toast
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
-import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -21,27 +23,32 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.sp
 import com.example.unistylejc.domain.model.Customer
 import com.example.unistylejc.viewmodel.SignUpViewmodel
 import edu.co.icesi.unistyle.domain.model.AppAuthState
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import com.example.unistylejc.R
 import com.example.unistylejc.domain.model.Establishment
 import com.example.unistylejc.domain.model.Worker
-import com.example.unistylejc.viewmodel.EstablishmentViewmodel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SignUpScreen(navController: NavHostController, viewModel: SignUpViewmodel = viewModel(), viewmodelEst: EstablishmentViewmodel = viewModel()) {
+fun SignUpScreen(navController: NavHostController, viewModel: SignUpViewmodel = viewModel()) {
     val context = LocalContext.current
     val focusManager = LocalFocusManager.current
+    val scrollState = rememberScrollState()
 
     var name by remember { mutableStateOf("") }
     var username by remember { mutableStateOf("") }
@@ -51,12 +58,12 @@ fun SignUpScreen(navController: NavHostController, viewModel: SignUpViewmodel = 
     var isWorker by remember { mutableStateOf(false) }
     var selectedEstablishment by remember { mutableStateOf<Establishment?>(null) }
 
-    val establishments by viewmodelEst.establishmentState.observeAsState(initial = listOf())
+    val establishments by viewModel.establishmentState.observeAsState(emptyList())
     var expanded by remember { mutableStateOf(false) }
 
     LaunchedEffect(isWorker) {
         if (isWorker) {
-            viewmodelEst.loadEstablishmentList()
+            viewModel.loadEstablishmentList()
         }
     }
 
@@ -64,6 +71,7 @@ fun SignUpScreen(navController: NavHostController, viewModel: SignUpViewmodel = 
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
+            .verticalScroll(scrollState) // Make the screen scrollable
             .pointerInput(Unit) {
                 detectTapGestures(onTap = {
                     focusManager.clearFocus()
@@ -72,7 +80,22 @@ fun SignUpScreen(navController: NavHostController, viewModel: SignUpViewmodel = 
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(text = "Registro", style = MaterialTheme.typography.titleSmall, modifier = Modifier.padding(bottom = 16.dp))
+        Image(
+            painter = painterResource(R.drawable.logo),
+            contentDescription = "Logo",
+            modifier = Modifier
+                .size(230.dp)
+                .padding(top = 76.dp)
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(
+            text = "Registro",
+            fontSize = 24.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color.Black,
+            textAlign = TextAlign.Center
+        )
+        Spacer(modifier = Modifier.height(16.dp))
 
         OutlinedTextField(
             value = name,
@@ -101,6 +124,7 @@ fun SignUpScreen(navController: NavHostController, viewModel: SignUpViewmodel = 
             onValueChange = { password = it },
             label = { Text("Contraseña") },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+            visualTransformation = PasswordVisualTransformation(),
             modifier = Modifier.fillMaxWidth()
         )
 
@@ -109,9 +133,11 @@ fun SignUpScreen(navController: NavHostController, viewModel: SignUpViewmodel = 
             onValueChange = { confirmPassword = it },
             label = { Text("Confirmar contraseña") },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+            visualTransformation = PasswordVisualTransformation(),
             modifier = Modifier.fillMaxWidth()
         )
 
+        Spacer(modifier = Modifier.height(8.dp))
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -164,6 +190,7 @@ fun SignUpScreen(navController: NavHostController, viewModel: SignUpViewmodel = 
             }
         }
 
+        Spacer(modifier = Modifier.height(16.dp))
         Button(
             onClick = {
                 if (!isWorker) {
@@ -175,45 +202,44 @@ fun SignUpScreen(navController: NavHostController, viewModel: SignUpViewmodel = 
                 }
             },
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp)
+                .fillMaxWidth(),
+            colors = ButtonDefaults.buttonColors(Color(0xFF9C27B0))
         ) {
             Text("Crear cuenta")
         }
 
-        Button(
-            onClick = {
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            text = "Ya tengo cuenta",
+            modifier = Modifier.clickable {
                 navController.navigate("login")
             },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp)
-        ) {
-            Text("Ya tengo cuenta")
-        }
+            color = Color(0xFF9C27B0),
+            fontStyle = FontStyle.Italic
+        )
+    }
 
-        val authState = viewModel.authStatus.observeAsState()
+    val authState by viewModel.authStatus.observeAsState()
 
-        LaunchedEffect(authState.value) {
-            when (val state = authState.value) {
-                is AppAuthState.Loading -> {
-                    Toast.makeText(context, state.message, Toast.LENGTH_LONG).show()
-                }
-                is AppAuthState.Error -> {
-                    Toast.makeText(context, state.message, Toast.LENGTH_LONG).show()
-                }
-                is AppAuthState.Success -> {
-                    Toast.makeText(context, "Cuenta creada exitosamente", Toast.LENGTH_LONG).show()
-                }
-                is AppAuthState.SuccessLogin -> {
-                    Toast.makeText(context, "Bienvenido ${state.userID}", Toast.LENGTH_LONG).show()
-                    when (state.role) {
-                        "worker" -> navController.navigate("worker/main")
-                        "customer" -> navController.navigate("customer/main")
-                    }
-                }
-                else -> {}
+    LaunchedEffect(authState) {
+        when (val state = authState) {
+            is AppAuthState.Loading -> {
+                Toast.makeText(context, state.message, Toast.LENGTH_LONG).show()
             }
+            is AppAuthState.Error -> {
+                Toast.makeText(context, state.message, Toast.LENGTH_LONG).show()
+            }
+            is AppAuthState.Success -> {
+                Toast.makeText(context, "Cuenta creada exitosamente", Toast.LENGTH_LONG).show()
+            }
+            is AppAuthState.SuccessLogin -> {
+                Toast.makeText(context, "Bienvenido ${state.userID}", Toast.LENGTH_LONG).show()
+                when (state.role) {
+                    "worker" -> navController.navigate("worker/main")
+                    "customer" -> navController.navigate("customer/main")
+                }
+            }
+            else -> Unit
         }
     }
 }
