@@ -1,6 +1,5 @@
 package com.example.unistylejc.screens
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -15,6 +14,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -27,7 +27,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
@@ -162,41 +161,42 @@ fun CustomerEstablishmentScreen(navController: NavHostController, establishmentI
 fun ReservationSection(viewModel: CustomerEstablishmentViewModel, establishment: Establishment, selectedWorker: Worker?) {
     Spacer(modifier = Modifier.height(16.dp))
     LazyRow(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.wrapContentHeight()
     ) {
         if (establishment.workersRefs.isNotEmpty()) {
             items(establishment.workersRefs) { workerRef ->
-                WorkerThumbnail(viewModel, workerId = workerRef, onSelect = { viewModel.loadWorker(it.id) })
+                if(workerRef != ""){
+                    WorkerThumbnail(viewModel, workerId = workerRef, onSelect = { viewModel.loadWorker(it.id) })
+                }
             }
         }
     }
     Spacer(modifier = Modifier.height(16.dp))
-    key(selectedWorker) {
-        selectedWorker?.let { worker ->
-            Log.e("AAA",worker.name)
-            Surface(
-                shape = RoundedCornerShape(8.dp),
-                color = MaterialTheme.colorScheme.secondaryContainer,
-                modifier = Modifier.padding(16.dp)
-            ) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Text(
-                        text = "¡Te atenderá ${worker.name}!",
-                        style = MaterialTheme.typography.headlineSmall,
-                        fontWeight = FontWeight.Bold,
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-                        style = MaterialTheme.typography.bodyLarge,
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Button(onClick = { /* Handle reservation */ }, modifier = Modifier.align(Alignment.End)) {
-                        Text(text = "Reservar")
-                    }
+    selectedWorker?.let { worker ->
+        Surface(
+            shape = RoundedCornerShape(8.dp),
+            color = MaterialTheme.colorScheme.secondaryContainer,
+            modifier = Modifier.padding(16.dp)
+        ) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Text(
+                    text = "¡Te atenderá ${worker.name}!",
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold,
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+                    style = MaterialTheme.typography.bodyLarge,
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Button(onClick = { /* Handle reservation */ }, modifier = Modifier.align(Alignment.End)) {
+                    Text(text = "Reservar")
                 }
             }
         }
+    } ?: run {
+        Text(text = "Seleccione un trabajador", style = MaterialTheme.typography.bodyLarge)
     }
 }
 
