@@ -13,13 +13,14 @@ interface AuthRepository {
     suspend fun signupUser(customer: Customer, pass: String): AppAuthState
     suspend fun signupWorker(worker: Worker, pass: String): AppAuthState
     suspend fun login(email: String, pass: String): AppAuthState
-
+    suspend fun getCurrentRole(uid: String): String
 }
 
 class AuthRepositoryImpl(
     val authServices: AuthServices = AuthServices(),
     val customerServices: CustomerService = CustomerService(),
-    val workerServices: WorkerService = WorkerService()
+    val workerServices: WorkerService = WorkerService(),
+
 ) : AuthRepository {
     override suspend fun signupUser(customer: Customer, pass: String): AppAuthState {
         try {
@@ -65,6 +66,14 @@ class AuthRepositoryImpl(
             }
         }catch (ex: FirebaseAuthException){
             return AppAuthState.Error(ex.errorCode)
+        }
+    }
+
+    override suspend fun getCurrentRole(uid: String): String {
+        return try {
+            authServices.checkRole(uid)
+        } catch (ex: FirebaseAuthException) {
+            return ex.toString()
         }
     }
 

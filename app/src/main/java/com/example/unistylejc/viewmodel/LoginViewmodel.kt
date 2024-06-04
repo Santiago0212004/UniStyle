@@ -20,7 +20,7 @@ class LogInViewmodel(val repo: AuthRepository = AuthRepositoryImpl()) : ViewMode
             withContext(Dispatchers.Main){
                 authStatus.value = AppAuthState.Loading("Cargando...")
             }
-            val status = repo.login(email,pass) //10s
+            val status = repo.login(email,pass)
             withContext(Dispatchers.Main){authStatus.value = status}
 
         }

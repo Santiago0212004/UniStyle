@@ -71,7 +71,7 @@ fun SignUpScreen(navController: NavHostController, viewModel: SignUpViewmodel = 
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
-            .verticalScroll(scrollState) // Make the screen scrollable
+            .verticalScroll(scrollState)
             .pointerInput(Unit) {
                 detectTapGestures(onTap = {
                     focusManager.clearFocus()
@@ -234,10 +234,7 @@ fun SignUpScreen(navController: NavHostController, viewModel: SignUpViewmodel = 
             }
             is AppAuthState.SuccessLogin -> {
                 Toast.makeText(context, "Bienvenido ${state.userID}", Toast.LENGTH_LONG).show()
-                when (state.role) {
-                    "worker" -> navController.navigate("worker/main")
-                    "customer" -> navController.navigate("customer/main")
-                }
+                navController.navigate("uploadPicture")
             }
             else -> Unit
         }
