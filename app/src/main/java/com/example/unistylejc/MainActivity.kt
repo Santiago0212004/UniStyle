@@ -3,11 +3,8 @@ package com.example.unistylejc
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -20,7 +17,10 @@ import com.example.unistylejc.screens.LoginScreen
 import com.example.unistylejc.screens.MainCustomerScreen
 import com.example.unistylejc.screens.MainWorkerScreen
 import com.example.unistylejc.screens.SignUpScreen
-import com.example.unistylejc.services.WorkerProfileScreen
+import com.example.unistylejc.screens.WorkerProfileScreen
+import com.example.unistylejc.screens.WorkerSettingsScreen
+import com.example.unistylejc.screens.WorkerUpdateEmailScreen
+import com.example.unistylejc.screens.WorkerUpdateProfileScreen
 import com.example.unistylejc.ui.theme.UniStyleJCTheme
 
 class MainActivity : ComponentActivity() {
@@ -47,6 +47,9 @@ fun App(navController: NavHostController = rememberNavController()){
         composable("customer/main") { MainCustomerScreen(navController) }
         composable("worker/main") { MainWorkerScreen(navController) }
         composable("worker/profile") { WorkerProfileScreen(navController) }
+        composable("worker/settings") { WorkerSettingsScreen(navController) }
+        composable("worker/updateProfile") { WorkerUpdateProfileScreen(navController) }
+        composable("worker/updateEmail") { WorkerUpdateEmailScreen(navController) }
     }
 }
 

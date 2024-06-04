@@ -1,4 +1,4 @@
-package com.example.unistylejc.services
+package com.example.unistylejc.screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -25,7 +25,6 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -37,7 +36,7 @@ import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 
 @Composable
-fun ScreenContent(userState: Worker?) {
+private fun ScreenContent(navController: NavHostController,userState: Worker?) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -57,20 +56,14 @@ fun ScreenContent(userState: Worker?) {
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        OptionButton(text = "Configuración", iconResId = R.drawable.ic_settings)
+        OptionButton({
+            navController.navigate("worker/settings")
+        },text = "Configuración", iconResId = R.drawable.ic_settings)
         Spacer(modifier = Modifier.height(32.dp))
-        OptionButton(text = "Acerca de nosotros", iconResId = R.drawable.ic_about)
+        OptionButton({},text = "Acerca de nosotros", iconResId = R.drawable.ic_about)
         Spacer(modifier = Modifier.height(32.dp))
-        OptionButton(text = "Cerrar sesión", iconResId = R.drawable.ic_logout)
+        OptionButton({},text = "Cerrar sesión", iconResId = R.drawable.ic_logout)
         Spacer(modifier = Modifier.height(32.dp))
-        OptionButton(text = "Desvincular", iconResId = R.drawable.ic_logout)
-        Spacer(modifier = Modifier.height(32.dp))
-        OptionButton(
-            text = "Eliminar cuenta",
-            iconResId = R.drawable.ic_delete_user,
-            textColor = Color.Red,
-            borderColor = Color.Red
-        )
     }
 }
 
@@ -127,14 +120,14 @@ fun ProfileSection(userState: Worker?) {
 }
 
 @Composable
-fun OptionButton(
+private fun OptionButton( redirect: () -> Unit,
     text: String,
     iconResId: Int,
     textColor: Color = Color.Black,
     borderColor: Color = Color(0xFFFFA500)
 ) {
     Button(
-        onClick = { /* Handle button click */ },
+        onClick = { redirect() },
         colors = ButtonDefaults.buttonColors(
             containerColor = Color.Transparent
         ),
@@ -177,7 +170,7 @@ fun WorkerProfileScreen(navController: NavHostController, viewModel: WorkerProfi
                 modifier = Modifier.fillMaxSize(),
                 color = MaterialTheme.colorScheme.background
             ) {
-                ScreenContent(userState)
+                ScreenContent(navController,userState)
             }
         }
     }
