@@ -5,6 +5,7 @@ import com.example.unistylejc.domain.model.Customer
 import com.example.unistylejc.domain.model.Worker
 import com.example.unistylejc.services.AuthServices
 import com.example.unistylejc.services.CustomerService
+import com.example.unistylejc.services.EstablishmentService
 import com.example.unistylejc.services.WorkerService
 import com.google.firebase.auth.FirebaseAuthException
 import edu.co.icesi.unistyle.domain.model.AppAuthState
@@ -20,7 +21,7 @@ class AuthRepositoryImpl(
     val authServices: AuthServices = AuthServices(),
     val customerServices: CustomerService = CustomerService(),
     val workerServices: WorkerService = WorkerService(),
-
+    val establishmentServices: EstablishmentService = EstablishmentService()
 ) : AuthRepository {
     override suspend fun signupUser(customer: Customer, pass: String): AppAuthState {
         try {
@@ -45,6 +46,7 @@ class AuthRepositoryImpl(
                 worker.id = it.uid
                 workerServices.createWorker(worker)
                 val role = authServices.checkRole(it.uid)
+                establishmentServices.addWorker(worker.establishmentRef,worker.id)
                 return AppAuthState.SuccessLogin(it.uid, role)
             }?: run {
                 return AppAuthState.Error("Something went wrong")

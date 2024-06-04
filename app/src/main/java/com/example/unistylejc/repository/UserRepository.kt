@@ -14,6 +14,7 @@ interface UserRepository {
     suspend fun findCustomerById(customerId: String): Customer?
     fun observeUser(callback: (Customer) -> Unit)
     suspend fun loadWorker(): Worker?
+    suspend fun findWorkerById(workerId: String): Worker?
     fun observeWorker(callback: (Worker) -> Unit)
     suspend fun uploadProfilePicture(uri: Uri): Uri?
     suspend fun updateProfilePictureUrl(userId: String, url: String, isWorker: Boolean): Boolean
@@ -72,5 +73,10 @@ class UserRepositoryImpl(
         } catch (e: Exception) {
             false
         }
+    }
+
+    override suspend fun findWorkerById(workerId: String): Worker? {
+        val document = workerServices.loadWorker(workerId)
+        return document.toObject(Worker::class.java)
     }
 }
