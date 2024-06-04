@@ -18,6 +18,7 @@ firebaseStorage = "21.0.0"
 lifecycleRuntimeKtxVersion = "2.7.0"
 mapsCompose = "2.5.3"
 navigationCompose = "2.7.7"
+navigationComposeVersion = "2.4.0-alpha10"
 playServicesMaps = "18.2.0"
 runtimeLivedata = "1.6.7"
 
@@ -27,6 +28,7 @@ androidx-compose-bom-v20240500 = { module = "androidx.compose:compose-bom", vers
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-lifecycle-runtime-ktx-v270 = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtxVersion" }
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
+androidx-navigation-compose-v240alpha10 = { module = "androidx.navigation:navigation-compose", version.ref = "navigationComposeVersion" }
 androidx-runtime-livedata = { module = "androidx.compose.runtime:runtime-livedata", version.ref = "runtimeLivedata" }
 coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilCompose" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
