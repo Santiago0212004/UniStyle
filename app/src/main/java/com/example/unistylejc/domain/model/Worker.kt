@@ -1,15 +1,15 @@
 package com.example.unistylejc.domain.model
 
-import java.lang.reflect.Array
 
 data class Worker(
     var id:String ="",
     var email: String="",
     var name: String="",
     var username: String="",
+    var description: String="",
     var picture: String?=null,
-    var reservationRefs: Array?= null,
-    var commentsRef: Array?= null,
-    var establishmentRef: String?= null,
-    var servicesRef: Array?= null
+    var reservationRefs: List<String> = listOf<String>(),
+    var commentsRef: List<String> = listOf<String>(),
+    var establishmentRef: String = "",
+    var servicesRef: List<String> = listOf<String>()
 )
