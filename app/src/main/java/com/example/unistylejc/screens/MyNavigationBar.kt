@@ -12,9 +12,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -24,10 +24,8 @@ import com.example.unistylejc.ui.theme.Purple40
 import com.example.unistylejc.ui.theme.Purple80
 
 @Composable
-fun MyNavigationBar(){
-
+fun MyNavigationBar(navController: NavHostController){
     val navBarController = rememberNavController()
-    val contextNavBar = LocalContext.current.applicationContext
     val stars = painterResource(R.drawable.stars)
     val pinmap = painterResource(R.drawable.pinmap)
     val calendar = painterResource(R.drawable.calendar)
@@ -128,7 +126,7 @@ fun MyNavigationBar(){
             startDestination = BottonBarScreen.CustomerReservation.screen,
             modifier = Modifier.padding(paddingValues)){
             composable(BottonBarScreen.CustomerDiscover.screen){ CustomerDiscoverScreen() }
-            composable(BottonBarScreen.CustomerReservation.screen){ MainCustomerScreen(navBarController)}
+            composable(BottonBarScreen.CustomerReservation.screen){ MainCustomerScreen(navController)}
             composable(BottonBarScreen.ReservationCalendar.screen){ CustomerReservationCalendarScreen() }
             composable(BottonBarScreen.CustomerProfile.screen){ CustomerProfileScreen() }
         }

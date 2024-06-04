@@ -43,7 +43,7 @@ fun App(navController: NavHostController = rememberNavController()){
     NavHost(navController = navController, startDestination = "login") {
         composable("login") { LoginScreen(navController) }
         composable("signup") { SignUpScreen(navController)}
-        composable("customer/main") { MyNavigationBar() }
+        composable("customer/main") { MyNavigationBar(navController) }
         composable("worker/main") { MainWorkerScreen(navController) }
         composable("uploadPicture") { UploadPictureScreen(navController) }
         composable("establishmentDetail/{establishmentId}") { backStackEntry ->
