@@ -18,6 +18,7 @@ import com.example.unistylejc.screens.LoginScreen
 import com.example.unistylejc.screens.MainCustomerScreen
 import com.example.unistylejc.screens.MainWorkerScreen
 import com.example.unistylejc.screens.SignUpScreen
+import com.example.unistylejc.screens.UploadPictureScreen
 import com.example.unistylejc.ui.theme.UniStyleJCTheme
 
 class MainActivity : ComponentActivity() {
@@ -43,6 +44,7 @@ fun App(navController: NavHostController = rememberNavController()){
         composable("signup") { SignUpScreen(navController)}
         composable("customer/main") { MainCustomerScreen(navController) }
         composable("worker/main") { MainWorkerScreen(navController) }
+        composable("uploadPicture") { UploadPictureScreen(navController) }
     }
 }
 

@@ -7,7 +7,6 @@ import com.example.unistylejc.domain.model.Customer
 import kotlinx.coroutines.tasks.await
 
 class CustomerService {
-
     suspend fun createUser(customer: Customer) {
         Firebase.firestore.collection("customer").document(customer.id).set(customer).await()
     }
@@ -16,16 +15,14 @@ class CustomerService {
         return Firebase.firestore.collection("customer").document(customerId).get().await()
     }
 
-    suspend fun loadWorker(workerId: String): DocumentSnapshot {
-        return Firebase.firestore.collection("worker").document(workerId).get().await()
+    suspend fun updateProfilePicture(userId: String, url: String) {
+        Firebase.firestore.collection("customer").document(userId).update("picture", url).await()
     }
 
     fun observeUser(id: String, callback: (DocumentSnapshot?) -> Unit) {
         Firebase.firestore.collection("users").document(id)
-            .addSnapshotListener{ snapshot, error ->
+            .addSnapshotListener { snapshot, error ->
                 callback(snapshot)
             }
     }
-
-
 }

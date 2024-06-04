@@ -112,7 +112,6 @@ fun LoginScreen(navController: NavHostController, loginViewModel: LogInViewmodel
     }
 
     val authState = loginViewModel.authStatus.observeAsState()
-
     LaunchedEffect(authState.value) {
         when (val state = authState.value) {
             is AppAuthState.Loading -> {
