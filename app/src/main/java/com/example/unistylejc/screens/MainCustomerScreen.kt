@@ -145,26 +145,34 @@ fun MainCustomerScreen(navController: NavHostController, viewModel: MainCustomer
             if (!isMapView) {
                 Button(
                     onClick = { isMapView = false },
-                    modifier = Modifier.weight(1f).padding(horizontal = 8.dp)
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(horizontal = 8.dp)
                 ) {
                     Text("Lista")
                 }
                 OutlinedButton(
                     onClick = { isMapView = true },
-                    modifier = Modifier.weight(1f).padding(horizontal = 8.dp)
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(horizontal = 8.dp)
                 ) {
                     Text("Mapa")
                 }
             } else {
                 OutlinedButton(
                     onClick = { isMapView = false },
-                    modifier = Modifier.weight(1f).padding(horizontal = 8.dp)
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(horizontal = 8.dp)
                 ) {
                     Text("Lista")
                 }
                 Button(
                     onClick = { isMapView = true },
-                    modifier = Modifier.weight(1f).padding(horizontal = 8.dp)
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(horizontal = 8.dp)
                 ) {
                     Text("Mapa")
                 }
@@ -383,6 +391,9 @@ fun EstablishmentsMap(establishments: List<Establishment?>, navController: NavHo
             navigateToEstablishment = null
         }
     }
+
 }
+
+
 
 
