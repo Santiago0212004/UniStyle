@@ -55,7 +55,7 @@ fun MainCustomerScreen(navController: NavHostController, viewModel: MainCustomer
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.End // Align items to the end (right)
+            horizontalArrangement = Arrangement.End
         ) {
             loggedCustomer?.let { customer ->
                 Image(
@@ -88,13 +88,12 @@ fun MainCustomerScreen(navController: NavHostController, viewModel: MainCustomer
                 },
                 label = { Text("Busca el mejor lugar!") },
                 shape = RoundedCornerShape(24.dp),
-                modifier = Modifier.weight(1f) ,
+                modifier = Modifier.weight(1f),
                 colors = TextFieldDefaults.textFieldColors(
-                        focusedIndicatorColor = Color.Transparent,
-                        unfocusedIndicatorColor = Color.Transparent
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent
                 )
             )
-
 
             Spacer(modifier = Modifier.width(16.dp))
 
@@ -139,22 +138,19 @@ fun MainCustomerScreen(navController: NavHostController, viewModel: MainCustomer
             }
         }
 
-
-
-
         Spacer(modifier = Modifier.height(16.dp))
 
         if (establishments.isEmpty()) {
             Text(text = "No se encontraron establecimientos.", style = MaterialTheme.typography.bodyLarge)
         } else {
             if (isMapView) {
-                EstablishmentsMap(establishments)
+                EstablishmentsMap(establishments, navController)
             } else {
                 LazyColumn(
                     modifier = Modifier.fillMaxSize()
                 ) {
                     items(establishments) { establishment ->
-                        EstablishmentCard(establishment)
+                        EstablishmentCard(establishment, navController)
                     }
                 }
             }
@@ -183,6 +179,7 @@ fun MainCustomerScreen(navController: NavHostController, viewModel: MainCustomer
         )
     }
 }
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -268,12 +265,13 @@ fun FiltersDialog(
 }
 
 @Composable
-fun EstablishmentCard(establishment: Establishment?) {
+fun EstablishmentCard(establishment: Establishment?, navController: NavHostController) {
     establishment?.let {
         Card(
             modifier = Modifier
                 .padding(8.dp)
-                .fillMaxWidth(),
+                .fillMaxWidth()
+                .clickable { navController.navigate("establishmentDetail/${establishment.id}") },
             elevation = CardDefaults.cardElevation(
                 defaultElevation = 10.dp
             )
@@ -294,7 +292,7 @@ fun EstablishmentCard(establishment: Establishment?) {
 }
 
 @Composable
-fun EstablishmentsMap(establishments: List<Establishment?>) {
+fun EstablishmentsMap(establishments: List<Establishment?>, navController: NavHostController) {
     if (establishments.isEmpty()) {
         Text(text = "No se encontraron establecimientos en el mapa.", style = MaterialTheme.typography.bodyLarge)
         return
@@ -304,6 +302,8 @@ fun EstablishmentsMap(establishments: List<Establishment?>) {
     val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(initialPosition, 10f)
     }
+
+    val selectedEstablishment = remember { mutableStateOf<Establishment?>(null) }
 
     key(establishments) {
         GoogleMap(
@@ -317,7 +317,17 @@ fun EstablishmentsMap(establishments: List<Establishment?>) {
                             position = LatLng(it.latitude, it.longitude)
                         ),
                         title = it.name,
-                        snippet = it.address
+                        snippet = it.address,
+                        onClick = { marker ->
+                            selectedEstablishment.value = it
+                            marker.showInfoWindow()
+                            true
+                        },
+                        onInfoWindowClick = {
+                            selectedEstablishment.value?.let { est ->
+                                navController.navigate("establishmentDetail/${est.id}")
+                            }
+                        }
                     )
                 }
             }

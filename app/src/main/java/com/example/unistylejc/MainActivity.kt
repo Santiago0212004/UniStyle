@@ -14,6 +14,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.unistylejc.screens.CustomerEstablishmentScreen
 import com.example.unistylejc.screens.LoginScreen
 import com.example.unistylejc.screens.MainCustomerScreen
 import com.example.unistylejc.screens.MainWorkerScreen
@@ -41,11 +42,18 @@ class MainActivity : ComponentActivity() {
 fun App(navController: NavHostController = rememberNavController()){
     NavHost(navController = navController, startDestination = "login") {
         composable("login") { LoginScreen(navController) }
-        composable("signup") { SignUpScreen(navController)}
+        composable("signup") { SignUpScreen(navController) }
         composable("customer/main") { MainCustomerScreen(navController) }
         composable("worker/main") { MainWorkerScreen(navController) }
         composable("uploadPicture") { UploadPictureScreen(navController) }
+        composable("establishmentDetail/{establishmentId}") { backStackEntry ->
+            val establishmentId = backStackEntry.arguments?.getString("establishmentId")
+            establishmentId?.let {
+                CustomerEstablishmentScreen(navController, it)
+            }
+        }
     }
+
 }
 
 
