@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
@@ -31,6 +32,7 @@ import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainCustomerScreen(navController: NavHostController, viewModel: MainCustomerViewModel = viewModel()) {
     val context = LocalContext.current
@@ -53,7 +55,7 @@ fun MainCustomerScreen(navController: NavHostController, viewModel: MainCustomer
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Start // Align items to the start (left)
+            horizontalArrangement = Arrangement.End // Align items to the end (right)
         ) {
             loggedCustomer?.let { customer ->
                 Image(
@@ -67,8 +69,6 @@ fun MainCustomerScreen(navController: NavHostController, viewModel: MainCustomer
                         .clickable {}
                 )
             }
-
-            Spacer(modifier = Modifier.width(16.dp))
         }
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -87,8 +87,14 @@ fun MainCustomerScreen(navController: NavHostController, viewModel: MainCustomer
                     viewModel.filterEstablishments(searchQuery, selectedCity)
                 },
                 label = { Text("Busca el mejor lugar!") },
-                modifier = Modifier.weight(1f)
+                shape = RoundedCornerShape(24.dp),
+                modifier = Modifier.weight(1f) ,
+                colors = TextFieldDefaults.textFieldColors(
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent
+                )
             )
+
 
             Spacer(modifier = Modifier.width(16.dp))
 
@@ -104,29 +110,56 @@ fun MainCustomerScreen(navController: NavHostController, viewModel: MainCustomer
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            Button(onClick = { isMapView = false }) {
-                Text("Lista")
-            }
-            Button(onClick = { isMapView = true }) {
-                Text("Mapa")
+            if (!isMapView) {
+                Button(
+                    onClick = { isMapView = false },
+                    modifier = Modifier.weight(1f).padding(horizontal = 8.dp)
+                ) {
+                    Text("Lista")
+                }
+                OutlinedButton(
+                    onClick = { isMapView = true },
+                    modifier = Modifier.weight(1f).padding(horizontal = 8.dp)
+                ) {
+                    Text("Mapa")
+                }
+            } else {
+                OutlinedButton(
+                    onClick = { isMapView = false },
+                    modifier = Modifier.weight(1f).padding(horizontal = 8.dp)
+                ) {
+                    Text("Lista")
+                }
+                Button(
+                    onClick = { isMapView = true },
+                    modifier = Modifier.weight(1f).padding(horizontal = 8.dp)
+                ) {
+                    Text("Mapa")
+                }
             }
         }
 
+
+
+
         Spacer(modifier = Modifier.height(16.dp))
 
-        if (isMapView) {
-            EstablishmentsMap(establishments)
+        if (establishments.isEmpty()) {
+            Text(text = "No se encontraron establecimientos.", style = MaterialTheme.typography.bodyLarge)
         } else {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize()
-            ) {
-                items(establishments) { establishment ->
-                    EstablishmentCard(establishment)
+            if (isMapView) {
+                EstablishmentsMap(establishments)
+            } else {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    items(establishments) { establishment ->
+                        EstablishmentCard(establishment)
+                    }
                 }
             }
         }
     }
-
 
     LaunchedEffect(Unit) {
         val currentUser = FirebaseAuth.getInstance().currentUser
@@ -141,7 +174,6 @@ fun MainCustomerScreen(navController: NavHostController, viewModel: MainCustomer
 
     if (isDialogOpen) {
         FiltersDialog(
-            isDialogOpen = isDialogOpen,
             onDismissRequest = { isDialogOpen = false },
             viewModel = viewModel,
             searchQuery = searchQuery,
@@ -155,7 +187,6 @@ fun MainCustomerScreen(navController: NavHostController, viewModel: MainCustomer
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FiltersDialog(
-    isDialogOpen: Boolean,
     onDismissRequest: () -> Unit,
     viewModel: MainCustomerViewModel,
     searchQuery: String,
@@ -163,8 +194,7 @@ fun FiltersDialog(
     onCitySelected: (String) -> Unit,
     cities: List<String>
 ) {
-    AlertDialog(
-        onDismissRequest = onDismissRequest,
+    BasicAlertDialog(onDismissRequest = onDismissRequest,
         modifier = Modifier
             .padding(16.dp)
             .background(Color.White),
@@ -265,12 +295,16 @@ fun EstablishmentCard(establishment: Establishment?) {
 
 @Composable
 fun EstablishmentsMap(establishments: List<Establishment?>) {
-    val initialPosition = LatLng(-34.0, 151.0) // Default location, you can change it as needed
+    if (establishments.isEmpty()) {
+        Text(text = "No se encontraron establecimientos en el mapa.", style = MaterialTheme.typography.bodyLarge)
+        return
+    }
+
+    val initialPosition = LatLng(-34.0, 151.0)
     val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(initialPosition, 10f)
     }
 
-    // Using a key to force recomposition when the list of establishments changes
     key(establishments) {
         GoogleMap(
             modifier = Modifier.fillMaxSize(),
@@ -301,4 +335,3 @@ fun EstablishmentsMap(establishments: List<Establishment?>) {
         }
     }
 }
-
