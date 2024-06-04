@@ -1,26 +1,19 @@
 package com.example.unistylejc.screens
 
 import android.widget.Toast
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.*
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -28,17 +21,21 @@ import androidx.navigation.NavHostController
 import com.example.unistylejc.domain.model.Establishment
 import com.example.unistylejc.viewmodel.MainCustomerViewModel
 import com.google.firebase.auth.FirebaseAuth
-import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuDefaults
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.TextButton
+import com.google.maps.android.compose.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.window.DialogProperties
+import coil.compose.rememberAsyncImagePainter
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.model.CameraPosition
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.LatLngBounds
 
 @Composable
 fun MainCustomerScreen(navController: NavHostController, viewModel: MainCustomerViewModel = viewModel()) {
     val context = LocalContext.current
     var isDialogOpen by remember { mutableStateOf(false) }
+    var isMapView by remember { mutableStateOf(false) }
 
     val loggedCustomer by viewModel.loggedCustomer.observeAsState()
     val establishments by viewModel.establishments.observeAsState(emptyList())
@@ -55,7 +52,33 @@ fun MainCustomerScreen(navController: NavHostController, viewModel: MainCustomer
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Start // Align items to the start (left)
+        ) {
+            loggedCustomer?.let { customer ->
+                Image(
+                    painter = rememberAsyncImagePainter(customer.picture),
+                    contentDescription = "Profile Picture",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.onPrimary)
+                        .clickable {}
+                )
+            }
+
+            Spacer(modifier = Modifier.width(16.dp))
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
             TextField(
                 value = searchQuery,
@@ -77,34 +100,33 @@ fun MainCustomerScreen(navController: NavHostController, viewModel: MainCustomer
             }
         }
 
-        if (isDialogOpen) {
-            FiltersDialog(
-                isDialogOpen = isDialogOpen,
-                onDismissRequest = { isDialogOpen = false },
-                viewModel = viewModel,
-                searchQuery = searchQuery,
-                selectedCity = selectedCity,
-                onCitySelected = { selectedCity = it },
-                cities = cities
-            )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceEvenly
+        ) {
+            Button(onClick = { isMapView = false }) {
+                Text("Lista")
+            }
+            Button(onClick = { isMapView = true }) {
+                Text("Mapa")
+            }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        loggedCustomer?.let { customer ->
-            Text(text = customer.name)
-        } ?: Text(text = "ERROR")
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        LazyColumn(
-            modifier = Modifier.fillMaxSize()
-        ) {
-            items(establishments) { establishment ->
-                EstablishmentCard(establishment)
+        if (isMapView) {
+            EstablishmentsMap(establishments)
+        } else {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize()
+            ) {
+                items(establishments) { establishment ->
+                    EstablishmentCard(establishment)
+                }
             }
         }
     }
+
 
     LaunchedEffect(Unit) {
         val currentUser = FirebaseAuth.getInstance().currentUser
@@ -115,6 +137,18 @@ fun MainCustomerScreen(navController: NavHostController, viewModel: MainCustomer
         } else {
             Toast.makeText(context, "No se ha autenticado ningún usuario", Toast.LENGTH_LONG).show()
         }
+    }
+
+    if (isDialogOpen) {
+        FiltersDialog(
+            isDialogOpen = isDialogOpen,
+            onDismissRequest = { isDialogOpen = false },
+            viewModel = viewModel,
+            searchQuery = searchQuery,
+            selectedCity = selectedCity,
+            onCitySelected = { selectedCity = it },
+            cities = cities
+        )
     }
 }
 
@@ -228,3 +262,43 @@ fun EstablishmentCard(establishment: Establishment?) {
         }
     }
 }
+
+@Composable
+fun EstablishmentsMap(establishments: List<Establishment?>) {
+    val initialPosition = LatLng(-34.0, 151.0) // Default location, you can change it as needed
+    val cameraPositionState = rememberCameraPositionState {
+        position = CameraPosition.fromLatLngZoom(initialPosition, 10f)
+    }
+
+    // Using a key to force recomposition when the list of establishments changes
+    key(establishments) {
+        GoogleMap(
+            modifier = Modifier.fillMaxSize(),
+            cameraPositionState = cameraPositionState
+        ) {
+            establishments.forEach { establishment ->
+                establishment?.let {
+                    Marker(
+                        state = rememberMarkerState(
+                            position = LatLng(it.latitude, it.longitude)
+                        ),
+                        title = it.name,
+                        snippet = it.address
+                    )
+                }
+            }
+        }
+
+        LaunchedEffect(establishments) {
+            val boundsBuilder = LatLngBounds.builder()
+            establishments.forEach { establishment ->
+                establishment?.let {
+                    boundsBuilder.include(LatLng(it.latitude, it.longitude))
+                }
+            }
+            val bounds = boundsBuilder.build()
+            cameraPositionState.animate(CameraUpdateFactory.newLatLngBounds(bounds, 100))
+        }
+    }
+}
+

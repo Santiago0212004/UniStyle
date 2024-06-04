@@ -9,6 +9,8 @@ data class Establishment(
     var email: String = "",
     var name: String = "",
     var username: String = "",
+    var latitude: Double = 0.0,
+    var longitude: Double = 0.0,
     var paymentMethod: Array? = null,
     var picture: String? = "",
     var postalcode: String = "",
