@@ -17,6 +17,17 @@ class AuthServices {
         return Firebase.auth.signInWithEmailAndPassword(email, pass).await()
     }
 
+     fun changePassword(newPassword: String){
+        val user = Firebase.auth.currentUser
+        user!!.updatePassword(newPassword)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    Log.d("><>>><>", "User password updated.")
+                }
+            }
+    }
+
+
     suspend fun checkRole(uid: String) : String{
         var role = ""
         try {

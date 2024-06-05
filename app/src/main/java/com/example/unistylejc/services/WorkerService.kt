@@ -1,11 +1,12 @@
 package com.example.unistylejc.services
 
 import com.example.unistylejc.domain.model.Service
-import com.example.unistylejc.domain.model.Worker
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.firestore
+import com.example.unistylejc.domain.model.Worker
+import com.google.firebase.auth.auth
 import kotlinx.coroutines.tasks.await
 
 class WorkerService {
@@ -17,11 +18,20 @@ class WorkerService {
         return Firebase.firestore.collection("worker").document(uid).get().await()
     }
 
-    fun observeWorker(uid: String, callback: (DocumentSnapshot?) -> Unit) {
+    fun observeWorker(uid: String,callback: (DocumentSnapshot?) -> Unit) {
         Firebase.firestore.collection("worker").document(uid)
-            .addSnapshotListener { snapshot, error ->
+            .addSnapshotListener{ snapshot, error ->
                 callback(snapshot)
             }
+    }
+
+    suspend fun updateProfile(workerName: String, workerUsername: String) {
+        Firebase.firestore.collection("worker").document(
+            Firebase.auth.uid!!
+        ).update("name", workerName).await()
+        Firebase.firestore.collection("worker").document(
+            Firebase.auth.uid!!
+        ).update("username", workerUsername).await()
     }
 
     suspend fun updateProfilePicture(userId: String, url: String) {

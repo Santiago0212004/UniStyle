@@ -22,6 +22,7 @@ interface UserRepository {
     suspend fun loadPaymentMethods(): List<PaymentMethod>
     suspend fun findWorkerById(workerId: String): Worker?
     fun observeWorker(callback: (Worker) -> Unit)
+    suspend fun updateProfileWorker(name: String, username: String)
     suspend fun uploadProfilePicture(uri: Uri): Uri?
     suspend fun updateProfilePictureUrl(userId: String, url: String, isWorker: Boolean): Boolean
     suspend fun createReservation(reservation: Reservation)
@@ -75,6 +76,10 @@ class UserRepositoryImpl(
         }
     }
 
+    override suspend fun updateProfileWorker(name: String, username: String) {
+        workerServices.updateProfile(name,username)
+    }
+
     override suspend fun uploadProfilePicture(uri: Uri): Uri? {
         val userId = Firebase.auth.uid ?: return null
         return fileService.uploadProfilePicture(uri, userId)
@@ -109,3 +114,4 @@ class UserRepositoryImpl(
 
 
 }
+

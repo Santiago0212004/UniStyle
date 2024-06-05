@@ -1,9 +1,5 @@
 package com.example.unistylejc.screens
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.runtime.Composable
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -33,15 +29,14 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
-import com.example.unistylejc.BottonBarScreen
 import com.example.unistylejc.R
-import com.example.unistylejc.domain.model.Customer
-import com.example.unistylejc.viewmodel.CustomerProfileViewModel
+import com.example.unistylejc.domain.model.Worker
+import com.example.unistylejc.viewmodel.WorkerProfileViewModel
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 
 @Composable
-private fun ScreenContent(navController: NavHostController, userState: Customer?) {
+private fun ScreenContent(navController: NavHostController,userState: Worker?) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -62,27 +57,22 @@ private fun ScreenContent(navController: NavHostController, userState: Customer?
         Spacer(modifier = Modifier.height(32.dp))
 
         OptionButton({
-            navController.navigate("customer/settings")
+            navController.navigate("worker/settings")
         },text = "Configuración", iconResId = R.drawable.ic_settings)
         Spacer(modifier = Modifier.height(32.dp))
-
-        OptionButton({
-                     navController.navigate("customer/Information")
-        },text = "Acerca de nosotros", iconResId = R.drawable.ic_about)
+        OptionButton({},text = "Acerca de nosotros", iconResId = R.drawable.ic_about)
         Spacer(modifier = Modifier.height(32.dp))
         OptionButton({},text = "Cerrar sesión", iconResId = R.drawable.ic_logout)
-        Spacer(modifier = Modifier.height(32.dp))
-        OptionButton({},text = "Eliminar cuenta", iconResId = R.drawable.ic_delete_user, textColor = Color.Red)
         Spacer(modifier = Modifier.height(32.dp))
     }
 }
 
 @Composable
-fun ProfileSection(userState: Customer?) {
+private fun ProfileSection(userState: Worker?) {
     Box(
         modifier = Modifier
             .size(width = 400.dp, height = 230.dp)
-            .background(color = Color(0xFFE0BEE9), shape = RoundedCornerShape(16.dp))
+            .background(color = Color(0xFFD4BEEB), shape = RoundedCornerShape(16.dp))
             .padding(16.dp)
     ) {
         Row(
@@ -131,10 +121,10 @@ fun ProfileSection(userState: Customer?) {
 
 @Composable
 private fun OptionButton( redirect: () -> Unit,
-                          text: String,
-                          iconResId: Int,
-                          textColor: Color = Color.Black,
-                          borderColor: Color = Color(0xFFFFA500)
+    text: String,
+    iconResId: Int,
+    textColor: Color = Color.Black,
+    borderColor: Color = Color(0xFFFFA500)
 ) {
     Button(
         onClick = { redirect() },
@@ -165,9 +155,8 @@ private fun OptionButton( redirect: () -> Unit,
         )
     }
 }
-
 @Composable
-fun CustomerProfileScreen(navController: NavHostController, viewModel: CustomerProfileViewModel = viewModel()) {
+fun WorkerProfileScreen(navController: NavHostController, viewModel: WorkerProfileViewModel = viewModel()) {
     val isAuthenticated by remember { mutableStateOf(Firebase.auth.currentUser != null) }
     val userState by viewModel.userState.observeAsState()
 
@@ -186,3 +175,4 @@ fun CustomerProfileScreen(navController: NavHostController, viewModel: CustomerP
         }
     }
 }
+

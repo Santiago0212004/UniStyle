@@ -5,6 +5,13 @@
       <SelectionState runConfigName="app">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
+<<<<<<< HEAD
+      <SelectionState runConfigName="WorkerProfileScreen">
+=======
+      <SelectionState runConfigName="App">
+>>>>>>> 4a414c991a1f43dd4de74fd3b97aa055ff72a5fd
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
     </selectionStates>
   </component>
 </project>

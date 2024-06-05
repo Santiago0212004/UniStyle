@@ -17,14 +17,22 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.unistylejc.screens.customerEstablishment.CustomerEstablishmentScreen
+import com.example.unistylejc.screens.CustomerProfileScreen
+import com.example.unistylejc.screens.CustomerSettingsScreen
+import com.example.unistylejc.screens.InformationScreen
 import com.example.unistylejc.screens.LoginScreen
 import com.example.unistylejc.screens.MainWorkerScreen
 import com.example.unistylejc.screens.MyNavigationBar
 import com.example.unistylejc.screens.SignUpScreen
+import com.example.unistylejc.screens.WorkerChangePasswordScreen
+import com.example.unistylejc.screens.WorkerProfileScreen
+import com.example.unistylejc.screens.WorkerSettingsScreen
+import com.example.unistylejc.screens.WorkerUpdateProfileScreen
 import com.example.unistylejc.screens.UploadPictureScreen
 import com.example.unistylejc.ui.theme.UniStyleJCTheme
 
 class MainActivity : ComponentActivity() {
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -32,13 +40,14 @@ class MainActivity : ComponentActivity() {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
-                ) {
+                    ){
                     App()
                 }
             }
         }
     }
 }
+
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -47,7 +56,14 @@ fun App(navController: NavHostController = rememberNavController()){
         composable("login") { LoginScreen(navController) }
         composable("signup") { SignUpScreen(navController)}
         composable("customer/main") { MyNavigationBar(navController) }
+        composable("customer/profile") { CustomerProfileScreen(navController) }
+        composable("customer/settings"){ CustomerSettingsScreen(navController)}
+        composable("customer/Information"){ InformationScreen(navController)}
         composable("worker/main") { MainWorkerScreen(navController) }
+        composable("worker/profile") { WorkerProfileScreen(navController) }
+        composable("worker/settings") { WorkerSettingsScreen(navController) }
+        composable("worker/updateProfile") { WorkerUpdateProfileScreen(navController) }
+        composable("worker/changePassword") { WorkerChangePasswordScreen(navController) }
         composable("uploadPicture") { UploadPictureScreen(navController) }
         composable("establishmentDetail/{establishmentId}") { backStackEntry ->
             val establishmentId = backStackEntry.arguments?.getString("establishmentId")
@@ -60,6 +76,7 @@ fun App(navController: NavHostController = rememberNavController()){
 }
 
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Preview(showBackground = true)
 @Composable
 fun GreetingPreview() {

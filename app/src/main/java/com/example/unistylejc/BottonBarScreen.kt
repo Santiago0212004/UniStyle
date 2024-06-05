@@ -5,4 +5,5 @@ sealed class BottonBarScreen (val screen: String){
     data object CustomerReservation: BottonBarScreen( "MainCustomerScreen")
     data object ReservationCalendar: BottonBarScreen("CustomerReservationCalendarScreen")
     data object CustomerProfile: BottonBarScreen("CustomerProfileScreen")
+    data object SettingsCustomer: BottonBarScreen("customer/settings")
 }

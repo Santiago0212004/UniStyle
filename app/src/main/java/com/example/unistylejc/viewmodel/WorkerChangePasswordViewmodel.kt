@@ -1,24 +1,26 @@
 package com.example.unistylejc.viewmodel
 
-import android.net.Uri
+import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.unistylejc.domain.model.Worker
+import com.example.unistylejc.repository.AuthRepository
+import com.example.unistylejc.repository.AuthRepositoryImpl
 import com.example.unistylejc.repository.UserRepository
 import com.example.unistylejc.repository.UserRepositoryImpl
-import com.google.firebase.auth.FirebaseAuth
+import edu.co.icesi.unistyle.domain.model.AppAuthState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class WorkerProfileViewModel(
+class WorkerChangePasswordViewmodel(
     val userRepo: UserRepository = UserRepositoryImpl(),
+    val authRepo: AuthRepository = AuthRepositoryImpl(),
 
     ) : ViewModel() {
-
-    private val auth: FirebaseAuth = FirebaseAuth.getInstance()
+    val authStatus = MutableLiveData<AppAuthState?>()
     //Estado
     private val _userState = MutableLiveData<Worker>()
     val userState:LiveData<Worker> get() = _userState
@@ -43,16 +45,22 @@ class WorkerProfileViewModel(
         }
     }
 
-    fun uploadProfilePicture(uri: Uri, isWorker: Boolean, callback: (Boolean) -> Unit) {
-        viewModelScope.launch {
-            val downloadUri = userRepo.uploadProfilePicture(uri)
-            if (downloadUri != null) {
-                val userId = auth.currentUser?.uid
-                val success = userRepo.updateProfilePictureUrl(userId!!, downloadUri.toString(), isWorker)
-                callback(success)
-            } else {
-                callback(false)
+    fun reauthenticate(password: String){
+        viewModelScope.launch(Dispatchers.IO) {
+            withContext(Dispatchers.Main){
+                authStatus.value = AppAuthState.Loading("Cargando...")
             }
+            userState.value?.email?.let{
+                val status = authRepo.login(it,password) //10s
+                withContext(Dispatchers.Main){authStatus.value = status}
+            }
+
+        }
+    }
+
+    fun changePassword(newPassword: String) {
+        viewModelScope.launch (Dispatchers.IO) {
+            authRepo.changePassword(newPassword)
         }
     }
 
