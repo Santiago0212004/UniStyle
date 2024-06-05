@@ -33,9 +33,7 @@ import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
 import com.example.unistylejc.R
 import com.example.unistylejc.domain.model.Customer
-import com.example.unistylejc.domain.model.Worker
 import com.example.unistylejc.viewmodel.CustomerProfileViewModel
-import com.example.unistylejc.viewmodel.WorkerProfileViewModel
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 
@@ -106,7 +104,7 @@ private fun ProfileSection(navController: NavHostController,userState: Customer?
                 modifier = Modifier
                     .size(124.dp)
                     .clip(CircleShape)
-                    .clickable {  navController.navigate("worker/settings/updateProfile") },
+                    .clickable {  navController.navigate("customer/settings/updateProfile") },
                 contentScale = ContentScale.Crop
             )
             Spacer(modifier = Modifier.width(16.dp))

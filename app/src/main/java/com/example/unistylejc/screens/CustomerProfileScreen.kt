@@ -36,9 +36,7 @@ import coil.compose.rememberAsyncImagePainter
 import com.example.unistylejc.BottonBarScreen
 import com.example.unistylejc.R
 import com.example.unistylejc.domain.model.Customer
-import com.example.unistylejc.domain.model.Worker
 import com.example.unistylejc.viewmodel.CustomerProfileViewModel
-import com.example.unistylejc.viewmodel.WorkerProfileViewModel
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 
