@@ -1,5 +1,6 @@
 package com.example.unistylejc.services
 
+import com.example.unistylejc.domain.model.Customer
 import com.example.unistylejc.domain.model.Reservation
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.DocumentSnapshot
@@ -21,5 +22,6 @@ class ReservationService {
         val output = Firebase.firestore.collection("payment_method").get().await()
         return output
     }
+
 
 }

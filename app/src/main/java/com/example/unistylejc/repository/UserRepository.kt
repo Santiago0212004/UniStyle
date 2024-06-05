@@ -28,13 +28,15 @@ interface UserRepository {
     suspend fun createReservation(reservation: Reservation)
     suspend fun loadWorkerServices(serviceIds: List<String>): List<Service>
 
+    suspend fun getCustomerReservations(customerId: String): List<Reservation>
 }
 
 class UserRepositoryImpl(
     private val customerServices: CustomerService = CustomerService(),
     private val workerServices: WorkerService = WorkerService(),
     private val fileService: FileService = FileService(),
-    private val reservationServices: ReservationService = ReservationService()
+    private val reservationServices: ReservationService = ReservationService(),
+    private val customerService : CustomerService = CustomerService()
 ) : UserRepository {
     override suspend fun loadCustomer(): Customer? {
         val document = customerServices.loadCustomer(Firebase.auth.uid!!)
@@ -110,6 +112,18 @@ class UserRepositoryImpl(
             workerServices.addReservation(reservation.workerId, reservation.id)
             customerServices.addReservation(reservation.customerId, reservation.id)
         }
+    }
+
+    override suspend fun getCustomerReservations(customerId: String): List<Reservation> {
+        val customer = customerService.loadCustomer(customerId)
+        val customerEntity = customer.toObject(Customer::class.java)
+        val reservations = mutableListOf<Reservation>()
+        customerEntity?.reservationRefs?.forEach { reservationId ->
+            reservationServices.loadReservation(reservationId).let {
+                it.toObject(Reservation::class.java)?.let { it1 -> reservations.add(it1) }
+            }
+        }
+        return reservations
     }
 
 

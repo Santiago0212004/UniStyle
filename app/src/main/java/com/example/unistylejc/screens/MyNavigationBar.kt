@@ -1,5 +1,6 @@
 package com.example.unistylejc.screens
 
+import CustomerDiscoverScreen
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.padding
@@ -148,7 +149,7 @@ fun MyNavigationBar(navController: NavHostController){
         NavHost(navController = navBarController,
             startDestination = BottonBarScreen.CustomerReservation.screen,
             modifier = Modifier.padding(paddingValues)){
-            composable(BottonBarScreen.CustomerDiscover.screen){ CustomerDiscoverScreen() }
+            composable(BottonBarScreen.CustomerDiscover.screen){ CustomerDiscoverScreen(navController) }
             composable(BottonBarScreen.CustomerReservation.screen){ MainCustomerScreen(navController)}
             composable(BottonBarScreen.ReservationCalendar.screen){ CustomerReservationCalendarScreen() }
             composable(BottonBarScreen.CustomerProfile.screen){ CustomerProfileScreen(navController) }

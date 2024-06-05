@@ -1,6 +1,7 @@
 package com.example.unistylejc
 
 
+import CustomerDiscoverScreen
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -56,6 +57,7 @@ fun App(navController: NavHostController = rememberNavController()){
         composable("login") { LoginScreen(navController) }
         composable("signup") { SignUpScreen(navController)}
         composable("customer/main") { MyNavigationBar(navController) }
+        composable("customer/discover") { CustomerDiscoverScreen(navController) }
         composable("customer/profile") { CustomerProfileScreen(navController) }
         composable("customer/settings"){ CustomerSettingsScreen(navController)}
         composable("customer/Information"){ InformationScreen(navController)}
