@@ -15,6 +15,5 @@ class EstablishmentService {
     suspend fun addWorker(id : String, idWorker : String) {
         Firebase.firestore.collection("establishment")
             .document(id).update("workersRefs", FieldValue.arrayUnion(idWorker)).await()
-
     }
 }

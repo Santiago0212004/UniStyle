@@ -16,5 +16,4 @@ data class Establishment(
     var state: String = "",
     var workersRefs: List<String> = listOf<String>(),
     var comments: Comments? = null,
-    var service: Service? = null
 )
