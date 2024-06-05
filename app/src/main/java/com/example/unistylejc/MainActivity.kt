@@ -6,6 +6,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -15,6 +16,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.unistylejc.screens.CustomerEstablishmentScreen
+import com.example.unistylejc.screens.CustomerProfileScreen
+import com.example.unistylejc.screens.CustomerSettingsScreen
+import com.example.unistylejc.screens.InformationScreen
 import com.example.unistylejc.screens.LoginScreen
 import com.example.unistylejc.screens.MainWorkerScreen
 import com.example.unistylejc.screens.MyNavigationBar
@@ -34,7 +38,7 @@ class MainActivity : ComponentActivity() {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
-                ) {
+                    ){
                     App()
                 }
             }
@@ -42,12 +46,16 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+
 @Composable
 fun App(navController: NavHostController = rememberNavController()){
     NavHost(navController = navController, startDestination = "login") {
         composable("login") { LoginScreen(navController) }
         composable("signup") { SignUpScreen(navController)}
         composable("customer/main") { MyNavigationBar(navController) }
+        composable("customer/profile") { CustomerProfileScreen(navController) }
+        composable("customer/settings"){ CustomerSettingsScreen(navController)}
+        composable("customer/Information"){ InformationScreen(navController)}
         composable("worker/main") { MainWorkerScreen(navController) }
         composable("worker/profile") { WorkerProfileScreen(navController) }
         composable("worker/settings") { WorkerSettingsScreen(navController) }
