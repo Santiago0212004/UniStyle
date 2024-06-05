@@ -1,12 +1,10 @@
 package com.example.unistylejc.screens
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -33,7 +31,6 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
-import com.example.unistylejc.BottonBarScreen
 import com.example.unistylejc.R
 import com.example.unistylejc.domain.model.Customer
 import com.example.unistylejc.domain.model.Worker
@@ -43,7 +40,7 @@ import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 
 @Composable
-private fun ScreenContent(navController: NavHostController, userState: Customer?) {
+private fun ScreenContent(navController: NavHostController,userState: Customer?) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -59,32 +56,44 @@ private fun ScreenContent(navController: NavHostController, userState: Customer?
             modifier = Modifier.padding(bottom = 16.dp)
         )
 
-        ProfileSection(userState)
+        ProfileSection(navController,userState)
 
         Spacer(modifier = Modifier.height(32.dp))
 
         OptionButton({
-            navController.navigate("customer/settings")
-        },text = "Configuración", iconResId = R.drawable.ic_settings)
+            navController.navigate("customer/updateProfile")
+        }, text = "Cambiar datos", iconResId = R.drawable.ic_settings)
+        Spacer(modifier = Modifier.height(32.dp))
+        OptionButton({
+            navController.navigate("customer/updateEmail")
+        }, text = "Cambiar email", iconResId = R.drawable.ic_email)
         Spacer(modifier = Modifier.height(32.dp))
 
-        OptionButton({
-                     navController.navigate("customer/Information")
-        },text = "Acerca de nosotros", iconResId = R.drawable.ic_about)
+        OptionButton({},
+            text = "Cambiar contraseña",
+            iconResId = R.drawable.ic_password
+        )
         Spacer(modifier = Modifier.height(32.dp))
-        OptionButton({},text = "Cerrar sesión", iconResId = R.drawable.ic_logout)
+        OptionButton({},
+            text = "Desvincular",
+            iconResId = R.drawable.ic_logout
+        )
         Spacer(modifier = Modifier.height(32.dp))
-        OptionButton({},text = "Eliminar cuenta", iconResId = R.drawable.ic_delete_user, textColor = Color.Red)
-        Spacer(modifier = Modifier.height(32.dp))
+        OptionButton({},
+            text = "Eliminar cuenta",
+            iconResId = R.drawable.ic_delete_user,
+            textColor = Color.Red,
+            borderColor = Color.Red
+        )
     }
 }
 
 @Composable
-fun ProfileSection(userState: Customer?) {
+private fun ProfileSection(navController: NavHostController,userState: Customer?) {
     Box(
         modifier = Modifier
             .size(width = 400.dp, height = 230.dp)
-            .background(color = Color(0xFFE0BEE9), shape = RoundedCornerShape(16.dp))
+            .background(color = Color(0xFFD4BEEB), shape = RoundedCornerShape(16.dp))
             .padding(16.dp)
     ) {
         Row(
@@ -96,7 +105,8 @@ fun ProfileSection(userState: Customer?) {
                 contentDescription = "Imagen de perfil",
                 modifier = Modifier
                     .size(124.dp)
-                    .clip(CircleShape),
+                    .clip(CircleShape)
+                    .clickable {  navController.navigate("worker/settings/updateProfile") },
                 contentScale = ContentScale.Crop
             )
             Spacer(modifier = Modifier.width(16.dp))
@@ -167,9 +177,8 @@ private fun OptionButton( redirect: () -> Unit,
         )
     }
 }
-
 @Composable
-fun CustomerProfileScreen(navController: NavHostController, viewModel: CustomerProfileViewModel = viewModel()) {
+fun CustomerSettingsScreen(navController: NavHostController, viewModel: CustomerProfileViewModel = viewModel()) {
     val isAuthenticated by remember { mutableStateOf(Firebase.auth.currentUser != null) }
     val userState by viewModel.userState.observeAsState()
 
@@ -183,7 +192,7 @@ fun CustomerProfileScreen(navController: NavHostController, viewModel: CustomerP
                 modifier = Modifier.fillMaxSize(),
                 color = MaterialTheme.colorScheme.background
             ) {
-                ScreenContent(navController,userState)
+                ScreenContent(navController, userState)
             }
         }
     }
