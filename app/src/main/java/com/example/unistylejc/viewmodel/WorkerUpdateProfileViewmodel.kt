@@ -1,6 +1,5 @@
 package com.example.unistylejc.viewmodel
 
-import android.net.Uri
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -8,17 +7,15 @@ import androidx.lifecycle.viewModelScope
 import com.example.unistylejc.domain.model.Worker
 import com.example.unistylejc.repository.UserRepository
 import com.example.unistylejc.repository.UserRepositoryImpl
-import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class WorkerProfileViewModel(
+class WorkerUpdateProfileViewmodel(
     val userRepo: UserRepository = UserRepositoryImpl(),
 
     ) : ViewModel() {
 
-    private val auth: FirebaseAuth = FirebaseAuth.getInstance()
     //Estado
     private val _userState = MutableLiveData<Worker>()
     val userState:LiveData<Worker> get() = _userState
@@ -43,16 +40,9 @@ class WorkerProfileViewModel(
         }
     }
 
-    fun uploadProfilePicture(uri: Uri, isWorker: Boolean, callback: (Boolean) -> Unit) {
-        viewModelScope.launch {
-            val downloadUri = userRepo.uploadProfilePicture(uri)
-            if (downloadUri != null) {
-                val userId = auth.currentUser?.uid
-                val success = userRepo.updateProfilePictureUrl(userId!!, downloadUri.toString(), isWorker)
-                callback(success)
-            } else {
-                callback(false)
-            }
+    fun updateProfile(name: String, username: String) {
+        viewModelScope.launch (Dispatchers.IO) {
+            userRepo.updateProfileWorker(name, username)
         }
     }
 
