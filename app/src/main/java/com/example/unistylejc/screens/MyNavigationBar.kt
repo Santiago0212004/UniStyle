@@ -1,8 +1,10 @@
 package com.example.unistylejc.screens
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
@@ -20,6 +22,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.unistylejc.BottonBarScreen
 import com.example.unistylejc.R
+import com.example.unistylejc.ui.theme.Primary10
 import com.example.unistylejc.ui.theme.Purple40
 import com.example.unistylejc.ui.theme.Purple80
 
@@ -30,11 +33,11 @@ fun MyNavigationBar(navController: NavHostController){
     val pinmap = painterResource(R.drawable.pinmap)
     val calendar = painterResource(R.drawable.calendar)
     val profile = painterResource(R.drawable.perfil)
-    val selected = remember { mutableStateOf(stars) }
+    val selected = remember { mutableStateOf(pinmap) }
     Scaffold(
         bottomBar = {
             BottomAppBar(
-                containerColor = Purple40
+                containerColor = Primary10
             ){
                 IconButton(
                     onClick = {
@@ -43,7 +46,12 @@ fun MyNavigationBar(navController: NavHostController){
                             popUpTo(0)
                         }
                     },
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier
+                        .weight(1f)
+                        .background(
+                            color = if (selected.value == stars) Purple40 else Color.Transparent,
+                            shape = CircleShape
+                        )
                 ){
                     Image(
                         painter = stars,
@@ -64,7 +72,12 @@ fun MyNavigationBar(navController: NavHostController){
                             popUpTo(0)
                         }
                     },
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier
+                        .weight(1f)
+                        .background(
+                            color = if (selected.value == pinmap) Purple40 else Color.Transparent,
+                            shape = CircleShape
+                        )
                 ){
                     Image(
                         painter = pinmap,
@@ -85,7 +98,12 @@ fun MyNavigationBar(navController: NavHostController){
                             popUpTo(0)
                         }
                     },
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier
+                        .weight(1f)
+                        .background(
+                            color = if (selected.value == calendar) Purple40 else Color.Transparent,
+                            shape = CircleShape
+                        )
                 ){
                     Image(
                         painter = calendar,
@@ -106,7 +124,12 @@ fun MyNavigationBar(navController: NavHostController){
                             popUpTo(0)
                         }
                     },
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier
+                        .weight(1f)
+                        .background(
+                            color = if (selected.value == profile) Purple40 else Color.Transparent,
+                            shape = CircleShape
+                        )
                 ){
                     Image(
                         painter = profile,
@@ -128,7 +151,8 @@ fun MyNavigationBar(navController: NavHostController){
             composable(BottonBarScreen.CustomerDiscover.screen){ CustomerDiscoverScreen() }
             composable(BottonBarScreen.CustomerReservation.screen){ MainCustomerScreen(navController)}
             composable(BottonBarScreen.ReservationCalendar.screen){ CustomerReservationCalendarScreen() }
-            composable(BottonBarScreen.CustomerProfile.screen){ CustomerProfileScreen() }
+            composable(BottonBarScreen.CustomerProfile.screen){ CustomerProfileScreen(navController) }
+            composable("customer/settings"){ CustomerSettingsScreen(navBarController)}
         }
     }
 
