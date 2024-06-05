@@ -1,9 +1,10 @@
 package com.example.unistylejc.services
 
+import com.example.unistylejc.domain.model.Customer
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.DocumentSnapshot
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.firestore
-import com.example.unistylejc.domain.model.Customer
 import kotlinx.coroutines.tasks.await
 
 class CustomerService {
@@ -24,5 +25,10 @@ class CustomerService {
             .addSnapshotListener { snapshot, error ->
                 callback(snapshot)
             }
+    }
+
+    suspend fun addReservation(id : String, idReservation : String) {
+        Firebase.firestore.collection("customer")
+            .document(id).update("reservationRefs", FieldValue.arrayUnion(idReservation)).await()
     }
 }

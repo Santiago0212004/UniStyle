@@ -206,7 +206,7 @@ fun SignUpScreen(navController: NavHostController, viewModel: SignUpViewmodel = 
         Button(
             onClick = {
                 if (!isWorker) {
-                    val customer = Customer("", email, name, username, "", null, null)
+                    val customer = Customer("", email, name, username, "", listOf(), listOf())
                     viewModel.signupUser(customer, password)
                 } else {
                     val worker = selectedEstablishment?.let {
