@@ -13,9 +13,9 @@ class WorkerService {
     suspend fun createWorker(worker: Worker) {
         Firebase.firestore.collection("worker").document(worker.id).set(worker).await()
     }
+
     suspend fun loadWorker(uid: String): DocumentSnapshot {
-        val output = Firebase.firestore.collection("worker").document(uid).get().await()
-        return output
+        return Firebase.firestore.collection("worker").document(uid).get().await()
     }
 
     fun observeWorker(uid: String,callback: (DocumentSnapshot?) -> Unit) {
@@ -34,4 +34,7 @@ class WorkerService {
         ).update("username", workerUsername).await()
     }
 
+    suspend fun updateProfilePicture(userId: String, url: String) {
+        Firebase.firestore.collection("worker").document(userId).update("picture", url).await()
+    }
 }

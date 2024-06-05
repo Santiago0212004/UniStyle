@@ -3,6 +3,7 @@ package com.example.unistylejc.screens
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
@@ -19,7 +20,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -38,6 +41,7 @@ import edu.co.icesi.unistyle.domain.model.AppAuthState
 @Composable
 fun LoginScreen(navController: NavHostController, loginViewModel: LogInViewmodel = viewModel()){
     val context = LocalContext.current
+    val focusManager = LocalFocusManager.current
 
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -45,7 +49,12 @@ fun LoginScreen(navController: NavHostController, loginViewModel: LogInViewmodel
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp),
+            .padding(16.dp)
+            .pointerInput(Unit) {
+                detectTapGestures(onTap = {
+                    focusManager.clearFocus()
+                })
+            },
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -89,7 +98,7 @@ fun LoginScreen(navController: NavHostController, loginViewModel: LogInViewmodel
             modifier = Modifier.fillMaxWidth(),
             colors = ButtonDefaults.buttonColors(Color(0xFF9C27B0))
         ) {
-            Text("Login")
+            Text("Iniciar sesión")
         }
         Spacer(modifier = Modifier.height(8.dp))
         Text(
@@ -103,7 +112,6 @@ fun LoginScreen(navController: NavHostController, loginViewModel: LogInViewmodel
     }
 
     val authState = loginViewModel.authStatus.observeAsState()
-
     LaunchedEffect(authState.value) {
         when (val state = authState.value) {
             is AppAuthState.Loading -> {

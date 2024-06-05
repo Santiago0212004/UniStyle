@@ -2,6 +2,7 @@ package com.example.unistylejc.screens
 
 import android.net.Uri
 import android.service.autofill.OnClickAction
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
@@ -15,6 +16,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -28,9 +30,12 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
@@ -39,9 +44,19 @@ import com.example.unistylejc.domain.model.Worker
 import com.example.unistylejc.viewmodel.WorkerProfileViewModel
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
+import kotlinx.coroutines.delay
 
 @Composable
-private fun ScreenContent(navController: NavHostController,userState: Worker?) {
+private fun ScreenContent(navController: NavHostController,userState: Worker?,viewModel: WorkerProfileViewModel) {
+    var showDialog by remember { mutableStateOf(false) }
+
+    if (showDialog) {
+        MinimalDialog(onDismissRequest = { showDialog = false })
+        LaunchedEffect(Unit) {
+            delay(3000L) // Delay for 3 seconds
+            showDialog = false
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -58,7 +73,9 @@ private fun ScreenContent(navController: NavHostController,userState: Worker?) {
             modifier = Modifier.padding(bottom = 16.dp)
         )
 
-        ProfileSection(navController,userState)
+        ProfileSection(navController,userState,viewModel,showDialog){
+            showDialog = it;
+        }
 
         Spacer(modifier = Modifier.height(32.dp))
 
@@ -86,8 +103,10 @@ private fun ScreenContent(navController: NavHostController,userState: Worker?) {
 }
 
 @Composable
-private fun ProfileSection(navController: NavHostController,userState: Worker?) {
+private fun ProfileSection(navController: NavHostController,userState: Worker?,viewModel: WorkerProfileViewModel,dialog:Boolean,
+                           showDialogChange: (Boolean) -> Unit,) {
     val imageUri = remember { mutableStateOf<Uri?>(null) }
+    val context = LocalContext.current
 
     val pickImageLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
@@ -97,7 +116,16 @@ private fun ProfileSection(navController: NavHostController,userState: Worker?) 
 
     LaunchedEffect(imageUri.value) {
         if (imageUri.value != null) {
-
+            imageUri.value?.let {
+                viewModel.uploadProfilePicture(it, true) { success ->
+                    if (success) {
+                        showDialogChange(true)
+                    } else {
+                        Toast.makeText(context, "Error al subir la imagen", Toast.LENGTH_LONG)
+                            .show()
+                    }
+                }
+            }
         }
     }
 
@@ -200,6 +228,44 @@ private fun OptionButton( redirect: () -> Unit,
         )
     }
 }
+
+@Composable
+private fun MinimalDialog(onDismissRequest: () -> Unit) {
+    Dialog(onDismissRequest = { onDismissRequest() }) {
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(200.dp)
+                .padding(16.dp),
+            shape = RoundedCornerShape(16.dp),
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp)
+                    .verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.Top,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ){
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_check_circle),
+                    contentDescription = null,
+                    modifier = Modifier.size(48.dp),
+                    tint = Color.Black
+                )
+                Text(
+                    text = "Se realizaron los cambios",
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .size(36.dp)
+                        .wrapContentSize(Alignment.Center),
+                    textAlign = TextAlign.Center,
+                )
+            }
+        }
+    }
+
+}
 @Composable
 fun WorkerSettingsScreen(navController: NavHostController, viewModel: WorkerProfileViewModel = viewModel()) {
     val isAuthenticated by remember { mutableStateOf(Firebase.auth.currentUser != null) }
@@ -208,6 +274,7 @@ fun WorkerSettingsScreen(navController: NavHostController, viewModel: WorkerProf
     if (isAuthenticated) {
         LaunchedEffect(true) {
             viewModel.loadUser()
+            viewModel.observeUser()
         }
 
         MaterialTheme {
@@ -215,7 +282,7 @@ fun WorkerSettingsScreen(navController: NavHostController, viewModel: WorkerProf
                 modifier = Modifier.fillMaxSize(),
                 color = MaterialTheme.colorScheme.background
             ) {
-                ScreenContent(navController, userState)
+                ScreenContent(navController, userState,viewModel)
             }
         }
     }
