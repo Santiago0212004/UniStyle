@@ -1,6 +1,5 @@
 package com.example.unistylejc.screens
 
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -206,7 +205,6 @@ fun SignUpScreen(navController: NavHostController, viewModel: SignUpViewmodel = 
         Spacer(modifier = Modifier.height(16.dp))
         Button(
             onClick = {
-                Log.e("AAA",selectedEstablishment!!.toString())
                 if (!isWorker) {
                     val customer = Customer("", email, name, username, "", null, null)
                     viewModel.signupUser(customer, password)
