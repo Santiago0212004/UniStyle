@@ -11,7 +11,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class WorkerSettingsViewmodel(
+class WorkerUpdateProfileViewmodel(
     val userRepo: UserRepository = UserRepositoryImpl(),
 
     ) : ViewModel() {
@@ -37,6 +37,12 @@ class WorkerSettingsViewmodel(
     fun observeUser() {
         userRepo.observeWorker {
             _userState.value = it
+        }
+    }
+
+    fun updateProfile(name: String, username: String) {
+        viewModelScope.launch (Dispatchers.IO) {
+            userRepo.updateProfileWorker(name, username)
         }
     }
 

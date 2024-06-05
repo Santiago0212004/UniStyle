@@ -1,5 +1,6 @@
 package com.example.unistylejc.screens
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -29,6 +30,7 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -36,31 +38,65 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
 import com.example.unistylejc.R
 import com.example.unistylejc.domain.model.Worker
+import com.example.unistylejc.viewmodel.WorkerChangePasswordViewmodel
 import com.example.unistylejc.viewmodel.WorkerProfileViewModel
 import com.example.unistylejc.viewmodel.WorkerUpdateProfileViewmodel
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
+import edu.co.icesi.unistyle.domain.model.AppAuthState
 import kotlinx.coroutines.delay
 
 @Composable
-private fun ScreenContent(navController: NavHostController, userState: Worker?, viewModel: WorkerUpdateProfileViewmodel) {
-    var name by remember { mutableStateOf("") }
-    var username by remember { mutableStateOf("") }
-    var email by remember { mutableStateOf("") }
+private fun ScreenContent(navController: NavHostController, userState: Worker?, viewModel: WorkerChangePasswordViewmodel) {
+    val context = LocalContext.current
+    var newPassword by remember { mutableStateOf("") }
+    var newPasswordConfirmation by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var showDialog by remember { mutableStateOf(false) }
+    var showErrorDialog by remember { mutableStateOf(false) }
     var shouldNavigate by remember { mutableStateOf(false) }
+    var passwordsMatch by remember { mutableStateOf(true) } // Add this state
+
+    val authState = viewModel.authStatus.observeAsState()
+
+    LaunchedEffect(authState.value) {
+        when (val state = authState.value) {
+            is AppAuthState.Loading -> {
+                Toast.makeText(context, state.message, Toast.LENGTH_LONG).show()
+            }
+            is AppAuthState.Error -> {
+                showErrorDialog = true
+            }
+            is AppAuthState.Success -> {
+            }
+            is AppAuthState.SuccessLogin -> {
+                viewModel.changePassword(newPassword)
+                showDialog = true
+            }
+            else -> Unit
+        }
+    }
 
     if (showDialog) {
         MinimalDialog(onDismissRequest = { showDialog = false })
         LaunchedEffect(Unit) {
-            delay(3000L) // Delay for 2 seconds
+            delay(3000L) // Delay for 3 seconds
             showDialog = false
+            shouldNavigate = true
+        }
+    }
+
+    if (showErrorDialog) {
+        MinimalErrorDialog(onDismissRequest = { showDialog = false })
+        LaunchedEffect(Unit) {
+            delay(3000L) // Delay for 3 seconds
+            showErrorDialog = false
             shouldNavigate = true
         }
     }
@@ -69,14 +105,6 @@ private fun ScreenContent(navController: NavHostController, userState: Worker?, 
         LaunchedEffect(Unit) {
             navController.navigate("worker/profile")
             shouldNavigate = false
-        }
-    }
-
-    LaunchedEffect(userState) {
-        userState?.let {
-            name = it.name
-            username = it.username
-            email = it.email
         }
     }
 
@@ -100,55 +128,109 @@ private fun ScreenContent(navController: NavHostController, userState: Worker?, 
         Spacer(modifier = Modifier.height(32.dp))
         OutlinedTextFieldBackground(Color(0xFFEA8D1F)) {
             OutlinedTextField(
-                value = name,
-                onValueChange = { name = it },
-                label = { Text("Nombre") },
-                placeholder = { Text("Ingrese su nombre") },
+                value = newPassword,
+                onValueChange = {
+                    newPassword = it
+                    passwordsMatch = newPassword == newPasswordConfirmation // Update passwordsMatch
+                },
+                label = { Text("Nueva contraseña") },
+                placeholder = { Text("Ingrese su nueva contraseña") },
+                keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Password),
                 modifier = Modifier
                     .fillMaxWidth(),
                 colors = OutlinedTextFieldDefaults.colors(
                     unfocusedTextColor = Color.White,
                     unfocusedBorderColor = Color.Black,
-                    unfocusedLabelColor = Color.Black,
+                    unfocusedLabelColor = Color.White,
                     unfocusedPlaceholderColor = Color.White,
                     unfocusedLeadingIconColor = Color.Black,
                     focusedTextColor = Color.White,
                     focusedBorderColor = Color.Black,
                     focusedLabelColor = Color.Black,
                     focusedLeadingIconColor = Color.Black,
-                    focusedPlaceholderColor = Color.White),
+                    focusedPlaceholderColor = Color.White
+                ),
+                visualTransformation = PasswordVisualTransformation()
             )
         }
-
 
         OutlinedTextFieldBackground(Color(0xFFEA8D1F)) {
             OutlinedTextField(
-                value = username,
-                onValueChange = { username = it },
-                label = { Text("Username") },
-                placeholder = { Text("Ingrese su nombre de usuario") },
+                value = newPasswordConfirmation,
+                onValueChange = {
+                    newPasswordConfirmation = it
+                    passwordsMatch = newPassword == newPasswordConfirmation // Update passwordsMatch
+                },
+                label = { Text("Confirme su nueva contraseña") },
+                placeholder = { Text("Confirme su nueva contraseña") },
+                keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Password),
                 modifier = Modifier
                     .fillMaxWidth(),
                 colors = OutlinedTextFieldDefaults.colors(
                     unfocusedTextColor = Color.White,
                     unfocusedBorderColor = Color.Black,
-                    unfocusedLabelColor = Color.Black,
+                    unfocusedLabelColor = Color.White,
                     unfocusedPlaceholderColor = Color.White,
                     unfocusedLeadingIconColor = Color.Black,
                     focusedTextColor = Color.White,
                     focusedBorderColor = Color.Black,
                     focusedLabelColor = Color.Black,
                     focusedLeadingIconColor = Color.Black,
-                    focusedPlaceholderColor = Color.White),
+                    focusedPlaceholderColor = Color.White
+                ),
+                visualTransformation = PasswordVisualTransformation()
             )
         }
+
+        // Display red text if passwords do not match
+        if (!passwordsMatch) {
+            Text(
+                text = "Las contraseñas no coinciden",
+                color = Color.Red,
+                modifier = Modifier.padding(start = 16.dp, top = 4.dp)
+            )
+        }
+
+        Spacer(modifier = Modifier.height(32.dp))
+
+        OutlinedTextFieldBackground(Color(0xFFEA8D1F)) {
+            OutlinedTextField(
+                value = password,
+                onValueChange = { password = it },
+                label = { Text("Contraseña actual") },
+                placeholder = { Text("Ingrese su contraseña actual") },
+                keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Password),
+                modifier = Modifier
+                    .fillMaxWidth(),
+                colors = OutlinedTextFieldDefaults.colors(
+                    unfocusedTextColor = Color.White,
+                    unfocusedBorderColor = Color.Black,
+                    unfocusedLabelColor = Color.White,
+                    unfocusedPlaceholderColor = Color.White,
+                    unfocusedLeadingIconColor = Color.Black,
+                    focusedTextColor = Color.White,
+                    focusedBorderColor = Color.Black,
+                    focusedLabelColor = Color.Black,
+                    focusedLeadingIconColor = Color.Black,
+                    focusedPlaceholderColor = Color.White
+                ),
+                visualTransformation = PasswordVisualTransformation()
+            )
+        }
+
         Spacer(modifier = Modifier.height(32.dp))
 
         Button(
             onClick = {
-                viewModel.updateProfile(name,username)
-                showDialog=true
-                navController.navigate("worker/profile")
+                if (newPassword.isNotEmpty() && newPasswordConfirmation.isNotEmpty() && password.isNotEmpty()) {
+                    if (newPassword == newPasswordConfirmation) {
+                        viewModel.reauthenticate(password)
+                    } else {
+                        passwordsMatch = false // Set passwordsMatch to false if passwords do not match
+                    }
+                } else {
+                    navController.navigate("worker/profile")
+                }
             },
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color(0xFF5D16A6)
@@ -163,7 +245,6 @@ private fun ScreenContent(navController: NavHostController, userState: Worker?, 
         }
     }
 }
-
 
 @Composable
 private fun OutlinedTextFieldBackground(
@@ -220,8 +301,43 @@ private fun MinimalDialog(onDismissRequest: () -> Unit) {
             }
         }
     }
-}
 
+}
+@Composable
+private fun MinimalErrorDialog(onDismissRequest: () -> Unit) {
+    Dialog(onDismissRequest = { onDismissRequest() }) {
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(200.dp)
+                .padding(16.dp),
+            shape = RoundedCornerShape(16.dp),
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp)
+                    .verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.Center, // Center the content vertically
+                horizontalAlignment = Alignment.CenterHorizontally // Center the content horizontally
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_error_circle),
+                    contentDescription = null,
+                    modifier = Modifier.size(48.dp),
+                    tint = Color.Black
+                )
+                Spacer(modifier = Modifier.height(16.dp)) // Add space between the icon and the text
+                Text(
+                    text = "No se pudo realizar el cambio de contraseña", // Fixed the typo here as well
+                    modifier = Modifier
+                        .fillMaxWidth(), // Ensure the text takes the full width available
+                    textAlign = TextAlign.Center,
+                )
+            }
+        }
+    }
+}
 
 @Composable
 private fun ProfileSection(navController: NavHostController, userState: Worker?) {
@@ -274,7 +390,7 @@ private fun ProfileSection(navController: NavHostController, userState: Worker?)
 }
 
 @Composable
-fun WorkerUpdateProfileScreen(navController: NavHostController, viewModel: WorkerUpdateProfileViewmodel = viewModel()) {
+fun WorkerChangePasswordScreen(navController: NavHostController, viewModel: WorkerChangePasswordViewmodel = viewModel()) {
     val isAuthenticated by remember { mutableStateOf(Firebase.auth.currentUser != null) }
     val userState by viewModel.userState.observeAsState()
 
@@ -294,3 +410,4 @@ fun WorkerUpdateProfileScreen(navController: NavHostController, viewModel: Worke
         }
     }
 }
+

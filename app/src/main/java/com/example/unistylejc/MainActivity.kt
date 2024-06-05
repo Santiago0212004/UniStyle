@@ -17,9 +17,9 @@ import com.example.unistylejc.screens.LoginScreen
 import com.example.unistylejc.screens.MainCustomerScreen
 import com.example.unistylejc.screens.MainWorkerScreen
 import com.example.unistylejc.screens.SignUpScreen
+import com.example.unistylejc.screens.WorkerChangePasswordScreen
 import com.example.unistylejc.screens.WorkerProfileScreen
 import com.example.unistylejc.screens.WorkerSettingsScreen
-import com.example.unistylejc.screens.WorkerUpdateEmailScreen
 import com.example.unistylejc.screens.WorkerUpdateProfileScreen
 import com.example.unistylejc.ui.theme.UniStyleJCTheme
 
@@ -49,7 +49,7 @@ fun App(navController: NavHostController = rememberNavController()){
         composable("worker/profile") { WorkerProfileScreen(navController) }
         composable("worker/settings") { WorkerSettingsScreen(navController) }
         composable("worker/updateProfile") { WorkerUpdateProfileScreen(navController) }
-        composable("worker/updateEmail") { WorkerUpdateEmailScreen(navController) }
+        composable("worker/changePassword") { WorkerChangePasswordScreen(navController) }
     }
 }
 

@@ -1,5 +1,9 @@
 package com.example.unistylejc.screens
 
+import android.net.Uri
+import android.service.autofill.OnClickAction
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -38,6 +42,7 @@ import com.google.firebase.auth.auth
 
 @Composable
 private fun ScreenContent(navController: NavHostController,userState: Worker?) {
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -61,12 +66,7 @@ private fun ScreenContent(navController: NavHostController,userState: Worker?) {
             navController.navigate("worker/updateProfile")
         }, text = "Cambiar datos", iconResId = R.drawable.ic_settings)
         Spacer(modifier = Modifier.height(32.dp))
-        OptionButton({
-            navController.navigate("worker/updateEmail")
-        }, text = "Cambiar email", iconResId = R.drawable.ic_email)
-        Spacer(modifier = Modifier.height(32.dp))
-
-        OptionButton({},
+        OptionButton({navController.navigate("worker/changePassword")},
             text = "Cambiar contraseña",
             iconResId = R.drawable.ic_password
         )
@@ -87,6 +87,20 @@ private fun ScreenContent(navController: NavHostController,userState: Worker?) {
 
 @Composable
 private fun ProfileSection(navController: NavHostController,userState: Worker?) {
+    val imageUri = remember { mutableStateOf<Uri?>(null) }
+
+    val pickImageLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        imageUri.value = uri
+    }
+
+    LaunchedEffect(imageUri.value) {
+        if (imageUri.value != null) {
+
+        }
+    }
+
     Box(
         modifier = Modifier
             .size(width = 400.dp, height = 230.dp)
@@ -97,26 +111,38 @@ private fun ProfileSection(navController: NavHostController,userState: Worker?) 
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.fillMaxSize()
         ) {
-            Image(
-                painter = rememberAsyncImagePainter("${userState?.picture}"),
-                contentDescription = "Imagen de perfil",
+            Box(
                 modifier = Modifier
                     .size(124.dp)
-                    .clip(CircleShape)
-                    .clickable {  navController.navigate("worker/settings/updateProfile") },
-                contentScale = ContentScale.Crop
-            )
+            ) {
+                Image(
+                    painter = rememberAsyncImagePainter("${userState?.picture}"),
+                    contentDescription = "Imagen de perfil",
+                    modifier = Modifier
+                        .size(124.dp)
+                        .clip(CircleShape)
+                        .clickable {pickImageLauncher.launch("image/*")},
+
+                    contentScale = ContentScale.Crop
+                )
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_pencil),
+                    contentDescription = "Editar imagen de perfil",
+                    modifier = Modifier
+                        .size(32.dp)
+                        .align(Alignment.TopEnd)
+                        .background(Color.White, shape = CircleShape)
+                        .padding(4.dp)
+                )
+            }
             Spacer(modifier = Modifier.width(16.dp))
             Box(
                 modifier = Modifier
                     .size(width = 220.dp, height = 124.dp)
-                    .shadow(3.dp,  shape = RoundedCornerShape(16.dp))
+                    .shadow(3.dp, shape = RoundedCornerShape(16.dp))
                     .background(color = Color.White, shape = RoundedCornerShape(16.dp))
                     .padding(16.dp)
-                ,
-
-
-                ) {
+            ) {
                 Column(
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.Start

@@ -13,6 +13,7 @@ interface UserRepository {
     fun observeUser(callback:(Customer)->Unit)
     suspend fun loadWorker(): Worker?
     fun observeWorker(callback: (Worker) -> Unit)
+    suspend fun updateProfileWorker(name: String, username: String)
 }
 
 class UserRepositoryImpl(val customerServices: CustomerService = CustomerService(), val workerServices : WorkerService = WorkerService()) :
@@ -53,5 +54,9 @@ class UserRepositoryImpl(val customerServices: CustomerService = CustomerService
                 callback(it)
             }
         }
+    }
+
+    override suspend fun updateProfileWorker(name: String, username: String) {
+        workerServices.updateProfile(name,username)
     }
 }

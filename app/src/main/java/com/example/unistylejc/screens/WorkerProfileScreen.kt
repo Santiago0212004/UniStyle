@@ -68,11 +68,11 @@ private fun ScreenContent(navController: NavHostController,userState: Worker?) {
 }
 
 @Composable
-fun ProfileSection(userState: Worker?) {
+private fun ProfileSection(userState: Worker?) {
     Box(
         modifier = Modifier
             .size(width = 400.dp, height = 230.dp)
-            .background(color = Color(0xFFE0BEE9), shape = RoundedCornerShape(16.dp))
+            .background(color = Color(0xFFD4BEEB), shape = RoundedCornerShape(16.dp))
             .padding(16.dp)
     ) {
         Row(

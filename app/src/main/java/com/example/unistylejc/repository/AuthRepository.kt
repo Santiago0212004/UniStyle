@@ -6,7 +6,9 @@ import com.example.unistylejc.domain.model.Worker
 import com.example.unistylejc.services.AuthServices
 import com.example.unistylejc.services.CustomerService
 import com.example.unistylejc.services.WorkerService
+import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuthException
+import com.google.firebase.auth.auth
 import edu.co.icesi.unistyle.domain.model.AppAuthState
 
 interface AuthRepository {
@@ -14,6 +16,7 @@ interface AuthRepository {
     suspend fun signupWorker(worker: Worker, pass: String): AppAuthState
     suspend fun login(email: String, pass: String): AppAuthState
 
+    fun changePassword(newPassword: String)
 }
 
 class AuthRepositoryImpl(
@@ -66,6 +69,10 @@ class AuthRepositoryImpl(
         }catch (ex: FirebaseAuthException){
             return AppAuthState.Error(ex.errorCode)
         }
+    }
+
+    override fun changePassword(newPassword: String) {
+        authServices.changePassword(newPassword)
     }
 
 }
