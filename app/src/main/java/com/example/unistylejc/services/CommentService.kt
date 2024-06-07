@@ -1,0 +1,12 @@
+package com.example.unistylejc.services
+
+import com.google.firebase.Firebase
+import com.google.firebase.firestore.DocumentSnapshot
+import com.google.firebase.firestore.firestore
+import kotlinx.coroutines.tasks.await
+
+class CommentService {
+    suspend fun loadComment(id: String): DocumentSnapshot {
+        return Firebase.firestore.collection("comment").document(id).get().await()
+    }
+}

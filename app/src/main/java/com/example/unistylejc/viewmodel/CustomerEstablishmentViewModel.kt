@@ -5,6 +5,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.unistylejc.domain.model.Comment
 import com.example.unistylejc.domain.model.Customer
 import com.example.unistylejc.domain.model.Establishment
 import com.example.unistylejc.domain.model.PaymentMethod
@@ -76,6 +77,14 @@ class CustomerEstablishmentViewModel(
 
     suspend fun findWorkerById(workerId: String): Worker? {
         return userRepository.findWorkerById(workerId)
+    }
+
+    suspend fun findCustomerById(customerId: String): Customer? {
+        return userRepository.findCustomerById(customerId)
+    }
+
+    suspend fun findCommentById(commentId: String): Comment? {
+        return establishmentRepository.findCommentById(commentId)
     }
 
      fun createReservation(reservation: Reservation) {

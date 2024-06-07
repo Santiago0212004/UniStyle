@@ -91,6 +91,8 @@ fun MainCustomerScreen(navController: NavHostController, viewModel: MainCustomer
             horizontalArrangement = Arrangement.End
         ) {
             loggedCustomer?.let { customer ->
+                Text(text = customer.username, style = MaterialTheme.typography.bodyMedium)
+                Spacer(modifier = Modifier.width(4.dp))
                 Image(
                     painter = rememberAsyncImagePainter(customer.picture),
                     contentDescription = "Profile Picture",
