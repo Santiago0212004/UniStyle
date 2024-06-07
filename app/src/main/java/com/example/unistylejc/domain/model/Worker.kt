@@ -11,5 +11,6 @@ data class Worker(
     var reservationRefs: List<String> = listOf<String>(),
     var commentsRef: List<String> = listOf<String>(),
     var establishmentRef: String = "",
-    var servicesRef: List<String> = listOf<String>()
+    var servicesRef: List<String> = listOf<String>(),
+    var score: Double = 0.0
 )
