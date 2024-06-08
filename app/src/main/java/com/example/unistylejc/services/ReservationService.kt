@@ -1,6 +1,5 @@
 package com.example.unistylejc.services
 
-import com.example.unistylejc.domain.model.Customer
 import com.example.unistylejc.domain.model.Reservation
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.DocumentSnapshot
@@ -11,7 +10,6 @@ import kotlinx.coroutines.tasks.await
 class ReservationService {
     suspend fun createReservation(reservation: Reservation) {
         Firebase.firestore.collection("reservation").document(reservation.id).set(reservation).await()
-
     }
 
     suspend fun loadReservation(reservationId: String): DocumentSnapshot {

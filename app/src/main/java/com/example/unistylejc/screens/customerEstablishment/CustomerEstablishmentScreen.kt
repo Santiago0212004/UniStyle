@@ -61,6 +61,9 @@ fun CustomerEstablishmentScreen(navController: NavHostController, establishmentI
         val currentUser = FirebaseAuth.getInstance().currentUser
         if (currentUser != null) {
             viewModel.getLoggedCustomer(currentUser.uid)
+            viewModel.loadEstablishment(establishmentId)
+            viewModel.loadEstablishmentWorkers(establishmentId)
+            viewModel.loadEstablishmentComments(establishmentId)
         }
     }
 
@@ -250,13 +253,13 @@ fun CustomerEstablishmentScreen(navController: NavHostController, establishmentI
 
 
             if (inReservation) {
-                ReservationSection(viewModel, est)
+                ReservationSection(viewModel)
             }
             if (inComments) {
-                CommentsSection(viewModel, est)
+                CommentsSection(viewModel)
             }
             if (inPhotos) {
-                PhotosSection(est)
+                PhotosSection(viewModel)
             }
 
 

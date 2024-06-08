@@ -1,5 +1,6 @@
 package com.example.unistylejc.screens.resources
 
+import android.icu.text.DecimalFormat
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
@@ -13,9 +14,10 @@ import com.example.unistylejc.R
 
 @Composable
 fun RatingStars(score: Double) {
+    val rScore = DecimalFormat("#.#").format(score).toDouble()
     Row {
         repeat(5) { index ->
-            val starPainter = if (index < score) {
+            val starPainter = if (index < rScore) {
                 rememberAsyncImagePainter(model = R.drawable.ic_star_filled)
             } else {
                 rememberAsyncImagePainter(model = R.drawable.ic_star_empty)
@@ -26,6 +28,6 @@ fun RatingStars(score: Double) {
                 modifier = Modifier.size(16.dp)
             )
         }
-        Text(text = score.toString(), style = MaterialTheme.typography.bodySmall)
+        Text(text = rScore.toString(), style = MaterialTheme.typography.bodySmall)
     }
 }

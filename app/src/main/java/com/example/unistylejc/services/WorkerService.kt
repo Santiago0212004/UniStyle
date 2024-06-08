@@ -1,12 +1,14 @@
 package com.example.unistylejc.services
 
+import com.example.unistylejc.domain.model.Comment
 import com.example.unistylejc.domain.model.Service
+import com.example.unistylejc.domain.model.Worker
 import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FieldValue
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
-import com.example.unistylejc.domain.model.Worker
-import com.google.firebase.auth.auth
 import kotlinx.coroutines.tasks.await
 
 class WorkerService {
@@ -50,5 +52,33 @@ class WorkerService {
     suspend fun addReservation(id : String, idReservation : String) {
         Firebase.firestore.collection("worker")
             .document(id).update("reservationRefs", FieldValue.arrayUnion(idReservation)).await()
+    }
+
+    suspend fun addComment(workerId: String, comment: Comment) {
+        val firestore = FirebaseFirestore.getInstance()
+        val establishmentRef = firestore.collection("worker").document(workerId)
+        val commentsRef = firestore.collection("comment").document(comment.id)
+
+        firestore.runTransaction { transaction ->
+            val establishmentSnapshot = transaction.get(establishmentRef)
+
+            val commentsList = establishmentSnapshot.get("commentsRef") as? List<*> ?: listOf<String>()
+
+            val currentScores = commentsList.mapNotNull { commentId ->
+                val commentSnapshot = transaction.get(firestore.collection("comment").document(commentId.toString()))
+                commentSnapshot.getDouble("score")
+            }
+
+            val totalScores = currentScores.size + 1
+            val sumScores = currentScores.sum() + comment.score
+            val newAverageScore = sumScores / totalScores
+
+            transaction.set(commentsRef, comment)
+
+            transaction.update(establishmentRef, "commentsRef", FieldValue.arrayUnion(comment.id))
+            transaction.update(establishmentRef, "score", newAverageScore)
+
+            null
+        }.await()
     }
 }

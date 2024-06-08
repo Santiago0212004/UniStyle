@@ -3,8 +3,11 @@ package com.example.unistylejc.repository
 import com.example.unistylejc.domain.model.Comment
 import com.example.unistylejc.domain.model.Establishment
 import com.example.unistylejc.domain.model.Reservation
+import com.example.unistylejc.domain.model.Worker
 import com.example.unistylejc.services.CommentService
+import com.example.unistylejc.services.CustomerService
 import com.example.unistylejc.services.EstablishmentService
+import com.example.unistylejc.services.WorkerService
 
 interface EstablishmentRepository {
     suspend fun loadEstablishmentList() : ArrayList<Establishment?>?
@@ -15,13 +18,18 @@ interface EstablishmentRepository {
         customerReservations: List<Reservation>
     ): Pair<List<Establishment?>, List<Establishment?>>
     suspend fun findCommentById(commentId: String): Comment?
+    suspend fun addComment(comment: Comment)
+    suspend fun loadEstablishmentWorkers(establishmentId: String): ArrayList<Worker?>
+    suspend fun loadEstablishmentComments(establishmentId: String): ArrayList<Comment?>
 }
 
 class EstablishmentRepositoryImpl(
     private val establishmentServices: EstablishmentService = EstablishmentService(),
-    private val commentServices: CommentService = CommentService()
+    private val commentServices: CommentService = CommentService(),
+    private val customerServices: CustomerService = CustomerService(),
+    private val workerServices: WorkerService = WorkerService()
 ) : EstablishmentRepository {
-    override suspend fun loadEstablishmentList(): ArrayList<Establishment?>? {
+    override suspend fun loadEstablishmentList(): ArrayList<Establishment?> {
         val document = establishmentServices.loadEstablishmentList()
         val establishments = arrayListOf<Establishment?>()
         document.documents.forEach {
@@ -29,6 +37,27 @@ class EstablishmentRepositoryImpl(
             establishments.add(est)
         }
         return establishments
+    }
+
+    override suspend fun loadEstablishmentWorkers(establishmentId: String): ArrayList<Worker?>{
+        val document = establishmentServices.getEstablishmentById(establishmentId)
+        val establishment = document.toObject(Establishment::class.java)
+        val workers = arrayListOf<Worker?>()
+        establishment?.workersRefs?.forEach{
+            val worker = workerServices.loadWorker(it).toObject(Worker::class.java)
+            workers.add(worker)
+        }
+        return workers
+    }
+    override suspend fun loadEstablishmentComments(establishmentId: String): ArrayList<Comment?>{
+        val document = establishmentServices.getEstablishmentById(establishmentId)
+        val establishment = document.toObject(Establishment::class.java)
+        val comments = arrayListOf<Comment?>()
+        establishment?.commentsRef?.forEach{
+            val comment = commentServices.loadComment(it).toObject(Comment::class.java)
+            comments.add(comment)
+        }
+        return comments
     }
 
     override suspend fun addWorker(id : String, idWorker: String){
@@ -59,4 +88,14 @@ class EstablishmentRepositoryImpl(
 
         return Pair(reservedEstablishments, unreservedEstablishments)
     }
+    override suspend fun addComment(comment: Comment){
+        commentServices.addComment(comment)
+        val addedComment = commentServices.loadComment(comment.id).toObject(Reservation::class.java)
+        if(addedComment != null){
+            establishmentServices.addComment(comment.establishmentRef,comment)
+            workerServices.addComment(comment.workerRef,comment)
+            customerServices.addComment(comment.customerRef,comment)
+        }
+    }
+
 }
