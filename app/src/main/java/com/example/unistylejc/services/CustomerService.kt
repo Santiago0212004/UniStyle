@@ -1,5 +1,6 @@
 package com.example.unistylejc.services
 
+import com.example.unistylejc.domain.model.Comment
 import com.example.unistylejc.domain.model.Customer
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.DocumentSnapshot
@@ -30,5 +31,10 @@ class CustomerService {
     suspend fun addReservation(id : String, idReservation : String) {
         Firebase.firestore.collection("customer")
             .document(id).update("reservationRefs", FieldValue.arrayUnion(idReservation)).await()
+    }
+
+    suspend fun addComment(id : String, comment : Comment) {
+        Firebase.firestore.collection("customer")
+            .document(id).update("commentsRef", FieldValue.arrayUnion(comment.id)).await()
     }
 }

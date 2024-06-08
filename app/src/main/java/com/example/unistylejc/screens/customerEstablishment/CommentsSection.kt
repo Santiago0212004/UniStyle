@@ -1,5 +1,7 @@
 package com.example.unistylejc.screens.customerEstablishment
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -11,16 +13,20 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -29,23 +35,57 @@ import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
 import com.example.unistylejc.domain.model.Comment
 import com.example.unistylejc.domain.model.Customer
-import com.example.unistylejc.domain.model.Establishment
 import com.example.unistylejc.domain.model.Worker
 import com.example.unistylejc.screens.resources.RatingStars
 import com.example.unistylejc.viewmodel.CustomerEstablishmentViewModel
 import java.text.SimpleDateFormat
 import java.util.Locale
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun CommentsSection (viewModel: CustomerEstablishmentViewModel, establishment: Establishment) {
-    Spacer(modifier = Modifier.height(16.dp))
-    LazyColumn(
-        modifier = Modifier.wrapContentHeight()
-    ) {
-        if (establishment.commentsRef.isNotEmpty()) {
-            items(establishment.commentsRef) { commentId ->
-                if(commentId != ""){
-                    CommentCard(viewModel, commentId = commentId)
+fun CommentsSection(
+    viewModel: CustomerEstablishmentViewModel
+) {
+    val showDialog = remember { mutableStateOf(false) }
+    val workers by viewModel.workers.observeAsState()
+    val comments by viewModel.comments.observeAsState()
+
+    if(workers?.isNotEmpty() == true && showDialog.value){
+        AddCommentDialog(
+            viewModel = viewModel,
+            onDismissRequest = { showDialog.value = false },
+            onConfirmRequest = {
+                viewModel.addComment(it)
+                showDialog.value = false
+            }
+        )
+    }
+
+
+    Column {
+        Button(
+            onClick = { showDialog.value = true },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            Text(text = "Añadir Comentario")
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        val scrollState = rememberScrollState()
+
+        Column(
+            modifier = Modifier
+                .wrapContentHeight()
+                .verticalScroll(scrollState)
+        ) {
+            if (comments?.isNotEmpty() == true) {
+                comments!!.forEach{comment ->
+                    comment?.let {
+                        CommentCard(viewModel, comment)
+                    }
                 }
             }
         }
@@ -54,19 +94,14 @@ fun CommentsSection (viewModel: CustomerEstablishmentViewModel, establishment: E
 
 
 @Composable
-fun CommentCard(viewModel: CustomerEstablishmentViewModel, commentId: String) {
-
-    val comment by produceState<Comment?>(initialValue = null) {
-        value = viewModel.findCommentById(commentId)
-    }
-
-    comment?.let {
+fun CommentCard(viewModel: CustomerEstablishmentViewModel, comment: Comment) {
+    comment.let {
         val worker by produceState<Worker?>(initialValue = null) {
-            value = viewModel.findWorkerById(comment!!.workerRef)
+            value = viewModel.findWorkerById(comment.workerRef)
         }
 
         val customer by produceState<Customer?>(initialValue = null) {
-            value = viewModel.findCustomerById(comment!!.customerRef)
+            value = viewModel.findCustomerById(comment.customerRef)
         }
 
         if (worker != null && customer != null) {

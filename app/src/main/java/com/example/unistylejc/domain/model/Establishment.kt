@@ -16,6 +16,7 @@ data class Establishment(
     var state: String = "",
     var workersRefs: List<String> = listOf<String>(),
     var commentsRef: List<String> = listOf<String>(),
+    var reservationRefs: List<String> = listOf<String>(),
     var photos: List<String> = listOf<String>(),
     var score: Double = 0.0
 )
