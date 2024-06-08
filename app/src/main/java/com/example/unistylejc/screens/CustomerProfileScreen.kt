@@ -12,6 +12,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.runtime.*
@@ -29,11 +30,11 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
-import com.example.unistylejc.BottonBarScreen
 import com.example.unistylejc.R
 import com.example.unistylejc.domain.model.Customer
 import com.example.unistylejc.viewmodel.CustomerProfileViewModel
@@ -42,6 +43,9 @@ import com.google.firebase.auth.auth
 
 @Composable
 private fun ScreenContent(navController: NavHostController, userState: Customer?) {
+    val viewModel: CustomerProfileViewModel = viewModel()
+    var showDialogLO by remember { mutableStateOf(false) }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -70,10 +74,23 @@ private fun ScreenContent(navController: NavHostController, userState: Customer?
                      navController.navigate("customer/Information")
         },text = "Acerca de nosotros", iconResId = R.drawable.ic_about)
         Spacer(modifier = Modifier.height(32.dp))
-        OptionButton({},text = "Cerrar sesión", iconResId = R.drawable.ic_logout)
+        OptionButton({
+            showDialogLO = true
+        },text = "Cerrar sesión", iconResId = R.drawable.ic_logout)
         Spacer(modifier = Modifier.height(32.dp))
-        OptionButton({},text = "Eliminar cuenta", iconResId = R.drawable.ic_delete_user, textColor = Color.Red)
-        Spacer(modifier = Modifier.height(32.dp))
+    }
+
+    if(showDialogLO){
+        SignOutConfirmationDialog(
+            onConfirm = {
+                viewModel.signOut()
+                navController.navigate("login")
+                showDialogLO = false
+            },
+            onDismiss = {
+                showDialogLO = false
+            }
+        )
     }
 }
 
@@ -101,7 +118,7 @@ fun ProfileSection(userState: Customer?) {
             Box(
                 modifier = Modifier
                     .size(width = 220.dp, height = 124.dp)
-                    .shadow(3.dp,  shape = RoundedCornerShape(16.dp))
+                    .shadow(3.dp, shape = RoundedCornerShape(16.dp))
                     .background(color = Color.White, shape = RoundedCornerShape(16.dp))
                     .padding(16.dp)
                 ,
@@ -158,7 +175,7 @@ private fun OptionButton( redirect: () -> Unit,
         Text(text = text, fontSize = 16.sp, color = textColor)
         Spacer(modifier = Modifier.weight(1f))
         Icon(
-            painter = painterResource(id = R.drawable.ic_minimalist_arrow), // Use an appropriate icon for the arrow
+            painter = painterResource(id = R.drawable.ic_minimalist_arrow),
             contentDescription = null,
             modifier = Modifier.size(24.dp),
             tint = Color.Black
@@ -185,4 +202,31 @@ fun CustomerProfileScreen(navController: NavHostController, viewModel: CustomerP
             }
         }
     }
+}
+
+@Composable
+fun SignOutConfirmationDialog(onConfirm: () -> Unit, onDismiss: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            Button(onClick = onConfirm,
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF5D16A6))) {
+                Text("Confirmar")
+            }
+        },
+        dismissButton = {
+            Button(
+                onClick = onDismiss,
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF2E8FC)),
+                modifier = Modifier.border(width = 1.dp, color = Color(0xFF5D16A6), shape = RoundedCornerShape(100.dp))
+            ) {
+                Text("Cancelar", color = Color(0xFF5D16A6))
+            }
+        },
+        title = { Text("¿Seguro desea cerrar sesión?", textAlign = TextAlign.Center, fontWeight = FontWeight.Bold) },
+        modifier = Modifier
+            .width(349.dp)
+            .height(224.dp)
+            .clip(RoundedCornerShape(16.dp))
+    )
 }

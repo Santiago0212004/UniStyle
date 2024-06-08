@@ -13,6 +13,7 @@ import com.example.unistylejc.services.ReservationService
 import com.example.unistylejc.services.WorkerService
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import edu.co.icesi.unistyle.domain.model.AppAuthState
 
 interface UserRepository {
     suspend fun loadCustomer(): Customer?
@@ -30,6 +31,8 @@ interface UserRepository {
     suspend fun loadWorkerServices(serviceIds: List<String>): List<Service>
 
     suspend fun getCustomerReservations(customerId: String): List<Reservation>
+    suspend fun deleteAccount(email: String, pass: String,id:String)
+
 
 }
 
@@ -129,6 +132,7 @@ class UserRepositoryImpl(
         return reservations
     }
 
-
+    override suspend fun deleteAccount(email: String, pass: String,id:String) {
+        customerServices.deleteAccount(email,pass,id)
+    }
 }
-

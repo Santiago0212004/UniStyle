@@ -19,6 +19,7 @@ interface AuthRepository {
 
     fun changePassword(newPassword: String)
     suspend fun getCurrentRole(uid: String): String
+    fun signOut()
 }
 
 class AuthRepositoryImpl(
@@ -87,4 +88,7 @@ class AuthRepositoryImpl(
         }
     }
 
+    override fun signOut(){
+        authServices.signOut()
+    }
 }
