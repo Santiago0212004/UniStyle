@@ -175,7 +175,7 @@ class UserRepositoryImpl(
         val actualTime= Timestamp.now()
         val pastReservations: List<ReservationEntity> = reservationsEntities.filter { it.initDate!! < actualTime }
         val futureReservations: List<ReservationEntity> = reservationsEntities.filter { it.initDate!! >= actualTime }
-        val sortedPastReservations: List<ReservationEntity> = pastReservations.sortedBy { it.initDate }
+        val sortedPastReservations: List<ReservationEntity> = pastReservations.sortedByDescending { it.initDate }
         val sortedFutureReservations: List<ReservationEntity> = futureReservations.sortedBy { it.initDate }
 
         return Pair(sortedPastReservations, sortedFutureReservations)
