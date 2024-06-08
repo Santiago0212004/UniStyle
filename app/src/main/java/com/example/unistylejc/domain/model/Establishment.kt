@@ -8,12 +8,15 @@ data class Establishment(
     var email: String = "",
     var name: String = "",
     var username: String = "",
+    var description: String = "",
     var latitude: Double = 0.0,
     var longitude: Double = 0.0,
-    var paymentMethod: List<String> = listOf<String>(),
     var picture: String? = "",
     var postalcode: String = "",
     var state: String = "",
     var workersRefs: List<String> = listOf<String>(),
-    var comments: Comments? = null,
+    var commentsRef: List<String> = listOf<String>(),
+    var reservationRefs: List<String> = listOf<String>(),
+    var photos: List<String> = listOf<String>(),
+    var score: Double = 0.0
 )

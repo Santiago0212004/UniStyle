@@ -7,6 +7,7 @@ import com.example.unistylejc.domain.model.Reservation
 import com.example.unistylejc.domain.model.Service
 import com.example.unistylejc.domain.model.Worker
 import com.example.unistylejc.services.CustomerService
+import com.example.unistylejc.services.EstablishmentService
 import com.example.unistylejc.services.FileService
 import com.example.unistylejc.services.ReservationService
 import com.example.unistylejc.services.WorkerService
@@ -31,6 +32,8 @@ interface UserRepository {
 
     suspend fun getCustomerReservations(customerId: String): List<Reservation>
     suspend fun deleteAccount(email: String, pass: String,id:String)
+
+
 }
 
 class UserRepositoryImpl(
@@ -38,7 +41,7 @@ class UserRepositoryImpl(
     private val workerServices: WorkerService = WorkerService(),
     private val fileService: FileService = FileService(),
     private val reservationServices: ReservationService = ReservationService(),
-    private val customerService : CustomerService = CustomerService()
+    private val establishmentServices: EstablishmentService = EstablishmentService()
 ) : UserRepository {
     override suspend fun loadCustomer(): Customer? {
         val document = customerServices.loadCustomer(Firebase.auth.uid!!)
@@ -113,11 +116,12 @@ class UserRepositoryImpl(
         if(createdReservation != null){
             workerServices.addReservation(reservation.workerId, reservation.id)
             customerServices.addReservation(reservation.customerId, reservation.id)
+            establishmentServices.addReservation(reservation.establishmentId,reservation.id)
         }
     }
 
     override suspend fun getCustomerReservations(customerId: String): List<Reservation> {
-        val customer = customerService.loadCustomer(customerId)
+        val customer = customerServices.loadCustomer(customerId)
         val customerEntity = customer.toObject(Customer::class.java)
         val reservations = mutableListOf<Reservation>()
         customerEntity?.reservationRefs?.forEach { reservationId ->
@@ -129,6 +133,6 @@ class UserRepositoryImpl(
     }
 
     override suspend fun deleteAccount(email: String, pass: String,id:String) {
-        customerService.deleteAccount(email,pass,id)
+        customerServices.deleteAccount(email,pass,id)
     }
 }

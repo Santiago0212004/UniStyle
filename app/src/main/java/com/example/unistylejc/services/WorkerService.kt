@@ -1,12 +1,14 @@
 package com.example.unistylejc.services
 
+import com.example.unistylejc.domain.model.Comment
 import com.example.unistylejc.domain.model.Service
+import com.example.unistylejc.domain.model.Worker
 import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FieldValue
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
-import com.example.unistylejc.domain.model.Worker
-import com.google.firebase.auth.auth
 import kotlinx.coroutines.tasks.await
 
 class WorkerService {
@@ -50,5 +52,44 @@ class WorkerService {
     suspend fun addReservation(id : String, idReservation : String) {
         Firebase.firestore.collection("worker")
             .document(id).update("reservationRefs", FieldValue.arrayUnion(idReservation)).await()
+    }
+
+    suspend fun addComment(workerId: String, comment: Comment) {
+        val firestore = FirebaseFirestore.getInstance()
+        val workerRef = firestore.collection("worker").document(workerId)
+        val commentsRef = firestore.collection("comment").document(comment.id)
+
+        firestore.runTransaction { transaction ->
+            val workerSnapshot = transaction.get(workerRef)
+
+            val commentsList = workerSnapshot.get("commentsRef") as? List<*> ?: listOf<String>()
+
+            val validCommentRefs = commentsList.filterIsInstance<String>().filter { it.isNotBlank() }
+
+            val totalScores: Int
+            val sumScores: Double
+
+            if (validCommentRefs.isNotEmpty()) {
+                val currentScores = validCommentRefs.mapNotNull { commentId ->
+                    val commentSnapshot = transaction.get(firestore.collection("comment").document(commentId.toString()))
+                    commentSnapshot.getDouble("score")
+                }
+
+                totalScores = currentScores.size + 1
+                sumScores = currentScores.sum() + comment.score
+            } else {
+                totalScores = 1
+                sumScores = comment.score
+            }
+
+            val newAverageScore: Double = sumScores / totalScores
+
+            transaction.set(commentsRef, comment)
+
+            transaction.update(workerRef, "commentsRef", FieldValue.arrayUnion(comment.id))
+            transaction.update(workerRef, "score", newAverageScore)
+
+            null
+        }.await()
     }
 }

@@ -23,11 +23,11 @@ class MainCustomerViewModel(
     private val _loggedCustomer = MutableLiveData<Customer?>()
     val loggedCustomer: LiveData<Customer?> get() = _loggedCustomer
 
-    private val _establishments = MutableLiveData<ArrayList<Establishment?>>()
-    val establishments: LiveData<ArrayList<Establishment?>> get() = _establishments
+    private val _establishments = MutableLiveData<ArrayList<Establishment?>?>()
+    val establishments: MutableLiveData<ArrayList<Establishment?>?> get() = _establishments
 
-    private val _allEstablishments = MutableLiveData<ArrayList<Establishment?>>()
-    val allEstablishments: LiveData<ArrayList<Establishment?>> get() = _allEstablishments
+    private val _allEstablishments = MutableLiveData<ArrayList<Establishment?>?>()
+    val allEstablishments: LiveData<ArrayList<Establishment?>?> get() = _allEstablishments
 
     fun getLoggedCustomer(customerId: String) {
         viewModelScope.launch(Dispatchers.IO) {

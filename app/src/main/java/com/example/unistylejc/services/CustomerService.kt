@@ -1,5 +1,6 @@
 package com.example.unistylejc.services
 
+import com.example.unistylejc.domain.model.Comment
 import com.example.unistylejc.domain.model.Customer
 import com.google.firebase.Firebase
 import com.google.firebase.auth.EmailAuthProvider
@@ -34,10 +35,11 @@ class CustomerService {
         Firebase.firestore.collection("customer")
             .document(id).update("reservationRefs", FieldValue.arrayUnion(idReservation)).await()
     }
-    suspend fun deleteAccount(email:String, pass:String, id:String){
+
+    suspend fun deleteAccount(email:String, pass:String, id:String) {
         val user = Firebase.auth.currentUser ?: throw Exception("User not logged in")
-        val credential = EmailAuthProvider.getCredential(email,pass)
-        try{
+        val credential = EmailAuthProvider.getCredential(email, pass)
+        try {
             user.reauthenticate(credential).await()
             user.delete().await()
             val updates = mapOf(
@@ -48,9 +50,13 @@ class CustomerService {
             )
             Firebase.firestore.collection("customer").document(id).update(updates).await()
             Result.success(Unit)
-        }catch (e: Exception){
+        } catch (e: Exception) {
             throw Exception("Error al eliminar la cuenta: ${e.message}")
         }
+    }
 
+    suspend fun addComment(id : String, comment : Comment) {
+        Firebase.firestore.collection("customer")
+            .document(id).update("commentsRef", FieldValue.arrayUnion(comment.id)).await()
     }
 }

@@ -8,8 +8,8 @@ data class Customer(
     var name: String = "",
     var username: String = "",
     var picture: String? = null,
-    var reservationRefs: List<String> = listOf() ,
-    var commentsRef:List<String> = listOf()
+    var reservationRefs: List<String> = listOf<String>(),
+    var commentsRef:List<String> = listOf<String>()
 ) : Serializable {
     override fun toString(): String {
         return name

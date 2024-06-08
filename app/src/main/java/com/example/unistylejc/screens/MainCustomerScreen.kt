@@ -15,10 +15,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -78,7 +78,7 @@ fun MainCustomerScreen(navController: NavHostController, viewModel: MainCustomer
 
     var searchQuery by remember { mutableStateOf("") }
     var selectedCity by remember { mutableStateOf("") }
-    val cities = allEstablishments.mapNotNull { it?.city }.distinct()
+    val cities = allEstablishments?.mapNotNull { it?.city }?.distinct()
 
     Column(
         modifier = Modifier
@@ -91,6 +91,8 @@ fun MainCustomerScreen(navController: NavHostController, viewModel: MainCustomer
             horizontalArrangement = Arrangement.End
         ) {
             loggedCustomer?.let { customer ->
+                Text(text = customer.username, style = MaterialTheme.typography.bodyMedium)
+                Spacer(modifier = Modifier.width(4.dp))
                 Image(
                     painter = rememberAsyncImagePainter(customer.picture),
                     contentDescription = "Profile Picture",
@@ -181,16 +183,19 @@ fun MainCustomerScreen(navController: NavHostController, viewModel: MainCustomer
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        if (establishments.isEmpty()) {
+        if (establishments?.isEmpty() == true) {
             Text(text = "No se encontraron establecimientos.", style = MaterialTheme.typography.bodyLarge)
         } else {
             if (isMapView) {
-                EstablishmentsMap(establishments, navController)
+                establishments?.let { EstablishmentsMap(it, navController) }
             } else {
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize()
+                val scrollState = rememberScrollState()
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScroll(scrollState)
                 ) {
-                    items(establishments) { establishment ->
+                    establishments!!.forEach { establishment ->
                         EstablishmentCard(establishment, navController)
                     }
                 }
@@ -209,16 +214,19 @@ fun MainCustomerScreen(navController: NavHostController, viewModel: MainCustomer
         }
     }
 
-    if (isDialogOpen) {
-        FiltersDialog(
-            onDismissRequest = { isDialogOpen = false },
-            viewModel = viewModel,
-            searchQuery = searchQuery,
-            selectedCity = selectedCity,
-            onCitySelected = { selectedCity = it },
-            cities = cities
-        )
+    cities?.let {
+        if (isDialogOpen) {
+            FiltersDialog(
+                onDismissRequest = { isDialogOpen = false },
+                viewModel = viewModel,
+                searchQuery = searchQuery,
+                selectedCity = selectedCity,
+                onCitySelected = { selectedCity = it },
+                cities = it
+            )
+        }
     }
+
 }
 
 
