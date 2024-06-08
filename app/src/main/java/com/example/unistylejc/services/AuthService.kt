@@ -50,4 +50,7 @@ class AuthServices {
         return role
     }
 
+    fun signOut(){
+        Firebase.auth.signOut()
+    }
 }

@@ -9,7 +9,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.runtime.*
@@ -19,6 +21,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.livedata.observeAsState
@@ -27,18 +30,31 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
 import com.example.unistylejc.R
 import com.example.unistylejc.domain.model.Customer
+import com.example.unistylejc.repository.UserRepository
+import com.example.unistylejc.repository.UserRepositoryImpl
 import com.example.unistylejc.viewmodel.CustomerProfileViewModel
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
+import com.google.firebase.firestore.firestore
+import com.google.firebase.storage.storage
 
 @Composable
 private fun ScreenContent(navController: NavHostController,userState: Customer?) {
+    val viewModel: CustomerProfileViewModel = viewModel()
+    var showDialogDA by remember { mutableStateOf(false) }
+    var email by remember { mutableStateOf(Firebase.auth.currentUser?.email ?: "") }
+    var pass by remember { mutableStateOf("") }
+    val errorState by viewModel.errorState.observeAsState()
+    val userRepo: UserRepository = UserRepositoryImpl()
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -72,16 +88,37 @@ private fun ScreenContent(navController: NavHostController,userState: Customer?)
             iconResId = R.drawable.ic_password
         )
         Spacer(modifier = Modifier.height(32.dp))
-        OptionButton({},
-            text = "Desvincular",
-            iconResId = R.drawable.ic_logout
-        )
-        Spacer(modifier = Modifier.height(32.dp))
-        OptionButton({},
+        OptionButton({
+            showDialogDA = true
+        },
             text = "Eliminar cuenta",
             iconResId = R.drawable.ic_delete_user,
             textColor = Color.Red,
             borderColor = Color.Red
+        )
+    }
+
+    if(showDialogDA){
+        DeleteAccountConfirmationDialog(
+            pass = pass,
+            onPassChange = { pass = it },
+            onConfirm = {
+                val id = Firebase.auth.currentUser!!.uid
+                viewModel.deleteAccount(email, pass,id,
+                    onSuccess = {
+                        navController.navigate("login")
+                    }
+                )
+                showDialogDA = false
+            },
+            onDismiss = {
+                showDialogDA = false
+            }
+        )
+    }
+    if (errorState != null) {
+        ErrorDialog(
+            onDismiss = { viewModel.clearError() }
         )
     }
 }
@@ -114,10 +151,7 @@ private fun ProfileSection(navController: NavHostController,userState: Customer?
                     .shadow(3.dp,  shape = RoundedCornerShape(16.dp))
                     .background(color = Color.White, shape = RoundedCornerShape(16.dp))
                     .padding(16.dp)
-                ,
-
-
-                ) {
+                ,) {
                 Column(
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.Start
@@ -194,4 +228,73 @@ fun CustomerSettingsScreen(navController: NavHostController, viewModel: Customer
             }
         }
     }
+}
+
+@Composable
+fun DeleteAccountConfirmationDialog(onConfirm: () -> Unit,
+                                    onDismiss: () -> Unit,
+                                    pass: String,
+                                    onPassChange: (String) -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            Button(
+                onClick = onConfirm,
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF5D16A6))
+            ) {
+                Text("Confirmar")
+            }
+        },
+        dismissButton = {
+            Button(
+                onClick = onDismiss,
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF2E8FC)),
+                modifier = Modifier.border(
+                    width = 1.dp,
+                    color = Color(0xFF5D16A6),
+                    shape = RoundedCornerShape(100.dp)
+                )
+            ) {
+                Text("Cancelar", color = Color(0xFF5D16A6))
+            }
+        },
+        title = {
+            Column {
+                Text(
+                    "¿Seguro desea eliminar la cuenta?",
+                    textAlign = TextAlign.Center,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                OutlinedTextField(
+                    value = pass,
+                    onValueChange = onPassChange,
+                    label = { Text("Contraseña") },
+                    placeholder = { Text("Ingrese su contraseña") },
+                    keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Password),
+                    visualTransformation = PasswordVisualTransformation(),
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        },
+        modifier = Modifier
+            .width(349.dp)
+            .height(300.dp)
+            .clip(RoundedCornerShape(16.dp))
+    )
+}
+
+@Composable
+fun ErrorDialog(onDismiss: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            Button(onClick = onDismiss) {
+                Text("Aceptar")
+            }
+        },
+        title = { Text(text = "Error") },
+        text = { Text(text = "Debes ingresar correctamente tu contraseña si deseas eliminar tu cuenta.") }
+    )
 }
