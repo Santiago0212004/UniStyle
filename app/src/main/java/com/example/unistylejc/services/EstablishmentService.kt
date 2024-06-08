@@ -36,14 +36,25 @@ class EstablishmentService {
 
             val commentsList = establishmentSnapshot.get("commentsRef") as? List<*> ?: listOf<String>()
 
-            val currentScores = commentsList.mapNotNull { commentId ->
-                val commentSnapshot = transaction.get(firestore.collection("comment").document(commentId.toString()))
-                commentSnapshot.getDouble("score")
+            val validCommentRefs = commentsList.filterIsInstance<String>().filter { it.isNotBlank() }
+
+            val totalScores: Int
+            val sumScores: Double
+
+            if (validCommentRefs.isNotEmpty()) {
+                val currentScores = validCommentRefs.mapNotNull { commentId ->
+                    val commentSnapshot = transaction.get(firestore.collection("comment").document(commentId.toString()))
+                    commentSnapshot.getDouble("score")
+                }
+
+                totalScores = currentScores.size + 1
+                sumScores = currentScores.sum() + comment.score
+            } else {
+                totalScores = 1
+                sumScores = comment.score
             }
 
-            val totalScores = currentScores.size + 1
-            val sumScores = currentScores.sum() + comment.score
-            val newAverageScore = sumScores / totalScores
+            val newAverageScore: Double = sumScores / totalScores
 
             transaction.set(commentsRef, comment)
 

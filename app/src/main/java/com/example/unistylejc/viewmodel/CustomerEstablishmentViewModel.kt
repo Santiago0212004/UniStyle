@@ -121,6 +121,7 @@ class CustomerEstablishmentViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             establishmentRepository.addComment(comment)
             withContext(Dispatchers.Main){
+                loadEstablishment(comment.establishmentRef)
                 loadEstablishmentComments(comment.establishmentRef)
             }
         }

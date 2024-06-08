@@ -44,8 +44,10 @@ class EstablishmentRepositoryImpl(
         val establishment = document.toObject(Establishment::class.java)
         val workers = arrayListOf<Worker?>()
         establishment?.workersRefs?.forEach{
-            val worker = workerServices.loadWorker(it).toObject(Worker::class.java)
-            workers.add(worker)
+            if(it!=""){
+                val worker = workerServices.loadWorker(it).toObject(Worker::class.java)
+                workers.add(worker)
+            }
         }
         return workers
     }
@@ -54,8 +56,10 @@ class EstablishmentRepositoryImpl(
         val establishment = document.toObject(Establishment::class.java)
         val comments = arrayListOf<Comment?>()
         establishment?.commentsRef?.forEach{
-            val comment = commentServices.loadComment(it).toObject(Comment::class.java)
-            comments.add(comment)
+            if(it != ""){
+                val comment = commentServices.loadComment(it).toObject(Comment::class.java)
+                comments.add(comment)
+            }
         }
         return comments
     }

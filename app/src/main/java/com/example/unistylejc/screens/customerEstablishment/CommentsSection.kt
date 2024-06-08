@@ -145,10 +145,11 @@ fun CommentCard(viewModel: CustomerEstablishmentViewModel, comment: Comment) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Image(
                             painter = rememberAsyncImagePainter(model = worker!!.picture),
-                            contentDescription = null,
+                            contentDescription = "Worker profile pic",
                             modifier = Modifier
                                 .size(30.dp)
-                                .padding(end = 8.dp),
+                                .padding(end = 8.dp)
+                                .clip(CircleShape),
                             contentScale = ContentScale.Crop
                         )
                         Text(text = "Servicio otorgado por: ${worker!!.name}", style = MaterialTheme.typography.bodySmall)

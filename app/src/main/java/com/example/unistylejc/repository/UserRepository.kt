@@ -17,7 +17,7 @@ import com.example.unistylejc.services.WorkerService
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
-import java.time.LocalDateTime
+import edu.co.icesi.unistyle.domain.model.AppAuthState
 
 interface UserRepository {
     suspend fun loadCustomer(): Customer?
@@ -36,6 +36,8 @@ interface UserRepository {
 
     suspend fun getCustomerReservations(customerId: String): List<Reservation>
     suspend fun getWorkerReservations(workerId: String): Pair<List<ReservationEntity>, List<ReservationEntity>>
+    suspend fun deleteAccount(email: String, pass: String,id:String)
+
 
 }
 
@@ -182,5 +184,7 @@ class UserRepositoryImpl(
     }
 
 
+    override suspend fun deleteAccount(email: String, pass: String,id:String) {
+        customerServices.deleteAccount(email,pass,id)
+    }
 }
-
