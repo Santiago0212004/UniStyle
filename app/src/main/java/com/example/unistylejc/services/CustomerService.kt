@@ -40,7 +40,13 @@ class CustomerService {
         try{
             user.reauthenticate(credential).await()
             user.delete().await()
-            Firebase.firestore.collection("customer").document(id).delete().await()
+            val updates = mapOf(
+                "name" to "Delete",
+                "email" to "Delete",
+                "username" to "Delete",
+                "picture" to ""
+            )
+            Firebase.firestore.collection("customer").document(id).update(updates).await()
             Result.success(Unit)
         }catch (e: Exception){
             throw Exception("Error al eliminar la cuenta: ${e.message}")

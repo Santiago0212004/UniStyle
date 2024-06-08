@@ -114,7 +114,6 @@ private fun ScreenContent(navController: NavHostController,userState: Customer?)
             pass = pass,
             onPassChange = { pass = it },
             onConfirm = {
-                val id = Firebase.auth.currentUser!!.uid
                 user?.let {
                     viewModel.deleteAccount(it.email, pass, it.id,
                         onSuccess = {
