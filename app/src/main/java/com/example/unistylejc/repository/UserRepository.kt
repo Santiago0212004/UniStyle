@@ -1,9 +1,12 @@
 package com.example.unistylejc.repository
 
 import android.net.Uri
+import android.util.Log
 import com.example.unistylejc.domain.model.Customer
+import com.example.unistylejc.domain.model.Establishment
 import com.example.unistylejc.domain.model.PaymentMethod
 import com.example.unistylejc.domain.model.Reservation
+import com.example.unistylejc.domain.model.ReservationEntity
 import com.example.unistylejc.domain.model.Service
 import com.example.unistylejc.domain.model.Worker
 import com.example.unistylejc.services.CustomerService
@@ -11,8 +14,10 @@ import com.example.unistylejc.services.EstablishmentService
 import com.example.unistylejc.services.FileService
 import com.example.unistylejc.services.ReservationService
 import com.example.unistylejc.services.WorkerService
+import com.google.firebase.Timestamp
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import java.time.LocalDateTime
 
 interface UserRepository {
     suspend fun loadCustomer(): Customer?
@@ -30,6 +35,7 @@ interface UserRepository {
     suspend fun loadWorkerServices(serviceIds: List<String>): List<Service>
 
     suspend fun getCustomerReservations(customerId: String): List<Reservation>
+    suspend fun getWorkerReservations(workerId: String): Pair<List<ReservationEntity>, List<ReservationEntity>>
 
 }
 
@@ -127,6 +133,52 @@ class UserRepositoryImpl(
             }
         }
         return reservations
+    }
+
+    override suspend fun getWorkerReservations(workerId: String): Pair<List<ReservationEntity>, List<ReservationEntity>> {
+        val worker = workerServices.loadWorker(workerId)
+        val workerEntity = worker.toObject(Worker::class.java)
+        val reservations = mutableListOf<Reservation>()
+
+        workerEntity?.reservationRefs?.forEach { reservationId ->
+            reservationServices.loadReservation(reservationId).let {
+                it.toObject(Reservation::class.java)?.let { it1 -> reservations.add(it1) }
+            }
+        }
+        val reservationsEntities = mutableListOf<ReservationEntity>()
+        reservations.forEach{
+            var reservationEntity : ReservationEntity = ReservationEntity()
+            val customer =   findCustomerById(it.customerId)
+            customer?.let{
+                reservationEntity.client=it
+            }
+            reservationEntity.initDate = it.initDate
+            val establishment =establishmentServices.getEstablishmentById(it.establishmentId)
+            establishment?.let {
+                reservationEntity.establishment = it.toObject(Establishment::class.java)
+            }
+            val service =  workerServices.loadService(it.serviceId)
+            service?.let{
+                reservationEntity.service = it.toObject(Service::class.java)
+            }
+            val paymentMethod=reservationServices.loadPaymentMethod(it.paymentMethodId)
+            paymentMethod?.let {
+                reservationEntity.paymentMethod = it.toObject(PaymentMethod::class.java)
+            }
+
+            reservationsEntities.add(reservationEntity)
+            Log.e(">>>>", reservationEntity.toString())
+        }
+
+
+
+        val actualTime= Timestamp.now()
+        val pastReservations: List<ReservationEntity> = reservationsEntities.filter { it.initDate!! < actualTime }
+        val futureReservations: List<ReservationEntity> = reservationsEntities.filter { it.initDate!! >= actualTime }
+        val sortedPastReservations: List<ReservationEntity> = pastReservations.sortedBy { it.initDate }
+        val sortedFutureReservations: List<ReservationEntity> = futureReservations.sortedBy { it.initDate }
+
+        return Pair(sortedPastReservations, sortedFutureReservations)
     }
 
 

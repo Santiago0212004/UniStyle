@@ -52,8 +52,6 @@ class CustomerDiscoverViewmodel(
         viewModelScope.launch {
             val reservations= userRepository.getCustomerReservations(uid)
             val (reserved, unreserved) = establishmentRepository.getReservedAndUnreservedEstablishments(uid,reservations)
-            Log.e(">>>>>", reserved.toString())
-            Log.e(">>>>>", unreserved.toString())
             _reservedEstablishments.value = reserved
             _unreservedEstablishments.value = unreserved
 

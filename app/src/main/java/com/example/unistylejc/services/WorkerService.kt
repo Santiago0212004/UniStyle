@@ -49,6 +49,11 @@ class WorkerService {
         return services
     }
 
+    suspend fun loadService(serviceId:String): DocumentSnapshot? {
+        val document = Firebase.firestore.collection("service").document(serviceId).get().await()
+        return document
+    }
+
     suspend fun addReservation(id : String, idReservation : String) {
         Firebase.firestore.collection("worker")
             .document(id).update("reservationRefs", FieldValue.arrayUnion(idReservation)).await()

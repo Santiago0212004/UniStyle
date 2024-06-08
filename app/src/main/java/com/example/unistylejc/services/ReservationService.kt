@@ -20,6 +20,9 @@ class ReservationService {
         val output = Firebase.firestore.collection("payment_method").get().await()
         return output
     }
-
+    suspend fun loadPaymentMethod(paymentMethodId:String ):DocumentSnapshot {
+        val output = Firebase.firestore.collection("payment_method").document(paymentMethodId).get().await()
+        return output
+    }
 
 }

@@ -260,35 +260,4 @@ fun RecommendationCard(navController: NavHostController,establishment: Establish
     }
 }
 
-@Composable
-fun RecentVisitCard(index: Int) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(100.dp),
-        shape = MaterialTheme.shapes.medium
-    ) {
-        Row {
-            Image(
-                painter = painterResource(id = R.drawable.ic_delete_user),
-                contentDescription = null,
-                modifier = Modifier
-                    .fillMaxHeight()
-                    .weight(1f),
-                contentScale = ContentScale.Crop
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Column(
-                modifier = Modifier
-                    .weight(2f)
-                    .padding(8.dp)
-            ) {
-                Text(
-                    text = if (index == 0) "LA FAMA" else "NovaStyle",
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold
-                )
-            }
-        }
-    }
-}
+
