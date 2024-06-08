@@ -1,19 +1,35 @@
 package com.example.unistylejc.screens
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -29,9 +45,12 @@ import coil.compose.rememberAsyncImagePainter
 import com.example.unistylejc.R
 import com.example.unistylejc.domain.model.ReservationEntity
 import com.example.unistylejc.viewmodel.WorkerReservationsViewModel
+import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import java.text.SimpleDateFormat
-import java.util.*
+import java.time.ZoneOffset
+import java.util.Calendar
+import java.util.Locale
 
 @Composable
 fun WorkerReservationsScreen(navController: NavHostController, viewModel: WorkerReservationsViewModel = viewModel()) {
@@ -164,6 +183,7 @@ fun WorkerReservationsScreen(navController: NavHostController, viewModel: Worker
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun ReservationCard(reservation: ReservationEntity) {
     Box(
@@ -186,13 +206,30 @@ fun ReservationCard(reservation: ReservationEntity) {
             )
             Spacer(modifier = Modifier.width(16.dp))
             Column {
-                Text("Pelitos Locos", fontSize = 20.sp, fontWeight = FontWeight.Bold)
-                Spacer(modifier = Modifier.height(4.dp))
-                Text("Servicio: ${reservation.service?.name}")
-                Text("Cliente: ${reservation.client?.name}")
-                Text("Precio: ${reservation.service?.price}")
-                Text("Día: ${reservation.initDate?.toDate()}")
-                reservation.establishment?.address?.let { Text(it, fontSize = 12.sp, color = Color.Gray) }
+
+                reservation.initDate?.toDate()?.let {
+
+                    val calendar = Calendar.getInstance()
+                    calendar.time = it
+                    calendar.add(Calendar.HOUR_OF_DAY, -5)
+                    val adjustedDate = calendar.time
+
+                    val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+                    val sdfTime = SimpleDateFormat("hh:mm a", Locale.getDefault())
+
+                    val date = adjustedDate.let { d -> sdf.format(d) } ?: "Unknown date"
+                    val time = adjustedDate.let { t -> sdfTime.format(t) } ?: "Unknown time"
+
+                    reservation.establishment?.let { e -> Text(e.name, fontSize = 20.sp, fontWeight = FontWeight.Bold) }
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text("Servicio: ${reservation.service?.name}")
+                    Text("Cliente: ${reservation.client?.name}")
+                    Text("Precio: $${reservation.service?.price}")
+                    Text("Día: $date")
+                    Text("Hora: $time")
+                    reservation.establishment?.address?.let { a -> Text(a, fontSize = 12.sp, color = Color.Gray) }
+                }
+
             }
         }
         Box(
