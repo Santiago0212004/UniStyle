@@ -13,15 +13,18 @@ import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
 import com.example.unistylejc.R
 import java.util.Locale
+import kotlin.math.roundToInt
 
 @Composable
 fun RatingStars(score: Double) {
     val decimalFormatSymbols = DecimalFormatSymbols(Locale.US)
     val decimalFormat = DecimalFormat("#.#", decimalFormatSymbols)
     val rScore = decimalFormat.format(score).toDouble()
+    val roundedScore = rScore.roundToInt()
+
     Row {
         repeat(5) { index ->
-            val starPainter = if (index < rScore) {
+            val starPainter = if ((index+1) <= roundedScore) {
                 rememberAsyncImagePainter(model = R.drawable.ic_star_filled)
             } else {
                 rememberAsyncImagePainter(model = R.drawable.ic_star_empty)
