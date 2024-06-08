@@ -191,6 +191,7 @@ fun CustomerProfileScreen(navController: NavHostController, viewModel: CustomerP
     if (isAuthenticated) {
         LaunchedEffect(true) {
             viewModel.loadUser()
+            viewModel.observeUser()
         }
 
         MaterialTheme {
