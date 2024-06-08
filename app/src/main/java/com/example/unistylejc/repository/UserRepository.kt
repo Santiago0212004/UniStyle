@@ -35,6 +35,7 @@ interface UserRepository {
     suspend fun loadWorkerServices(serviceIds: List<String>): List<Service>
 
     suspend fun getCustomerReservations(customerId: String): List<Reservation>
+    suspend fun getCustomerReservationsPastFuture(workerId: String): Pair<List<ReservationEntity>, List<ReservationEntity>>
     suspend fun getWorkerReservations(workerId: String): Pair<List<ReservationEntity>, List<ReservationEntity>>
     suspend fun deleteAccount(email: String, pass: String,id:String)
 
@@ -135,6 +136,49 @@ class UserRepositoryImpl(
             }
         }
         return reservations
+    }
+
+    override suspend fun getCustomerReservationsPastFuture(customerId: String): Pair<List<ReservationEntity>, List<ReservationEntity>> {
+        val customer = customerServices.loadCustomer(customerId)
+        val customerEntity = customer.toObject(Customer::class.java)
+        val reservations = mutableListOf<Reservation>()
+        customerEntity?.reservationRefs?.forEach { reservationId ->
+            reservationServices.loadReservation(reservationId).let {
+                it.toObject(Reservation::class.java)?.let { it1 -> reservations.add(it1) }
+            }
+        }
+
+        val reservationsEntities = mutableListOf<ReservationEntity>()
+        reservations.forEach{
+            var reservationEntity : ReservationEntity = ReservationEntity()
+            val worker =   findWorkerById(it.workerId)
+            worker?.let{
+                reservationEntity.worker=it
+            }
+            reservationEntity.initDate = it.initDate
+            val establishment =establishmentServices.getEstablishmentById(it.establishmentId)
+            establishment?.let {
+                reservationEntity.establishment = it.toObject(Establishment::class.java)
+            }
+            val service =  workerServices.loadService(it.serviceId)
+            service?.let{
+                reservationEntity.service = it.toObject(Service::class.java)
+            }
+            val paymentMethod=reservationServices.loadPaymentMethod(it.paymentMethodId)
+            paymentMethod?.let {
+                reservationEntity.paymentMethod = it.toObject(PaymentMethod::class.java)
+            }
+
+            reservationsEntities.add(reservationEntity)
+            Log.e(">>>>", reservationEntity.toString())
+        }
+        val actualTime= Timestamp.now()
+        val pastReservations: List<ReservationEntity> = reservationsEntities.filter { it.initDate!! < actualTime }
+        val futureReservations: List<ReservationEntity> = reservationsEntities.filter { it.initDate!! >= actualTime }
+        val sortedPastReservations: List<ReservationEntity> = pastReservations.sortedByDescending { it.initDate }
+        val sortedFutureReservations: List<ReservationEntity> = futureReservations.sortedBy { it.initDate }
+
+        return Pair(sortedPastReservations, sortedFutureReservations)
     }
 
     override suspend fun getWorkerReservations(workerId: String): Pair<List<ReservationEntity>, List<ReservationEntity>> {

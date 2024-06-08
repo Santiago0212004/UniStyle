@@ -151,7 +151,7 @@ fun MyNavigationBar(navController: NavHostController){
             modifier = Modifier.padding(paddingValues)){
             composable(BottonBarScreen.CustomerDiscover.screen){ CustomerDiscoverScreen(navController) }
             composable(BottonBarScreen.CustomerReservation.screen){ MainCustomerScreen(navController)}
-            composable(BottonBarScreen.ReservationCalendar.screen){ CustomerReservationCalendarScreen() }
+            composable(BottonBarScreen.ReservationCalendar.screen){ CustomerReservationCalendarScreen(navController) }
             composable(BottonBarScreen.CustomerProfile.screen){ CustomerProfileScreen(navController) }
             composable("customer/settings"){ CustomerSettingsScreen(navBarController)}
         }
