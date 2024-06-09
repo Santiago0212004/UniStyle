@@ -25,7 +25,6 @@ class CommentService {
         return Firebase.firestore.collection("response").document(id).get().await()
     }
 
-
     suspend fun addResponse(response:Response) {
         Firebase.firestore.collection("response").document(response.id).set(response).await()
     }

@@ -1,9 +1,19 @@
 package com.example.unistylejc.screens
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -13,8 +23,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
-import androidx.compose.material.icons.filled.Send
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -24,16 +32,18 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -47,6 +57,7 @@ import com.example.unistylejc.R
 import com.example.unistylejc.domain.model.CommentEntity
 import com.example.unistylejc.domain.model.ResponseEntity
 import com.example.unistylejc.domain.model.Worker
+import com.example.unistylejc.screens.resources.RatingStars
 import com.example.unistylejc.viewmodel.WorkerCommunityViewmodel
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
@@ -114,13 +125,7 @@ fun ProfileHeader(userState: Worker?) {
                 Spacer(modifier = Modifier.height(8.dp))
                 Row {
                     userState?.score?.let {
-                        repeat(it.toInt()) {
-                            Icon(
-                                imageVector = Icons.Default.Star,
-                                contentDescription = "Star",
-                                tint = Color.Yellow
-                            )
-                        }
+                        RatingStars(it)
                     }
                 }
             }
@@ -191,11 +196,7 @@ fun CommentCard(viewModel: WorkerCommunityViewmodel,comment: CommentEntity,userS
                 Spacer(modifier = Modifier.width(8.dp))
                 Column {
                     Text(text = "${comment.customer?.name}", fontWeight = FontWeight.Bold, fontSize = 14.sp,color = Color(0xFF5D16A6) )
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        repeat(comment.score.toInt()) {
-                            Icon(imageVector = Icons.Default.Star, contentDescription = "Star", tint = Color.Yellow)
-                        }
-                    }
+                    RatingStars(comment.score)
                 }
             }
             Spacer(modifier = Modifier.height(8.dp))

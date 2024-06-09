@@ -21,12 +21,14 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -36,6 +38,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
 import com.example.unistylejc.domain.model.Comment
 import com.example.unistylejc.domain.model.Customer
+import com.example.unistylejc.domain.model.Response
 import com.example.unistylejc.domain.model.Worker
 import com.example.unistylejc.screens.resources.RatingStars
 import com.example.unistylejc.viewmodel.CustomerEstablishmentViewModel
@@ -52,7 +55,7 @@ fun CommentsSection(
     val workers by viewModel.workers.observeAsState()
     val comments by viewModel.comments.observeAsState()
 
-    if(workers?.isNotEmpty() == true && showDialog.value){
+    if (workers?.isNotEmpty() == true && showDialog.value) {
         AddCommentDialog(
             viewModel = viewModel,
             onDismissRequest = { showDialog.value = false },
@@ -62,7 +65,6 @@ fun CommentsSection(
             }
         )
     }
-
 
     Column {
         Button(
@@ -84,7 +86,7 @@ fun CommentsSection(
                 .verticalScroll(scrollState)
         ) {
             if (comments?.isNotEmpty() == true) {
-                comments!!.forEach{comment ->
+                comments!!.forEach { comment ->
                     comment?.let {
                         CommentCard(viewModel, comment)
                     }
@@ -96,79 +98,105 @@ fun CommentsSection(
 
 @Composable
 fun CommentCard(viewModel: CustomerEstablishmentViewModel, comment: Comment) {
-    comment.let {
-        val worker by produceState<Worker?>(initialValue = null) {
-            value = viewModel.findWorkerById(comment.workerRef)
-        }
+    var showReplies by remember { mutableStateOf(false) }
 
-        val customer by produceState<Customer?>(initialValue = null) {
-            value = viewModel.findCustomerById(comment.customerRef)
-        }
+    val worker by produceState<Worker?>(initialValue = null) {
+        value = viewModel.findWorkerById(comment.workerRef)
+    }
 
-        if (worker != null && customer != null) {
-            Card(
-                modifier = Modifier
-                    .padding(8.dp)
-                    .fillMaxWidth(),
-                elevation = CardDefaults.cardElevation(
-                    defaultElevation = 10.dp
-                )
+    val customer by produceState<Customer?>(initialValue = null) {
+        value = viewModel.findCustomerById(comment.customerRef)
+    }
+
+    val response by produceState<Response?>(initialValue = null) {
+        value = comment.responseRef?.let {
+            if(it.isNotEmpty()){
+                viewModel.loadCommentResponse(it)
+            } else {
+                null
+            }
+        }
+    }
+
+    if (worker != null && customer != null) {
+        Card(
+            modifier = Modifier
+                .padding(8.dp)
+                .fillMaxWidth(),
+            elevation = CardDefaults.cardElevation(
+                defaultElevation = 10.dp
+            )
+        ) {
+            Column(
+                modifier = Modifier.padding(16.dp)
             ) {
-                Column(
-                    modifier = Modifier.padding(16.dp)
-                ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Image(
-                            painter = rememberAsyncImagePainter(customer!!.picture),
-                            contentDescription = "Customer profile pic",
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier
-                                .clip(CircleShape)
-                                .size(60.dp)
-                                .background(Color(0xFF9C2DB))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Image(
+                        painter = rememberAsyncImagePainter(customer!!.picture),
+                        contentDescription = "Customer profile pic",
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .clip(CircleShape)
+                            .size(60.dp)
+                            .background(Color(0xFF9C2DB))
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(text = customer!!.name, style = MaterialTheme.typography.titleMedium)
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                comment.date?.toDate()?.let {
+                    val calendar = Calendar.getInstance()
+                    calendar.time = it
+                    calendar.add(Calendar.HOUR_OF_DAY, -5)
+                    val adjustedDate = calendar.time
+
+                    val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+
+                    val date = adjustedDate.let { d -> sdf.format(d) } ?: "Unknown date"
+
+                    Text(text = date, style = MaterialTheme.typography.bodyMedium)
+                }
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                Text(text = comment.content, style = MaterialTheme.typography.bodyLarge)
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Image(
+                        painter = rememberAsyncImagePainter(model = worker!!.picture),
+                        contentDescription = "Worker profile pic",
+                        modifier = Modifier
+                            .size(30.dp)
+                            .padding(end = 8.dp)
+                            .clip(CircleShape),
+                        contentScale = ContentScale.Crop
+                    )
+                    Text(text = "Servicio otorgado por: ${worker!!.name}", style = MaterialTheme.typography.bodySmall)
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                RatingStars(comment.score)
+
+                response?.let {
+                    TextButton(
+                        onClick = { showReplies = !showReplies },
+                        modifier = Modifier.padding(top = 8.dp)
+                    ) {
+                        Text(text = if (showReplies) "Ocultar Respuesta" else "Ver Respuesta")
+                    }
+
+                    if (showReplies) {
+                        Text(
+                            text = it.content,
+                            style = MaterialTheme.typography.bodyMedium,
+                            modifier = Modifier.padding(top = 8.dp)
                         )
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text(text = customer!!.name, style = MaterialTheme.typography.titleMedium)
                     }
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    comment.date?.toDate()?.let {
-                        val calendar = Calendar.getInstance()
-                        calendar.time = it
-                        calendar.add(Calendar.HOUR_OF_DAY, -5)
-                        val adjustedDate = calendar.time
-
-                        val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-
-                        val date = adjustedDate.let { d -> sdf.format(d) } ?: "Unknown date"
-
-                        Text(text = date, style = MaterialTheme.typography.bodyMedium)
-                    }
-
-                    Spacer(modifier = Modifier.height(4.dp))
-
-                    Text(text = comment.content, style = MaterialTheme.typography.bodyLarge)
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Image(
-                            painter = rememberAsyncImagePainter(model = worker!!.picture),
-                            contentDescription = "Worker profile pic",
-                            modifier = Modifier
-                                .size(30.dp)
-                                .padding(end = 8.dp)
-                                .clip(CircleShape),
-                            contentScale = ContentScale.Crop
-                        )
-                        Text(text = "Servicio otorgado por: ${worker!!.name}", style = MaterialTheme.typography.bodySmall)
-                    }
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    RatingStars(comment!!.score)
-
                 }
             }
         }

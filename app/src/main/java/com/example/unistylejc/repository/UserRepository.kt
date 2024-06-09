@@ -22,8 +22,6 @@ import com.example.unistylejc.services.WorkerService
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
-
-import edu.co.icesi.unistyle.domain.model.AppAuthState
 import java.util.UUID
 
 interface UserRepository {
@@ -50,6 +48,8 @@ interface UserRepository {
     suspend fun updateProfileCustomer(name: String, username: String)
 
     suspend fun loadAllWorkerReservations(workerId: String): List<Reservation>
+
+    suspend fun loadCommentResponse(responseId: String): Response?
 }
 
 class UserRepositoryImpl(
@@ -159,6 +159,12 @@ class UserRepositoryImpl(
             }
         }
         return reservations
+    }
+
+    override suspend fun loadCommentResponse(responseId: String): Response? {
+        val response = commentServices.getResponseById(responseId)
+        val responseObject = response.toObject(Response::class.java)
+        return responseObject
     }
 
     override suspend fun getCustomerReservationsPastFuture(customerId: String): Pair<List<ReservationEntity>, List<ReservationEntity>> {
