@@ -64,7 +64,9 @@ private fun ScreenContent(navController: NavHostController,userState: Worker?) {
             navController.navigate("worker/settings")
         },text = "Configuración", iconResId = R.drawable.ic_settings)
         Spacer(modifier = Modifier.height(32.dp))
-        OptionButton({},text = "Acerca de nosotros", iconResId = R.drawable.ic_about)
+        OptionButton({
+            navController.navigate("Information")
+        },text = "Acerca de nosotros", iconResId = R.drawable.ic_about)
         Spacer(modifier = Modifier.height(32.dp))
 
         OptionButton({
@@ -195,4 +197,3 @@ fun WorkerProfileScreen(navController: NavHostController, viewModel: WorkerProfi
         }
     }
 }
-

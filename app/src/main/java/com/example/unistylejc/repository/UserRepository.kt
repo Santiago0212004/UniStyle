@@ -37,6 +37,7 @@ interface UserRepository {
     suspend fun getCustomerReservationsPastFuture(customerId: String): Pair<List<ReservationEntity>, List<ReservationEntity>>
     suspend fun getWorkerReservations(workerId: String): Pair<List<ReservationEntity>, List<ReservationEntity>>
     suspend fun deleteAccount(email: String, pass: String,id:String)
+    suspend fun updateProfileCustomer(name: String, username: String)
 
     suspend fun loadAllWorkerReservations(workerId: String): List<Reservation>
 }
@@ -241,5 +242,8 @@ class UserRepositoryImpl(
 
     override suspend fun deleteAccount(email: String, pass: String,id:String) {
         customerServices.deleteAccount(email,pass,id)
+    }
+    override suspend fun updateProfileCustomer(name: String, username: String) {
+        customerServices.updateProfile(name,username)
     }
 }

@@ -1,5 +1,6 @@
 package com.example.unistylejc.repository
 
+import android.util.Log
 import com.example.unistylejc.domain.model.Comment
 import com.example.unistylejc.domain.model.Establishment
 import com.example.unistylejc.domain.model.Reservation
@@ -47,6 +48,7 @@ class EstablishmentRepositoryImpl(
             if(it!=""){
                 val worker = workerServices.loadWorker(it).toObject(Worker::class.java)
                 workers.add(worker)
+                Log.e("AAA",it)
             }
         }
         return workers

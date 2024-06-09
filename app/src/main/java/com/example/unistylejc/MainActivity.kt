@@ -17,8 +17,11 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.unistylejc.screens.CustomerChangePasswordScreen
+import com.example.unistylejc.screens.customerEstablishment.CustomerEstablishmentScreen
 import com.example.unistylejc.screens.CustomerProfileScreen
 import com.example.unistylejc.screens.CustomerSettingsScreen
+import com.example.unistylejc.screens.CustomerUpdateProfileScreen
 import com.example.unistylejc.screens.InformationScreen
 import com.example.unistylejc.screens.LoginScreen
 import com.example.unistylejc.screens.MainWorkerScreen
@@ -30,11 +33,7 @@ import com.example.unistylejc.screens.WorkerProfileScreen
 import com.example.unistylejc.screens.WorkerReservationsScreen
 import com.example.unistylejc.screens.WorkerSettingsScreen
 import com.example.unistylejc.screens.WorkerUpdateProfileScreen
-import com.example.unistylejc.screens.customerEstablishment.CustomerEstablishmentScreen
 import com.example.unistylejc.screens.customerEstablishment.ReservationScreen
-import com.example.unistylejc.screens.UploadPictureScreen
-import com.example.unistylejc.screens.WorkerNavigationBar
-import com.example.unistylejc.screens.WorkerReservationsScreen
 import com.example.unistylejc.ui.theme.UniStyleJCTheme
 
 class MainActivity : ComponentActivity() {
@@ -65,8 +64,10 @@ fun App(navController: NavHostController = rememberNavController()){
         composable("customer/discover") { CustomerDiscoverScreen(navController) }
         composable("customer/profile") { CustomerProfileScreen(navController) }
         composable("customer/settings"){ CustomerSettingsScreen(navController)}
-        composable("customer/Information"){ InformationScreen(navController)}
-        composable("worker/main") { WorkerNavigationBar(navController) }
+        composable("Information"){ InformationScreen(navController)}
+        composable("customer/updateProfile") { CustomerUpdateProfileScreen(navController) }
+        composable("customer/changePassword"){ CustomerChangePasswordScreen(navController)}
+        composable("worker/main") { MainWorkerScreen(navController) }
         composable("worker/profile") { WorkerProfileScreen(navController) }
         composable("worker/community") { MainWorkerScreen(navController) }
         composable("worker/settings") { WorkerSettingsScreen(navController) }
