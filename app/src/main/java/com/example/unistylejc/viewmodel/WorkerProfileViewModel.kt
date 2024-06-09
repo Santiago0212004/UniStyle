@@ -6,6 +6,8 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.unistylejc.domain.model.Worker
+import com.example.unistylejc.repository.AuthRepository
+import com.example.unistylejc.repository.AuthRepositoryImpl
 import com.example.unistylejc.repository.UserRepository
 import com.example.unistylejc.repository.UserRepositoryImpl
 import com.google.firebase.auth.FirebaseAuth
@@ -15,7 +17,7 @@ import kotlinx.coroutines.withContext
 
 class WorkerProfileViewModel(
     val userRepo: UserRepository = UserRepositoryImpl(),
-
+    val authRepo: AuthRepository = AuthRepositoryImpl()
     ) : ViewModel() {
 
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
@@ -56,5 +58,8 @@ class WorkerProfileViewModel(
         }
     }
 
+    fun signOut(){
+        authRepo.signOut()
+    }
 
 }
