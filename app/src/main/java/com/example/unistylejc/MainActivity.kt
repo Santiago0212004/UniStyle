@@ -68,6 +68,7 @@ fun App(navController: NavHostController = rememberNavController()){
         composable("customer/changePassword"){ CustomerChangePasswordScreen(navController)}
         composable("worker/main") { MainWorkerScreen(navController) }
         composable("worker/profile") { WorkerProfileScreen(navController) }
+        composable("worker/community") { MainWorkerScreen(navController) }
         composable("worker/settings") { WorkerSettingsScreen(navController) }
         composable("worker/updateProfile") { WorkerUpdateProfileScreen(navController) }
         composable("worker/changePassword") { WorkerChangePasswordScreen(navController) }

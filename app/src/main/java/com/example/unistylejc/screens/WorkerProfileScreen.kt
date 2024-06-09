@@ -31,12 +31,16 @@ import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
 import com.example.unistylejc.R
 import com.example.unistylejc.domain.model.Worker
+import com.example.unistylejc.viewmodel.CustomerProfileViewModel
 import com.example.unistylejc.viewmodel.WorkerProfileViewModel
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 
 @Composable
 private fun ScreenContent(navController: NavHostController,userState: Worker?) {
+    val viewModel: WorkerProfileViewModel = viewModel()
+    var showDialogLO by remember { mutableStateOf(false) }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -64,8 +68,24 @@ private fun ScreenContent(navController: NavHostController,userState: Worker?) {
             navController.navigate("Information")
         },text = "Acerca de nosotros", iconResId = R.drawable.ic_about)
         Spacer(modifier = Modifier.height(32.dp))
-        OptionButton({},text = "Cerrar sesión", iconResId = R.drawable.ic_logout)
+
+        OptionButton({
+            showDialogLO = true
+        },text = "Cerrar sesión", iconResId = R.drawable.ic_logout)
         Spacer(modifier = Modifier.height(32.dp))
+
+        if(showDialogLO){
+            SignOutConfirmationDialog(
+                onConfirm = {
+                    viewModel.signOut()
+                    navController.navigate("login")
+                    showDialogLO = false
+                },
+                onDismiss = {
+                    showDialogLO = false
+                }
+            )
+        }
     }
 }
 
