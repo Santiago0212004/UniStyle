@@ -33,6 +33,9 @@ import com.example.unistylejc.screens.WorkerProfileScreen
 import com.example.unistylejc.screens.WorkerReservationsScreen
 import com.example.unistylejc.screens.WorkerSettingsScreen
 import com.example.unistylejc.screens.WorkerUpdateProfileScreen
+import com.example.unistylejc.screens.UploadPictureScreen
+import com.example.unistylejc.screens.WorkerCommunityScreen
+import com.example.unistylejc.screens.WorkerReservationsScreen
 import com.example.unistylejc.screens.customerEstablishment.ReservationScreen
 import com.example.unistylejc.ui.theme.UniStyleJCTheme
 
@@ -74,6 +77,7 @@ fun App(navController: NavHostController = rememberNavController()){
         composable("worker/updateProfile") { WorkerUpdateProfileScreen(navController) }
         composable("worker/changePassword") { WorkerChangePasswordScreen(navController) }
         composable("worker/reservations") { WorkerReservationsScreen(navController) }
+        composable("worker/community") { WorkerCommunityScreen(navController) }
         composable("uploadPicture") { UploadPictureScreen(navController) }
         composable("establishmentDetail/{establishmentId}") { backStackEntry ->
             val establishmentId = backStackEntry.arguments?.getString("establishmentId")
