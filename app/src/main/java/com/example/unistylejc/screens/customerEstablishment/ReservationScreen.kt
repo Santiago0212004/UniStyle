@@ -50,7 +50,7 @@ import com.example.unistylejc.screens.resources.TimeSlots
 import com.example.unistylejc.screens.resources.rememberDatePickerState
 import com.example.unistylejc.viewmodel.CustomerEstablishmentViewModel
 import com.google.firebase.Timestamp
-import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.ZoneOffset
 import java.util.UUID
@@ -72,7 +72,7 @@ fun ReservationScreen(
 
     var selectedService by remember { mutableStateOf<Service?>(null) }
     var selectedPaymentMethod by remember { mutableStateOf<PaymentMethod?>(null) }
-    var selectedDate by remember { mutableStateOf(LocalDate.now()) }
+    var selectedDate by remember { mutableStateOf(LocalDateTime.now().minusHours(5).toLocalDate()) }
     var selectedTimeRange by remember { mutableStateOf<Pair<LocalTime, LocalTime>?>(null) }
 
     var showDatePicker by remember { mutableStateOf(false) }
@@ -165,7 +165,7 @@ fun ReservationScreen(
                             value = selectedPaymentMethod?.name ?: "",
                             onValueChange = {},
                             readOnly = true,
-                            label = { Text("Seleccionar Trabajador") },
+                            label = { Text("Seleccionar método de pago") },
                             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = paymentMethodMenuExpanded) },
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -290,7 +290,7 @@ fun ReservationScreen(
             if (showDatePicker) {
                 val datePickerState = rememberDatePickerState()
                 DatePickerDialog(
-                    title = "Select Date",
+                    title = "Selecciona la fecha",
                     onDismissRequest = { showDatePicker = false },
                     containerColor = MaterialTheme.colorScheme.surface
                 ) {
