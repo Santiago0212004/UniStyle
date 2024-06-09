@@ -1,5 +1,7 @@
 package com.example.unistylejc.viewmodel
 
+import android.net.Uri
+import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.LiveData
@@ -13,6 +15,9 @@ import com.example.unistylejc.repository.AuthRepository
 import com.example.unistylejc.repository.AuthRepositoryImpl
 import com.example.unistylejc.repository.UserRepository
 import com.example.unistylejc.repository.UserRepositoryImpl
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -30,8 +35,6 @@ class CustomerProfileViewModel(
     private val _errorState = MutableLiveData<String?>()
     val errorState: LiveData<String?> get() = _errorState
 
-
-    //Los eventos de entrada
     fun loadUser() {
         viewModelScope.launch(Dispatchers.IO) {
             val user = userRepo.loadCustomer()
@@ -70,5 +73,18 @@ class CustomerProfileViewModel(
 
     fun clearError() {
         _errorState.value = null
+    }
+    fun uploadProfilePicture(uri: Uri, isWorker: Boolean, callback: (Boolean) -> Unit) {
+        viewModelScope.launch {
+            val downloadUri = userRepo.uploadProfilePicture(uri)
+            Log.e(">>>", downloadUri.toString())
+            if (downloadUri != null) {
+                val userId = Firebase.auth.uid
+                val success = userRepo.updateProfilePictureUrl(userId!!, downloadUri.toString(), isWorker = false)
+                callback(success)
+            } else {
+                callback(false)
+            }
+        }
     }
 }

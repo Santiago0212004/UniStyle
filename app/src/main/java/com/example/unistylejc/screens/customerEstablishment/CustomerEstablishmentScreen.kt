@@ -45,7 +45,6 @@ import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
 import com.example.unistylejc.screens.resources.RatingStars
 import com.example.unistylejc.viewmodel.CustomerEstablishmentViewModel
-import com.google.firebase.auth.FirebaseAuth
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -57,14 +56,11 @@ fun CustomerEstablishmentScreen(navController: NavHostController, establishmentI
     val loggedCustomer by viewModel.loggedCustomer.observeAsState()
 
     LaunchedEffect(Unit) {
+        viewModel.getLoggedCustomer()
         viewModel.loadEstablishment(establishmentId)
-        val currentUser = FirebaseAuth.getInstance().currentUser
-        if (currentUser != null) {
-            viewModel.getLoggedCustomer(currentUser.uid)
-            viewModel.loadEstablishment(establishmentId)
-            viewModel.loadEstablishmentWorkers(establishmentId)
-            viewModel.loadEstablishmentComments(establishmentId)
-        }
+        viewModel.loadEstablishment(establishmentId)
+        viewModel.loadEstablishmentWorkers(establishmentId)
+        viewModel.loadEstablishmentComments(establishmentId)
     }
 
     establishment?.let { est ->
@@ -253,7 +249,7 @@ fun CustomerEstablishmentScreen(navController: NavHostController, establishmentI
 
 
             if (inReservation) {
-                ReservationSection(viewModel)
+                ReservationSection(navController,viewModel)
             }
             if (inComments) {
                 CommentsSection(viewModel)

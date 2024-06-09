@@ -22,6 +22,7 @@ import com.example.unistylejc.services.WorkerService
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+
 import edu.co.icesi.unistyle.domain.model.AppAuthState
 import java.util.UUID
 
@@ -41,11 +42,14 @@ interface UserRepository {
     suspend fun loadWorkerServices(serviceIds: List<String>): List<Service>
 
     suspend fun getCustomerReservations(customerId: String): List<Reservation>
-    suspend fun getCustomerReservationsPastFuture(workerId: String): Pair<List<ReservationEntity>, List<ReservationEntity>>
+    suspend fun getCustomerReservationsPastFuture(customerId: String): Pair<List<ReservationEntity>, List<ReservationEntity>>
     suspend fun getWorkerReservations(workerId: String): Pair<List<ReservationEntity>, List<ReservationEntity>>
     suspend fun deleteAccount(email: String, pass: String,id:String)
     suspend fun getWorkerComments(): List<CommentEntity>
     suspend fun sendResponse(commentId: String, commenterId: String, content: String)
+    suspend fun updateProfileCustomer(name: String, username: String)
+
+    suspend fun loadAllWorkerReservations(workerId: String): List<Reservation>
 }
 
 class UserRepositoryImpl(
@@ -145,6 +149,18 @@ class UserRepositoryImpl(
         return reservations
     }
 
+    override suspend fun loadAllWorkerReservations(workerId: String): List<Reservation> {
+        val worker = workerServices.loadWorker(workerId)
+        val customerEntity = worker.toObject(Worker::class.java)
+        val reservations = mutableListOf<Reservation>()
+        customerEntity?.reservationRefs?.forEach { reservationId ->
+            reservationServices.loadReservation(reservationId).let {
+                it.toObject(Reservation::class.java)?.let { it1 -> reservations.add(it1) }
+            }
+        }
+        return reservations
+    }
+
     override suspend fun getCustomerReservationsPastFuture(customerId: String): Pair<List<ReservationEntity>, List<ReservationEntity>> {
         val customer = customerServices.loadCustomer(customerId)
         val customerEntity = customer.toObject(Customer::class.java)
@@ -157,23 +173,23 @@ class UserRepositoryImpl(
 
         val reservationsEntities = mutableListOf<ReservationEntity>()
         reservations.forEach{
-            var reservationEntity : ReservationEntity = ReservationEntity()
+            val reservationEntity = ReservationEntity()
             val worker =   findWorkerById(it.workerId)
-            worker?.let{
-                reservationEntity.worker=it
+            worker?.let{ w ->
+                reservationEntity.worker=w
             }
             reservationEntity.initDate = it.initDate
             val establishment =establishmentServices.getEstablishmentById(it.establishmentId)
-            establishment?.let {
-                reservationEntity.establishment = it.toObject(Establishment::class.java)
+            establishment.let { e ->
+                reservationEntity.establishment = e.toObject(Establishment::class.java)
             }
             val service =  workerServices.loadService(it.serviceId)
-            service?.let{
-                reservationEntity.service = it.toObject(Service::class.java)
+            service?.let{ s ->
+                reservationEntity.service = s.toObject(Service::class.java)
             }
             val paymentMethod=reservationServices.loadPaymentMethod(it.paymentMethodId)
-            paymentMethod?.let {
-                reservationEntity.paymentMethod = it.toObject(PaymentMethod::class.java)
+            paymentMethod.let { p ->
+                reservationEntity.paymentMethod = p.toObject(PaymentMethod::class.java)
             }
 
             reservationsEntities.add(reservationEntity)
@@ -200,23 +216,23 @@ class UserRepositoryImpl(
         }
         val reservationsEntities = mutableListOf<ReservationEntity>()
         reservations.forEach{
-            var reservationEntity : ReservationEntity = ReservationEntity()
+            val reservationEntity = ReservationEntity()
             val customer =   findCustomerById(it.customerId)
-            customer?.let{
-                reservationEntity.client=it
+            customer?.let{ c ->
+                reservationEntity.client=c
             }
             reservationEntity.initDate = it.initDate
             val establishment =establishmentServices.getEstablishmentById(it.establishmentId)
-            establishment?.let {
-                reservationEntity.establishment = it.toObject(Establishment::class.java)
+            establishment.let { e ->
+                reservationEntity.establishment = e.toObject(Establishment::class.java)
             }
             val service =  workerServices.loadService(it.serviceId)
-            service?.let{
-                reservationEntity.service = it.toObject(Service::class.java)
+            service?.let{ s ->
+                reservationEntity.service = s.toObject(Service::class.java)
             }
             val paymentMethod=reservationServices.loadPaymentMethod(it.paymentMethodId)
-            paymentMethod?.let {
-                reservationEntity.paymentMethod = it.toObject(PaymentMethod::class.java)
+            paymentMethod.let { p ->
+                reservationEntity.paymentMethod = p.toObject(PaymentMethod::class.java)
             }
 
             reservationsEntities.add(reservationEntity)
@@ -271,6 +287,7 @@ class UserRepositoryImpl(
     override suspend fun deleteAccount(email: String, pass: String,id:String) {
         customerServices.deleteAccount(email,pass,id)
     }
+
     override suspend fun sendResponse(commentId: String, commenterId: String,content:String) {
         val responseid = UUID.randomUUID().toString()
         val response : Response = Response(responseid,commentId,commenterId,content)
@@ -278,4 +295,8 @@ class UserRepositoryImpl(
         commentServices.asociateResponse(commentId,responseid)
     }
 
+    override suspend fun updateProfileCustomer(name: String, username: String) {
+        customerServices.updateProfile(name,username)
+    }
 }
+

@@ -1,5 +1,9 @@
 package com.example.unistylejc.screens
 
+import android.net.Uri
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -16,6 +20,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -24,6 +29,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -42,6 +48,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -49,6 +56,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
@@ -57,14 +65,22 @@ import com.example.unistylejc.domain.model.Customer
 import com.example.unistylejc.viewmodel.CustomerProfileViewModel
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
+import kotlinx.coroutines.delay
 
 @Composable
-private fun ScreenContent(navController: NavHostController,userState: Customer?) {
-    val viewModel: CustomerProfileViewModel = viewModel()
+private fun ScreenContent(navController: NavHostController,userState: Customer?, viewModel: CustomerProfileViewModel) {
     var showDialogDA by remember { mutableStateOf(false) }
     var pass by remember { mutableStateOf("") }
     val errorState by viewModel.errorState.observeAsState()
     val user by viewModel.userState.observeAsState()
+    var showDialog by remember { mutableStateOf(false) }
+    if (showDialog) {
+        MinimalDialog(onDismissRequest = { showDialog = false })
+        LaunchedEffect(Unit) {
+            delay(3000L) // Delay for 3 seconds
+            showDialog = false
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -81,7 +97,9 @@ private fun ScreenContent(navController: NavHostController,userState: Customer?)
             modifier = Modifier.padding(bottom = 16.dp)
         )
 
-        ProfileSection(navController,userState)
+        ProfileSection(navController,userState,viewModel,showDialog){
+            showDialog = it;
+        }
 
         Spacer(modifier = Modifier.height(32.dp))
 
@@ -89,12 +107,7 @@ private fun ScreenContent(navController: NavHostController,userState: Customer?)
             navController.navigate("customer/updateProfile")
         }, text = "Cambiar datos", iconResId = R.drawable.ic_settings)
         Spacer(modifier = Modifier.height(32.dp))
-        OptionButton({
-            navController.navigate("customer/updateEmail")
-        }, text = "Cambiar email", iconResId = R.drawable.ic_email)
-        Spacer(modifier = Modifier.height(32.dp))
-
-        OptionButton({},
+        OptionButton({navController.navigate("customer/changePassword")},
             text = "Cambiar contraseña",
             iconResId = R.drawable.ic_password
         )
@@ -136,7 +149,32 @@ private fun ScreenContent(navController: NavHostController,userState: Customer?)
 }
 
 @Composable
-private fun ProfileSection(navController: NavHostController,userState: Customer?) {
+private fun ProfileSection(navController: NavHostController, userState: Customer?, viewModel: CustomerProfileViewModel, dialog:Boolean,
+                           showDialogChange: (Boolean) -> Unit) {
+    val imageUri = remember { mutableStateOf<Uri?>(null) }
+    val context = LocalContext.current
+
+    val pickImageLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        imageUri.value = uri
+    }
+
+    LaunchedEffect(imageUri.value) {
+        if (imageUri.value != null) {
+            imageUri.value?.let {
+                viewModel.uploadProfilePicture(it, true) { success ->
+                    if (success) {
+                        showDialogChange(true)
+                    } else {
+                        Toast.makeText(context, "Error al subir la imagen", Toast.LENGTH_LONG)
+                            .show()
+                    }
+                }
+            }
+        }
+    }
+
     Box(
         modifier = Modifier
             .size(width = 400.dp, height = 230.dp)
@@ -147,15 +185,29 @@ private fun ProfileSection(navController: NavHostController,userState: Customer?
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.fillMaxSize()
         ) {
-            Image(
-                painter = rememberAsyncImagePainter("${userState?.picture}"),
-                contentDescription = "Imagen de perfil",
+            Box(
                 modifier = Modifier
                     .size(124.dp)
-                    .clip(CircleShape)
-                    .clickable { navController.navigate("customer/settings/updateProfile") },
-                contentScale = ContentScale.Crop
-            )
+            ){
+                Image(
+                    painter = rememberAsyncImagePainter("${userState?.picture}"),
+                    contentDescription = "Imagen de perfil",
+                    modifier = Modifier
+                        .size(124.dp)
+                        .clip(CircleShape)
+                        .clickable { pickImageLauncher.launch("image/*") },
+                    contentScale = ContentScale.Crop
+                )
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_pencil),
+                    contentDescription = "Editar imagen de perfil",
+                    modifier = Modifier
+                        .size(32.dp)
+                        .align(Alignment.TopEnd)
+                        .background(Color.White, shape = CircleShape)
+                        .padding(4.dp)
+                )
+            }
             Spacer(modifier = Modifier.width(16.dp))
             Box(
                 modifier = Modifier
@@ -163,7 +215,7 @@ private fun ProfileSection(navController: NavHostController,userState: Customer?
                     .shadow(3.dp, shape = RoundedCornerShape(16.dp))
                     .background(color = Color.White, shape = RoundedCornerShape(16.dp))
                     .padding(16.dp)
-                ,) {
+                ) {
                 Column(
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.Start
@@ -214,7 +266,7 @@ private fun OptionButton( redirect: () -> Unit,
         Text(text = text, fontSize = 16.sp, color = textColor)
         Spacer(modifier = Modifier.weight(1f))
         Icon(
-            painter = painterResource(id = R.drawable.ic_minimalist_arrow), // Use an appropriate icon for the arrow
+            painter = painterResource(id = R.drawable.ic_minimalist_arrow),
             contentDescription = null,
             modifier = Modifier.size(24.dp),
             tint = Color.Black
@@ -236,7 +288,7 @@ fun CustomerSettingsScreen(navController: NavHostController, viewModel: Customer
                 modifier = Modifier.fillMaxSize(),
                 color = MaterialTheme.colorScheme.background
             ) {
-                ScreenContent(navController, userState)
+                ScreenContent(navController, userState, viewModel)
             }
         }
     }
@@ -309,4 +361,40 @@ fun ErrorDialog(onDismiss: () -> Unit) {
         title = { Text(text = "Error") },
         text = { Text(text = "Debes ingresar correctamente tu contraseña si deseas eliminar tu cuenta.") }
     )
+}
+@Composable
+private fun MinimalDialog(onDismissRequest: () -> Unit) {
+    Dialog(onDismissRequest = { onDismissRequest() }) {
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(200.dp)
+                .padding(16.dp),
+            shape = RoundedCornerShape(16.dp),
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp)
+                    .verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.Top,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ){
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_check_circle),
+                    contentDescription = null,
+                    modifier = Modifier.size(48.dp),
+                    tint = Color.Black
+                )
+                Text(
+                    text = "Se realizaron los cambios",
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .size(36.dp)
+                        .wrapContentSize(Alignment.Center),
+                    textAlign = TextAlign.Center,
+                )
+            }
+        }
+    }
 }
