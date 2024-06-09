@@ -307,6 +307,6 @@ fun ErrorDialog(onDismiss: () -> Unit) {
             }
         },
         title = { Text(text = "Error") },
-        text = { Text(text = "Debes ingresar correctamente tu contraseña si deseas eliminar tu cuenta.") }
+        text = { Text(text = "Debes ingresar correctamente tu contraseña.") }
     )
 }
