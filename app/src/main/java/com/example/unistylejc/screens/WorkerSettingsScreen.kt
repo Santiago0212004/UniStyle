@@ -13,7 +13,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -24,6 +26,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.livedata.observeAsState
@@ -33,6 +36,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -49,6 +54,10 @@ import kotlinx.coroutines.delay
 @Composable
 private fun ScreenContent(navController: NavHostController,userState: Worker?,viewModel: WorkerProfileViewModel) {
     var showDialog by remember { mutableStateOf(false) }
+    var showDialogDE by remember { mutableStateOf(false) }
+    var pass by remember { mutableStateOf("") }
+    val worker by viewModel.userState.observeAsState()
+    val errorState by viewModel.errorState.observeAsState()
 
     if (showDialog) {
         MinimalDialog(onDismissRequest = { showDialog = false })
@@ -88,7 +97,9 @@ private fun ScreenContent(navController: NavHostController,userState: Worker?,vi
             iconResId = R.drawable.ic_password
         )
         Spacer(modifier = Modifier.height(32.dp))
-        OptionButton({},
+        OptionButton({
+            showDialogDE = true
+        },
             text = "Desvincular",
             iconResId = R.drawable.ic_logout
         )
@@ -98,6 +109,31 @@ private fun ScreenContent(navController: NavHostController,userState: Worker?,vi
             iconResId = R.drawable.ic_delete_user,
             textColor = Color.Red,
             borderColor = Color.Red
+        )
+    }
+
+    if(showDialogDE){
+        DeleteEstablishmentFromWorkerConfirmationDialog(
+            pass = pass,
+            onPassChange = { pass = it },
+            onConfirm = {
+                worker?.let {
+                    viewModel.deleteEstablishmentFromWorker(it.email, pass, it.id,
+                        onSuccess = {
+                            navController.navigate("worker/profile")
+                        }
+                    )
+                }
+                showDialogDE = false
+            },
+            onDismiss = {
+                showDialogDE = false
+            }
+        )
+    }
+    if (errorState != null) {
+        ErrorDialog(
+            onDismiss = { viewModel.clearError() }
         )
     }
 }
@@ -286,5 +322,60 @@ fun WorkerSettingsScreen(navController: NavHostController, viewModel: WorkerProf
             }
         }
     }
+}
+
+@Composable
+fun DeleteEstablishmentFromWorkerConfirmationDialog(onConfirm: () -> Unit,
+                                                    onDismiss: () -> Unit,
+                                                    pass: String,
+                                                    onPassChange: (String) -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            Button(
+                onClick = onConfirm,
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF5D16A6))
+            ) {
+                Text("Confirmar")
+            }
+        },
+        dismissButton = {
+            Button(
+                onClick = onDismiss,
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF2E8FC)),
+                modifier = Modifier.border(
+                    width = 1.dp,
+                    color = Color(0xFF5D16A6),
+                    shape = RoundedCornerShape(100.dp)
+                )
+            ) {
+                Text("Cancelar", color = Color(0xFF5D16A6))
+            }
+        },
+        title = {
+            Column {
+                Text(
+                    "¿Seguro desea desvincularse?",
+                    textAlign = TextAlign.Center,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                OutlinedTextField(
+                    value = pass,
+                    onValueChange = onPassChange,
+                    label = { Text("Contraseña") },
+                    placeholder = { Text("Ingrese su contraseña") },
+                    keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Password),
+                    visualTransformation = PasswordVisualTransformation(),
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        },
+        modifier = Modifier
+            .width(349.dp)
+            .height(300.dp)
+            .clip(RoundedCornerShape(16.dp))
+    )
 }
 

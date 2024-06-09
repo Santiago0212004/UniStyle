@@ -33,9 +33,7 @@ import com.example.unistylejc.screens.WorkerProfileScreen
 import com.example.unistylejc.screens.WorkerReservationsScreen
 import com.example.unistylejc.screens.WorkerSettingsScreen
 import com.example.unistylejc.screens.WorkerUpdateProfileScreen
-import com.example.unistylejc.screens.UploadPictureScreen
 import com.example.unistylejc.screens.WorkerCommunityScreen
-import com.example.unistylejc.screens.WorkerReservationsScreen
 import com.example.unistylejc.screens.customerEstablishment.ReservationScreen
 import com.example.unistylejc.ui.theme.UniStyleJCTheme
 
@@ -67,6 +65,7 @@ fun App(navController: NavHostController = rememberNavController()){
         composable("customer/discover") { CustomerDiscoverScreen(navController) }
         composable("customer/profile") { CustomerProfileScreen(navController) }
         composable("customer/settings"){ CustomerSettingsScreen(navController)}
+        composable("customer/Information"){ InformationScreen(navController)}
         composable("Information"){ InformationScreen(navController)}
         composable("customer/updateProfile") { CustomerUpdateProfileScreen(navController) }
         composable("customer/changePassword"){ CustomerChangePasswordScreen(navController)}

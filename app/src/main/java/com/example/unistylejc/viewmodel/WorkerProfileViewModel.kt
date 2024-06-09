@@ -25,6 +25,9 @@ class WorkerProfileViewModel(
     private val _userState = MutableLiveData<Worker>()
     val userState:LiveData<Worker> get() = _userState
 
+    private val _errorState = MutableLiveData<String?>()
+    val errorState: LiveData<String?> get() = _errorState
+
 
 
     //Los eventos de entrada
@@ -60,6 +63,25 @@ class WorkerProfileViewModel(
 
     fun signOut(){
         authRepo.signOut()
+    }
+
+    fun deleteEstablishmentFromWorker(email: String, pass: String, id:String, onSuccess: () -> Unit){
+        viewModelScope.launch (Dispatchers.IO) {
+            try {
+                userRepo.deleteEstablishmentFromWorker(email, pass, id)
+                withContext(Dispatchers.Main) {
+                    onSuccess()
+                }
+            }catch (e: Exception){
+                withContext(Dispatchers.Main) {
+                    _errorState.value = e.message ?: "Error al desvincular"
+                }
+            }
+        }
+    }
+
+    fun clearError() {
+        _errorState.value = null
     }
 
 }
