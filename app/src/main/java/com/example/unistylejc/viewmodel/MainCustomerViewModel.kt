@@ -48,13 +48,14 @@ class MainCustomerViewModel(
         }
     }
 
-    fun filterEstablishments(query: String?, city: String?) {
+    fun filterEstablishments(query: String?, city: String?, category: String?) {
         viewModelScope.launch(Dispatchers.IO) {
             val allEstablishments = _allEstablishments.value
             val filteredEstablishments = allEstablishments?.filter { establishment ->
                 val matchesQuery = query.isNullOrEmpty() || establishment?.name?.lowercase(Locale.ROOT)?.contains(query.lowercase(Locale.ROOT)) == true
                 val matchesCity = city.isNullOrEmpty() || city == "TODAS LAS CIUDADES" || establishment?.city?.lowercase(Locale.ROOT)?.contains(city.lowercase(Locale.ROOT)) == true
-                matchesQuery && matchesCity
+                val matchesCategory = category.isNullOrEmpty() || category == "TODAS LAS CATEGORIAS" || establishment?.category?.lowercase(Locale.ROOT)?.contains(category.lowercase(Locale.ROOT)) == true
+                matchesQuery && matchesCity && matchesCategory
             }
             withContext(Dispatchers.Main) {
                 _establishments.value = filteredEstablishments?.let { ArrayList(it) }
