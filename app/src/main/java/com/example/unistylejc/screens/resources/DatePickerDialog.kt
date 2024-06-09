@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 @Composable
 fun DatePickerDialog(
@@ -70,7 +71,7 @@ fun DatePickerDialog(
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun rememberDatePickerState(): DatePickerState {
-    val currentDate = LocalDate.now()
+    val currentDate = LocalDateTime.now().minusHours(5).toLocalDate()
     return remember { DatePickerState(currentDate.year, currentDate.monthValue, currentDate.dayOfMonth) }
 }
 
