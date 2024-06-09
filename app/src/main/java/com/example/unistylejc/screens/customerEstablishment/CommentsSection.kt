@@ -39,6 +39,7 @@ import com.example.unistylejc.domain.model.Worker
 import com.example.unistylejc.screens.resources.RatingStars
 import com.example.unistylejc.viewmodel.CustomerEstablishmentViewModel
 import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.Locale
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -132,13 +133,22 @@ fun CommentCard(viewModel: CustomerEstablishmentViewModel, comment: Comment) {
 
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-                    val date = comment!!.date?.toDate()?.let { sdf.format(it) } ?: "Unknown date"
-                    Text(text = date, style = MaterialTheme.typography.bodyMedium)
+                    comment.date?.toDate()?.let {
+                        val calendar = Calendar.getInstance()
+                        calendar.time = it
+                        calendar.add(Calendar.HOUR_OF_DAY, -5)
+                        val adjustedDate = calendar.time
+
+                        val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+
+                        val date = adjustedDate.let { d -> sdf.format(d) } ?: "Unknown date"
+
+                        Text(text = date, style = MaterialTheme.typography.bodyMedium)
+                    }
 
                     Spacer(modifier = Modifier.height(4.dp))
 
-                    Text(text = comment!!.content, style = MaterialTheme.typography.bodyLarge)
+                    Text(text = comment.content, style = MaterialTheme.typography.bodyLarge)
 
                     Spacer(modifier = Modifier.height(8.dp))
 
