@@ -38,6 +38,7 @@ import coil.compose.rememberAsyncImagePainter
 import com.example.unistylejc.R
 import com.example.unistylejc.domain.model.Customer
 import com.example.unistylejc.viewmodel.CustomerProfileViewModel
+import com.example.unistylejc.viewmodel.MainCustomerViewModel
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 
@@ -67,20 +68,19 @@ private fun ScreenContent(navController: NavHostController, userState: Customer?
 
         OptionButton({
             navController.navigate("customer/settings")
-        },text = "Configuración", iconResId = R.drawable.ic_settings)
+        }, text = "Configuración", iconResId = R.drawable.ic_settings)
         Spacer(modifier = Modifier.height(32.dp))
 
         OptionButton({
-                     navController.navigate("customer/Information")
-        },text = "Acerca de nosotros", iconResId = R.drawable.ic_about)
+            navController.navigate("Information")
+        }, text = "Acerca de nosotros", iconResId = R.drawable.ic_about)
         Spacer(modifier = Modifier.height(32.dp))
         OptionButton({
             showDialogLO = true
-        },text = "Cerrar sesión", iconResId = R.drawable.ic_logout)
+        }, text = "Cerrar sesión", iconResId = R.drawable.ic_logout)
         Spacer(modifier = Modifier.height(32.dp))
     }
-
-    if(showDialogLO){
+    if (showDialogLO) {
         SignOutConfirmationDialog(
             onConfirm = {
                 viewModel.signOut()
@@ -121,10 +121,7 @@ fun ProfileSection(userState: Customer?) {
                     .shadow(3.dp, shape = RoundedCornerShape(16.dp))
                     .background(color = Color.White, shape = RoundedCornerShape(16.dp))
                     .padding(16.dp)
-                ,
-
-
-                ) {
+            ) {
                 Column(
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.Start
@@ -147,11 +144,12 @@ fun ProfileSection(userState: Customer?) {
 }
 
 @Composable
-private fun OptionButton( redirect: () -> Unit,
-                          text: String,
-                          iconResId: Int,
-                          textColor: Color = Color.Black,
-                          borderColor: Color = Color(0xFFFFA500)
+private fun OptionButton(
+    redirect: () -> Unit,
+    text: String,
+    iconResId: Int,
+    textColor: Color = Color.Black,
+    borderColor: Color = Color(0xFFFFA500)
 ) {
     Button(
         onClick = { redirect() },
@@ -184,7 +182,10 @@ private fun OptionButton( redirect: () -> Unit,
 }
 
 @Composable
-fun CustomerProfileScreen(navController: NavHostController, viewModel: CustomerProfileViewModel = viewModel()) {
+fun CustomerProfileScreen(
+    navController: NavHostController,
+    viewModel: CustomerProfileViewModel = viewModel()
+) {
     val isAuthenticated by remember { mutableStateOf(Firebase.auth.currentUser != null) }
     val userState by viewModel.userState.observeAsState()
 
@@ -199,7 +200,7 @@ fun CustomerProfileScreen(navController: NavHostController, viewModel: CustomerP
                 modifier = Modifier.fillMaxSize(),
                 color = MaterialTheme.colorScheme.background
             ) {
-                ScreenContent(navController,userState)
+                ScreenContent(navController, userState)
             }
         }
     }
@@ -210,8 +211,10 @@ fun SignOutConfirmationDialog(onConfirm: () -> Unit, onDismiss: () -> Unit) {
     AlertDialog(
         onDismissRequest = onDismiss,
         confirmButton = {
-            Button(onClick = onConfirm,
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF5D16A6))) {
+            Button(
+                onClick = onConfirm,
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF5D16A6))
+            ) {
                 Text("Confirmar")
             }
         },
@@ -219,12 +222,22 @@ fun SignOutConfirmationDialog(onConfirm: () -> Unit, onDismiss: () -> Unit) {
             Button(
                 onClick = onDismiss,
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF2E8FC)),
-                modifier = Modifier.border(width = 1.dp, color = Color(0xFF5D16A6), shape = RoundedCornerShape(100.dp))
+                modifier = Modifier.border(
+                    width = 1.dp,
+                    color = Color(0xFF5D16A6),
+                    shape = RoundedCornerShape(100.dp)
+                )
             ) {
                 Text("Cancelar", color = Color(0xFF5D16A6))
             }
         },
-        title = { Text("¿Seguro desea cerrar sesión?", textAlign = TextAlign.Center, fontWeight = FontWeight.Bold) },
+        title = {
+            Text(
+                "¿Seguro desea cerrar sesión?",
+                textAlign = TextAlign.Center,
+                fontWeight = FontWeight.Bold
+            )
+        },
         modifier = Modifier
             .width(349.dp)
             .height(224.dp)

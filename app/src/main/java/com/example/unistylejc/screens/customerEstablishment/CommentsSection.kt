@@ -30,6 +30,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
@@ -92,7 +93,6 @@ fun CommentsSection(
     }
 }
 
-
 @Composable
 fun CommentCard(viewModel: CustomerEstablishmentViewModel, comment: Comment) {
     comment.let {
@@ -123,8 +123,8 @@ fun CommentCard(viewModel: CustomerEstablishmentViewModel, comment: Comment) {
                             contentScale = ContentScale.Crop,
                             modifier = Modifier
                                 .clip(CircleShape)
-                                .size(40.dp)
-                                .background(MaterialTheme.colorScheme.primary)
+                                .size(60.dp)
+                                .background(Color(0xFF9C2DB))
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(text = customer!!.name, style = MaterialTheme.typography.titleMedium)

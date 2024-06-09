@@ -17,9 +17,11 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.unistylejc.screens.CustomerChangePasswordScreen
 import com.example.unistylejc.screens.customerEstablishment.CustomerEstablishmentScreen
 import com.example.unistylejc.screens.CustomerProfileScreen
 import com.example.unistylejc.screens.CustomerSettingsScreen
+import com.example.unistylejc.screens.CustomerUpdateProfileScreen
 import com.example.unistylejc.screens.InformationScreen
 import com.example.unistylejc.screens.LoginScreen
 import com.example.unistylejc.screens.MainWorkerScreen
@@ -61,7 +63,9 @@ fun App(navController: NavHostController = rememberNavController()){
         composable("customer/discover") { CustomerDiscoverScreen(navController) }
         composable("customer/profile") { CustomerProfileScreen(navController) }
         composable("customer/settings"){ CustomerSettingsScreen(navController)}
-        composable("customer/Information"){ InformationScreen(navController)}
+        composable("Information"){ InformationScreen(navController)}
+        composable("customer/updateProfile") { CustomerUpdateProfileScreen(navController) }
+        composable("customer/changePassword"){ CustomerChangePasswordScreen(navController)}
         composable("worker/main") { MainWorkerScreen(navController) }
         composable("worker/profile") { WorkerProfileScreen(navController) }
         composable("worker/settings") { WorkerSettingsScreen(navController) }
