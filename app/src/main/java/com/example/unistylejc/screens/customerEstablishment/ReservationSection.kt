@@ -34,6 +34,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
 import com.example.unistylejc.domain.model.Worker
 import com.example.unistylejc.screens.resources.RatingStars
@@ -41,7 +42,7 @@ import com.example.unistylejc.viewmodel.CustomerEstablishmentViewModel
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun ReservationSection(viewModel: CustomerEstablishmentViewModel) {
+fun ReservationSection(navController: NavHostController, viewModel: CustomerEstablishmentViewModel) {
 
     val selectedWorker by viewModel.selectedWorker.observeAsState()
     val workers by viewModel.workers.observeAsState()
@@ -53,8 +54,7 @@ fun ReservationSection(viewModel: CustomerEstablishmentViewModel) {
     val scrollState = rememberScrollState()
 
     Column (
-        modifier = Modifier
-            .verticalScroll(scrollState)
+        modifier = Modifier.verticalScroll(scrollState)
     ) {
         val workersScrollState = rememberScrollState()
         Row(
@@ -85,17 +85,8 @@ fun ReservationSection(viewModel: CustomerEstablishmentViewModel) {
 
         if (showReservationDialog) {
             selectedWorker?.let {
-                establishment?.let { it1 ->
-                    ReservationDialog(
-                        viewModel = viewModel,
-                        worker = it,
-                        establishment = it1,
-                        onDismissRequest = { showReservationDialog = false },
-                        onConfirmRequest = { reservation ->
-                            showReservationDialog = false
-                            viewModel.createReservation(reservation)
-                        }
-                    )
+                establishment?.let {
+                    navController.navigate("reserve/${establishment!!.id}/${selectedWorker!!.id}")
                 }
             }
         }
@@ -160,7 +151,6 @@ fun WorkerInfoCard(worker: Worker, onReserveClick: () -> Unit) {
 
         RatingStars(worker.score)
 
-
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(onClick = onReserveClick, modifier = Modifier.align(Alignment.End)) {
@@ -168,4 +158,3 @@ fun WorkerInfoCard(worker: Worker, onReserveClick: () -> Unit) {
         }
     }
 }
-
