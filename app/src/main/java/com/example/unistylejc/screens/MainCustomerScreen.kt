@@ -93,8 +93,10 @@ fun MainCustomerScreen(navController: NavHostController, viewModel: MainCustomer
             loggedCustomer?.let { customer ->
                 Text(text = customer.username, style = MaterialTheme.typography.bodyMedium)
                 Spacer(modifier = Modifier.width(4.dp))
+                val defaultImg = "https://firebasestorage.googleapis.com/v0/b/unistyle-940e2.appspot.com/o/user.png?alt=media&token=1b93b86f-5718-4a71-8fe8-e7f5dd198a72"
+                val imgUrl = if (customer.picture!!.isEmpty()) defaultImg else customer.picture
                 Image(
-                    painter = rememberAsyncImagePainter(customer.picture),
+                    painter = rememberAsyncImagePainter(imgUrl),
                     contentDescription = "Profile Picture",
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
@@ -228,8 +230,6 @@ fun MainCustomerScreen(navController: NavHostController, viewModel: MainCustomer
     }
 
 }
-
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FiltersDialog(
@@ -392,16 +392,10 @@ fun EstablishmentsMap(establishments: List<Establishment?>, navController: NavHo
             cameraPositionState.animate(CameraUpdateFactory.newLatLngBounds(bounds, 100))
         }
     }
-
     navigateToEstablishment?.let { establishment ->
         LaunchedEffect(establishment) {
             navController.navigate("establishmentDetail/${establishment.id}")
             navigateToEstablishment = null
         }
     }
-
 }
-
-
-
-

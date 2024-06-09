@@ -17,20 +17,24 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.unistylejc.screens.CustomerChangePasswordScreen
 import com.example.unistylejc.screens.customerEstablishment.CustomerEstablishmentScreen
 import com.example.unistylejc.screens.CustomerProfileScreen
 import com.example.unistylejc.screens.CustomerSettingsScreen
+import com.example.unistylejc.screens.CustomerUpdateProfileScreen
 import com.example.unistylejc.screens.InformationScreen
 import com.example.unistylejc.screens.LoginScreen
 import com.example.unistylejc.screens.MainWorkerScreen
 import com.example.unistylejc.screens.MyNavigationBar
 import com.example.unistylejc.screens.SignUpScreen
+import com.example.unistylejc.screens.UploadPictureScreen
 import com.example.unistylejc.screens.WorkerChangePasswordScreen
 import com.example.unistylejc.screens.WorkerProfileScreen
+import com.example.unistylejc.screens.WorkerReservationsScreen
 import com.example.unistylejc.screens.WorkerSettingsScreen
 import com.example.unistylejc.screens.WorkerUpdateProfileScreen
-import com.example.unistylejc.screens.UploadPictureScreen
-import com.example.unistylejc.screens.WorkerReservationsScreen
+import com.example.unistylejc.screens.WorkerCommunityScreen
+import com.example.unistylejc.screens.customerEstablishment.ReservationScreen
 import com.example.unistylejc.ui.theme.UniStyleJCTheme
 
 class MainActivity : ComponentActivity() {
@@ -62,17 +66,31 @@ fun App(navController: NavHostController = rememberNavController()){
         composable("customer/profile") { CustomerProfileScreen(navController) }
         composable("customer/settings"){ CustomerSettingsScreen(navController)}
         composable("customer/Information"){ InformationScreen(navController)}
+        composable("Information"){ InformationScreen(navController)}
+        composable("customer/updateProfile") { CustomerUpdateProfileScreen(navController) }
+        composable("customer/changePassword"){ CustomerChangePasswordScreen(navController)}
+        composable("worker/main") { MainWorkerScreen(navController) }
         composable("worker/profile") { WorkerProfileScreen(navController) }
         composable("worker/community") { MainWorkerScreen(navController) }
         composable("worker/settings") { WorkerSettingsScreen(navController) }
         composable("worker/updateProfile") { WorkerUpdateProfileScreen(navController) }
         composable("worker/changePassword") { WorkerChangePasswordScreen(navController) }
         composable("worker/reservations") { WorkerReservationsScreen(navController) }
+        composable("worker/community") { WorkerCommunityScreen(navController) }
         composable("uploadPicture") { UploadPictureScreen(navController) }
         composable("establishmentDetail/{establishmentId}") { backStackEntry ->
             val establishmentId = backStackEntry.arguments?.getString("establishmentId")
             establishmentId?.let {
                 CustomerEstablishmentScreen(navController, it)
+            }
+        }
+        composable("reserve/{establishmentId}/{workerId}") { backStackEntry ->
+            val establishmentId = backStackEntry.arguments?.getString("establishmentId")
+            val workerId = backStackEntry.arguments?.getString("workerId")
+            establishmentId?.let { e ->
+                workerId?.let { w ->
+                    ReservationScreen(navController, establishmentId = e, workerId = w)
+                }
             }
         }
     }

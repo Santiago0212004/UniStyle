@@ -43,10 +43,10 @@ class CustomerService {
             user.reauthenticate(credential).await()
             user.delete().await()
             val updates = mapOf(
-                "name" to "Delete",
+                "name" to "Usuario inexistente",
                 "email" to "Delete",
                 "username" to "Delete",
-                "picture" to ""
+                "picture" to "https://firebasestorage.googleapis.com/v0/b/unistyle-940e2.appspot.com/o/no_user.png?alt=media&token=51c4f2b4-e1da-4b3f-bad9-016bc0416d81"
             )
             Firebase.firestore.collection("customer").document(id).update(updates).await()
             Result.success(Unit)
@@ -58,5 +58,13 @@ class CustomerService {
     suspend fun addComment(id : String, comment : Comment) {
         Firebase.firestore.collection("customer")
             .document(id).update("commentsRef", FieldValue.arrayUnion(comment.id)).await()
+    }
+    suspend fun updateProfile(customerName: String, customerUsername: String) {
+        Firebase.firestore.collection("customer").document(
+            Firebase.auth.uid!!
+        ).update("name", customerName).await()
+        Firebase.firestore.collection("customer").document(
+            Firebase.auth.uid!!
+        ).update("username", customerUsername).await()
     }
 }
