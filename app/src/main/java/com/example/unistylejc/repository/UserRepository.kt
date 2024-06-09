@@ -2,13 +2,18 @@ package com.example.unistylejc.repository
 
 import android.net.Uri
 import android.util.Log
+import com.example.unistylejc.domain.model.Comment
+import com.example.unistylejc.domain.model.CommentEntity
 import com.example.unistylejc.domain.model.Customer
 import com.example.unistylejc.domain.model.Establishment
 import com.example.unistylejc.domain.model.PaymentMethod
 import com.example.unistylejc.domain.model.Reservation
 import com.example.unistylejc.domain.model.ReservationEntity
+import com.example.unistylejc.domain.model.Response
+import com.example.unistylejc.domain.model.ResponseEntity
 import com.example.unistylejc.domain.model.Service
 import com.example.unistylejc.domain.model.Worker
+import com.example.unistylejc.services.CommentService
 import com.example.unistylejc.services.CustomerService
 import com.example.unistylejc.services.EstablishmentService
 import com.example.unistylejc.services.FileService
@@ -18,6 +23,7 @@ import com.google.firebase.Timestamp
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import edu.co.icesi.unistyle.domain.model.AppAuthState
+import java.util.UUID
 
 interface UserRepository {
     suspend fun loadCustomer(): Customer?
@@ -38,8 +44,8 @@ interface UserRepository {
     suspend fun getCustomerReservationsPastFuture(workerId: String): Pair<List<ReservationEntity>, List<ReservationEntity>>
     suspend fun getWorkerReservations(workerId: String): Pair<List<ReservationEntity>, List<ReservationEntity>>
     suspend fun deleteAccount(email: String, pass: String,id:String)
-
-
+    suspend fun getWorkerComments(): List<CommentEntity>
+    suspend fun sendResponse(commentId: String, commenterId: String, content: String)
 }
 
 class UserRepositoryImpl(
@@ -47,7 +53,8 @@ class UserRepositoryImpl(
     private val workerServices: WorkerService = WorkerService(),
     private val fileService: FileService = FileService(),
     private val reservationServices: ReservationService = ReservationService(),
-    private val establishmentServices: EstablishmentService = EstablishmentService()
+    private val establishmentServices: EstablishmentService = EstablishmentService(),
+    private val commentServices: CommentService = CommentService()
 ) : UserRepository {
     override suspend fun loadCustomer(): Customer? {
         val document = customerServices.loadCustomer(Firebase.auth.uid!!)
@@ -227,8 +234,48 @@ class UserRepositoryImpl(
         return Pair(sortedPastReservations, sortedFutureReservations)
     }
 
+    override suspend fun getWorkerComments(): List<CommentEntity>{
+        val workerId : String = Firebase.auth.uid!!
+        var commentsList = commentServices.getAllComments()
+        var commentsObjectList = mutableListOf<Comment>()
+        var commentsEntityList = mutableListOf<CommentEntity>()
+        commentsList?.documents?.forEach(){
+            it.toObject(Comment::class.java)?.let { it1 -> commentsObjectList.add(it1) }
+        }
+        var commentsObjectListFiltered= commentsObjectList.filter { workerId==it.workerRef }
+        commentsObjectListFiltered.forEach(){comment->
+            var responseEntity :ResponseEntity? = ResponseEntity()
+            if(comment.responseRef!=""){
+                var response = comment.responseRef?.let { it1 -> commentServices.getResponseById(it1) }
+                response?.let {
+                    var responseObject = it.toObject(Response::class.java)
+                    var worker = responseObject?.let { it1 -> workerServices.loadWorker(it1.commenterRef) }
+                    worker?.let{
+                        var workerObject = worker.toObject(Worker::class.java)
+                        responseEntity = responseObject?.content?.let { it1 -> ResponseEntity(commenterW = workerObject, commentRef = comment.id, content = it1) }
+                    }
+                }
+            }
+            val customer = comment.customerRef.let { customerServices.loadCustomer(it) }
+            val customerObject : Customer
+            customer.let {
+                customerObject= it.toObject(Customer::class.java)!!
+            }
+            var commentEntity : CommentEntity = CommentEntity(id=comment.id,content=comment.content,date=comment.date,score=comment.score, customer = customerObject, workerRef = comment.customerRef, establishmentRef = comment.establishmentRef, responseEntity=responseEntity )
+            commentsEntityList.add(commentEntity)
+        }
+        return commentsEntityList
+    }
+
 
     override suspend fun deleteAccount(email: String, pass: String,id:String) {
         customerServices.deleteAccount(email,pass,id)
     }
+    override suspend fun sendResponse(commentId: String, commenterId: String,content:String) {
+        val responseid = UUID.randomUUID().toString()
+        val response : Response = Response(responseid,commentId,commenterId,content)
+        commentServices.addResponse(response)
+        commentServices.asociateResponse(commentId,responseid)
+    }
+
 }

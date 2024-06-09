@@ -183,7 +183,7 @@ fun WorkerReservationsScreen(navController: NavHostController, viewModel: Worker
     }
 }
 
-@RequiresApi(Build.VERSION_CODES.O)
+
 @Composable
 fun ReservationCard(reservation: ReservationEntity) {
     Box(
