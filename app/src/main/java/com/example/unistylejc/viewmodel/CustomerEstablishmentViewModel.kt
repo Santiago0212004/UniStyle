@@ -15,6 +15,7 @@ import com.example.unistylejc.repository.EstablishmentRepository
 import com.example.unistylejc.repository.EstablishmentRepositoryImpl
 import com.example.unistylejc.repository.UserRepository
 import com.example.unistylejc.repository.UserRepositoryImpl
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -44,9 +45,13 @@ class CustomerEstablishmentViewModel(
     private val _comments = MutableLiveData<List<Comment?>>()
     val comments: LiveData<List<Comment?>> get() = _comments
 
-    fun getLoggedCustomer(customerId: String) {
+    private val _selectedWorkerReservations = MutableLiveData<List<Reservation>>()
+    val selectedWorkerReservations: LiveData<List<Reservation>> get() = _selectedWorkerReservations
+
+    fun getLoggedCustomer() {
+        val customerId = FirebaseAuth.getInstance().currentUser?.uid
         viewModelScope.launch(Dispatchers.IO) {
-            val customer = userRepository.findCustomerById(customerId)
+            val customer = userRepository.findCustomerById(customerId!!)
             withContext(Dispatchers.Main) {
                 _loggedCustomer.value = customer
             }
@@ -81,6 +86,15 @@ class CustomerEstablishmentViewModel(
                 withContext(Dispatchers.Main){
                     _selectedWorkerServices.value = servicesList
                 }
+            }
+        }
+    }
+
+    fun loadWorkerReservations(workerId: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val workerReservations = userRepository.loadAllWorkerReservations(workerId)
+            withContext(Dispatchers.Main){
+                _selectedWorkerReservations.value = workerReservations
             }
         }
     }

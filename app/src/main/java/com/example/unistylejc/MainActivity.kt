@@ -17,7 +17,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.unistylejc.screens.customerEstablishment.CustomerEstablishmentScreen
 import com.example.unistylejc.screens.CustomerProfileScreen
 import com.example.unistylejc.screens.CustomerSettingsScreen
 import com.example.unistylejc.screens.InformationScreen
@@ -25,12 +24,14 @@ import com.example.unistylejc.screens.LoginScreen
 import com.example.unistylejc.screens.MainWorkerScreen
 import com.example.unistylejc.screens.MyNavigationBar
 import com.example.unistylejc.screens.SignUpScreen
+import com.example.unistylejc.screens.UploadPictureScreen
 import com.example.unistylejc.screens.WorkerChangePasswordScreen
 import com.example.unistylejc.screens.WorkerProfileScreen
+import com.example.unistylejc.screens.WorkerReservationsScreen
 import com.example.unistylejc.screens.WorkerSettingsScreen
 import com.example.unistylejc.screens.WorkerUpdateProfileScreen
-import com.example.unistylejc.screens.UploadPictureScreen
-import com.example.unistylejc.screens.WorkerReservationsScreen
+import com.example.unistylejc.screens.customerEstablishment.CustomerEstablishmentScreen
+import com.example.unistylejc.screens.customerEstablishment.ReservationScreen
 import com.example.unistylejc.ui.theme.UniStyleJCTheme
 
 class MainActivity : ComponentActivity() {
@@ -73,6 +74,15 @@ fun App(navController: NavHostController = rememberNavController()){
             val establishmentId = backStackEntry.arguments?.getString("establishmentId")
             establishmentId?.let {
                 CustomerEstablishmentScreen(navController, it)
+            }
+        }
+        composable("reserve/{establishmentId}/{workerId}") { backStackEntry ->
+            val establishmentId = backStackEntry.arguments?.getString("establishmentId")
+            val workerId = backStackEntry.arguments?.getString("workerId")
+            establishmentId?.let { e ->
+                workerId?.let { w ->
+                    ReservationScreen(navController, establishmentId = e, workerId = w)
+                }
             }
         }
     }
