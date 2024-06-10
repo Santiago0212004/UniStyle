@@ -100,6 +100,40 @@ class WorkerService {
             null
         }.await()
     }
+
+
+    suspend fun deleteAccount(email:String, pass:String, id:String) {
+        val user = Firebase.auth.currentUser ?: throw Exception("User not logged in")
+        val credential = EmailAuthProvider.getCredential(email, pass)
+        try {
+            user.reauthenticate(credential).await()
+            user.delete().await()
+
+            val worker = Firebase.firestore.collection("worker").document(id).get().await()
+            val establishmentID = worker.get("establishmentRef").toString()
+
+            val updates = mapOf(
+                "name" to "Usuario inexistente",
+                "email" to "Delete",
+                "username" to "Delete",
+                "picture" to "https://firebasestorage.googleapis.com/v0/b/unistyle-940e2.appspot.com/o/no_user.png?alt=media&token=51c4f2b4-e1da-4b3f-bad9-016bc0416d81",
+                "establishmentRef" to ""
+            )
+            Firebase.firestore.collection("worker").document(id).update(updates).await()
+
+            val establishmentDoc = Firebase.firestore.collection("establishment").document(establishmentID).get().await()
+            val workersRefs = establishmentDoc.get("workersRefs") as List<*>
+            val updatedWorkersRefs = workersRefs.filter { it != id }
+            Firebase.firestore.collection("establishment").document(establishmentID).update(mapOf("workersRefs" to updatedWorkersRefs)).await()
+
+
+            Result.success(Unit)
+        } catch (e: Exception) {
+            throw Exception("Error al eliminar la cuenta: ${e.message}")
+        }
+    }
+
+
     suspend fun deleteEstablishmentFromWorker(email:String, pass:String, id:String) {
         val user = Firebase.auth.currentUser ?: throw Exception("User not logged in")
         val credential = EmailAuthProvider.getCredential(email, pass)

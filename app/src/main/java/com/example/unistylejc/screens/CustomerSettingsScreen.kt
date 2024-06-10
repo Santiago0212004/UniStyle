@@ -31,6 +31,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
@@ -68,7 +69,7 @@ import com.google.firebase.auth.auth
 import kotlinx.coroutines.delay
 
 @Composable
-private fun ScreenContent(navController: NavHostController,userState: Customer?, viewModel: CustomerProfileViewModel) {
+private fun ScreenContent(navController: NavHostController,userState: Customer?, viewModel: CustomerProfileViewModel = viewModel()) {
     var showDialogDA by remember { mutableStateOf(false) }
     var pass by remember { mutableStateOf("") }
     val errorState by viewModel.errorState.observeAsState()
@@ -90,12 +91,36 @@ private fun ScreenContent(navController: NavHostController,userState: Customer?,
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.Start
     ) {
-        Text(
-            text = "Mi perfil",
-            fontSize = 24.sp,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(bottom = 16.dp)
-        )
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Start
+        ) {
+            IconButton(
+                onClick = { navController.navigate("customer/profile") },
+                modifier = Modifier
+                    .size(48.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .shadow(8.dp, RoundedCornerShape(12.dp))
+                    .background(Color.White)
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.back),
+                    contentDescription = "Back",
+                    modifier = Modifier.size(24.dp),
+                )
+            }
+
+            Spacer(modifier = Modifier.weight(1f))
+
+            Text(
+                text = "Mi perfil",
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+        }
 
         ProfileSection(navController,userState,viewModel,showDialog){
             showDialog = it;

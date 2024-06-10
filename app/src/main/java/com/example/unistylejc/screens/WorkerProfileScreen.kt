@@ -55,12 +55,14 @@ private fun ScreenContent(navController: NavHostController,userState: Worker?) {
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.Start
     ) {
-        Text(
-            text = "Mi perfil",
-            fontSize = 24.sp,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(bottom = 16.dp)
-        )
+        Row (modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+            Text(
+                text = "Mi perfil",
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+        }
 
         ProfileSection(userState)
 
@@ -71,7 +73,7 @@ private fun ScreenContent(navController: NavHostController,userState: Worker?) {
         },text = "Configuración", iconResId = R.drawable.ic_settings)
         Spacer(modifier = Modifier.height(32.dp))
         OptionButton({
-            navController.navigate("Information")
+            navController.navigate("worker/information")
         },text = "Acerca de nosotros", iconResId = R.drawable.ic_about)
         Spacer(modifier = Modifier.height(32.dp))
 

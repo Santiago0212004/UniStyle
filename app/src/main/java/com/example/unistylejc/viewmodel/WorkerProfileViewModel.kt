@@ -74,6 +74,22 @@ class WorkerProfileViewModel(
         authRepo.signOut()
     }
 
+
+    fun deleteAccount(email: String, pass: String, id:String, onSuccess: () -> Unit) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                userRepo.workerDeleteAccount(email, pass, id)
+                withContext(Dispatchers.Main) {
+                    onSuccess()
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    _errorState.value = e.message ?: "Error al eliminar la cuenta"
+                }
+            }
+        }
+    }
+
     fun deleteEstablishmentFromWorker(
         email: String,
         pass: String,
@@ -94,12 +110,13 @@ class WorkerProfileViewModel(
         }
     }
 
+
     fun addEstablishmentToWorker(id: String, establishmentId: String, onSuccess: () -> Unit) {
         viewModelScope.launch {
             userRepo.addEstablishmentToWorker(id, establishmentId)
             estRepo.addWorker(establishmentId, id)
-            }
         }
+    }
 
     fun clearError() {
         _errorState.value = null
@@ -113,6 +130,5 @@ class WorkerProfileViewModel(
             }
         }
     }
-
 
 }

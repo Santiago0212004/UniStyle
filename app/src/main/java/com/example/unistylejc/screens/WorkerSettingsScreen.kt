@@ -30,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
@@ -73,6 +74,7 @@ private fun ScreenContent(
     var showDialog by remember { mutableStateOf(false) }
     var showDialogDE by remember { mutableStateOf(false) }
     var showDialogAE by remember { mutableStateOf(false) }
+    var showDialogDA by remember { mutableStateOf(false) }
     var pass by remember { mutableStateOf("") }
     val worker by viewModel.userState.observeAsState()
     val errorState by viewModel.errorState.observeAsState()
@@ -100,12 +102,36 @@ private fun ScreenContent(
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.Start
     ) {
-        Text(
-            text = "Mi perfil",
-            fontSize = 24.sp,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(bottom = 16.dp)
-        )
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Start
+        ) {
+            IconButton(
+                onClick = { navController.navigate("worker/profile") },
+                modifier = Modifier
+                    .size(48.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .shadow(8.dp, RoundedCornerShape(12.dp))
+                    .background(Color.White)
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.back),
+                    contentDescription = "Back",
+                    modifier = Modifier.size(24.dp),
+                )
+            }
+
+            Spacer(modifier = Modifier.weight(1f))
+
+            Text(
+                text = "Mi perfil",
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+        }
 
         ProfileSection(navController, userState, viewModel, showDialog) {
             showDialog = it;
@@ -143,12 +169,34 @@ private fun ScreenContent(
         }
 
         Spacer(modifier = Modifier.height(32.dp))
-        OptionButton(
-            {},
+
+        OptionButton({
+            showDialogDA = true
+        },
             text = "Eliminar cuenta",
             iconResId = R.drawable.ic_delete_user,
             textColor = Color.Red,
             borderColor = Color.Red
+        )
+    }
+
+    if(showDialogDA){
+        DeleteAccountConfirmationDialog(
+            pass = pass,
+            onPassChange = { pass = it },
+            onConfirm = {
+                worker?.let {
+                    viewModel.deleteAccount(it.email, pass, it.id,
+                        onSuccess = {
+                            navController.navigate("login")
+                        }
+                    )
+                }
+                showDialogDA = false
+            },
+            onDismiss = {
+                showDialogDA = false
+            }
         )
     }
 
@@ -552,4 +600,62 @@ fun AddEstablishmentFromWorkerConfirmationDialog(
 
     )
 }
+
+
+@Composable
+fun DeleteWorkerAccountConfirmationDialog(onConfirm: () -> Unit,
+                                    onDismiss: () -> Unit,
+                                    pass: String,
+                                    onPassChange: (String) -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            Button(
+                onClick = onConfirm,
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF5D16A6))
+            ) {
+                Text("Confirmar")
+            }
+        },
+        dismissButton = {
+            Button(
+                onClick = onDismiss,
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF2E8FC)),
+                modifier = Modifier.border(
+                    width = 1.dp,
+                    color = Color(0xFF5D16A6),
+                    shape = RoundedCornerShape(100.dp)
+                )
+            ) {
+                Text("Cancelar", color = Color(0xFF5D16A6))
+            }
+        },
+        title = {
+            Column {
+                Text(
+                    "¿Seguro desea eliminar la cuenta?",
+                    textAlign = TextAlign.Center,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                OutlinedTextField(
+                    value = pass,
+                    onValueChange = onPassChange,
+                    label = { Text("Contraseña") },
+                    placeholder = { Text("Ingrese su contraseña") },
+                    keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Password),
+                    visualTransformation = PasswordVisualTransformation(),
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        },
+        modifier = Modifier
+            .width(349.dp)
+            .height(300.dp)
+            .clip(RoundedCornerShape(16.dp))
+    )
+}
+
+
 
