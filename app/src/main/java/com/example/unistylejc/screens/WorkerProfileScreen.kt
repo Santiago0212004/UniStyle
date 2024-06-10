@@ -26,6 +26,7 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -38,14 +39,16 @@ import coil.compose.rememberAsyncImagePainter
 import com.example.unistylejc.R
 import com.example.unistylejc.domain.model.Worker
 import com.example.unistylejc.viewmodel.CustomerProfileViewModel
+import com.example.unistylejc.viewmodel.LogInViewmodel
 import com.example.unistylejc.viewmodel.WorkerProfileViewModel
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 
 @Composable
-private fun ScreenContent(navController: NavHostController,userState: Worker?) {
+private fun ScreenContent(navController: NavHostController,userState: Worker?, loginViewModel: LogInViewmodel = viewModel()) {
     val viewModel: WorkerProfileViewModel = viewModel()
     var showDialogLO by remember { mutableStateOf(false) }
+    val context = LocalContext.current
 
     Column(
         modifier = Modifier
@@ -86,6 +89,7 @@ private fun ScreenContent(navController: NavHostController,userState: Worker?) {
             SignOutConfirmationDialog(
                 onConfirm = {
                     viewModel.signOut()
+                    loginViewModel.clearUserSession(context)
                     navController.navigate("login")
                     showDialogLO = false
                 },
