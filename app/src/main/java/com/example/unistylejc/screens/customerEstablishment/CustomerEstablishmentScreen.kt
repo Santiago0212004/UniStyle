@@ -92,7 +92,7 @@ fun CustomerEstablishmentScreen(navController: NavHostController, establishmentI
                         modifier = Modifier.size(24.dp),
                     )
                 }
-                Spacer(modifier = Modifier.width(192.dp))
+                Spacer(modifier = Modifier.weight(1f))
                 loggedCustomer?.let { customer ->
                     Text(text = customer.username, style = MaterialTheme.typography.bodyMedium)
                     Spacer(modifier = Modifier.width(4.dp))
