@@ -61,6 +61,13 @@ import kotlinx.coroutines.delay
 import androidx.compose.foundation.Canvas
 import androidx.compose.ui.geometry.Offset
 import com.example.unistylejc.screens.WorkerServicesScreen
+import android.content.Context
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
+import com.example.unistylejc.screens.TutorialScreen
+import com.example.unistylejc.screens.isFirstTimeLaunch
 
 class MainActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
@@ -91,9 +98,10 @@ class MainActivity : ComponentActivity() {
 fun MainScreen(navController: NavHostController = rememberNavController(), loginViewModel: LogInViewmodel = viewModel()) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
-    val showBottomBar = currentRoute !in listOf("login", "signup", "splash")
+    val showBottomBar = currentRoute !in listOf("login", "signup", "splash", "tutorial")
 
     val authState by loginViewModel.authStatus.observeAsState()
+    val context = LocalContext.current
 
     LaunchedEffect(authState) {
         when (val state = authState) {
@@ -123,10 +131,11 @@ fun MainScreen(navController: NavHostController = rememberNavController(), login
             }
         }
     ) { innerPadding ->
-        NavHost(navController, startDestination = "splash", modifier = Modifier.padding(innerPadding)) {
+        NavHost(navController, startDestination = if (context.isFirstTimeLaunch()) "tutorial" else "splash", modifier = Modifier.padding(innerPadding)) {
             composable("login") { LoginScreen(navController) }
             composable("signup") { SignUpScreen(navController) }
             composable("splash") { SplashScreen(navController, loginViewModel) }
+            composable("tutorial") { TutorialScreen(navController) }
             composable("customer/reserva") { MainCustomerScreen(navController) }
             composable("customer/agenda") { CustomerReservationCalendarScreen(navController) }
             composable("customer/profile") { CustomerProfileScreen(navController) }
@@ -168,7 +177,7 @@ fun SplashScreen(navController: NavHostController, loginViewModel: LogInViewmode
     var showSplash by remember { mutableStateOf(true) }
 
     LaunchedEffect(Unit) {
-        delay(2500)
+        delay(2700)
         showSplash = false
     }
 
@@ -248,7 +257,6 @@ fun CheckAuthState(navController: NavHostController, loginViewModel: LogInViewmo
         }
     }
 }
-
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Preview(showBackground = true)
