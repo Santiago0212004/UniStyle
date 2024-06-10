@@ -62,7 +62,7 @@ fun LoginScreen(navController: NavHostController, loginViewModel: LogInViewmodel
             painter = painterResource(R.drawable.logo),
             contentDescription = "Logo",
             modifier = Modifier
-                .size(230.dp)
+                .size(270.dp)
                 .padding(top = 76.dp)
         )
         Spacer(modifier = Modifier.height(16.dp))
@@ -93,7 +93,7 @@ fun LoginScreen(navController: NavHostController, loginViewModel: LogInViewmodel
         Spacer(modifier = Modifier.height(16.dp))
         Button(
             onClick = {
-                loginViewModel.login(email,password)
+                loginViewModel.login(context, email, password)
             },
             modifier = Modifier.fillMaxWidth(),
             colors = ButtonDefaults.buttonColors(Color(0xFF9C27B0))
@@ -121,10 +121,10 @@ fun LoginScreen(navController: NavHostController, loginViewModel: LogInViewmodel
                 Toast.makeText(context, state.message, Toast.LENGTH_LONG).show()
             }
             is AppAuthState.Success -> {
-                Toast.makeText(context, "Bienvenido ${state.userID}", Toast.LENGTH_LONG).show()
+                Toast.makeText(context, "Bienvenido", Toast.LENGTH_LONG).show()
             }
             is AppAuthState.SuccessLogin -> {
-                Toast.makeText(context, "Bienvenido ${state.userID}", Toast.LENGTH_LONG).show()
+                Toast.makeText(context, "Bienvenido", Toast.LENGTH_LONG).show()
                  when (state.role) {
                     "worker" -> navController.navigate("worker/community")
                     "customer" -> navController.navigate("customer/discover")

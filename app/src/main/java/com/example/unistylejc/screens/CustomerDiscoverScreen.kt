@@ -70,7 +70,7 @@ fun CustomerDiscoverScreen(navController: NavHostController, viewModel: Customer
                     HeaderSection(name = "${userState?.name}")
                 }
                 item {
-                    SearchBar()
+                    SearchBar(navController)
                 }
                 item {
                     DiscountCard(navController)
@@ -128,19 +128,32 @@ fun HeaderSection(name: String) {
 
 
 @Composable
-fun SearchBar() {
+fun SearchBar(navController: NavHostController) {
+    var searchText by remember { mutableStateOf("") }
     OutlinedTextField(
         value = "",
         onValueChange = {},
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 8.dp),
-        placeholder = { Text(text = "Encuentra lo que buscas...") },
+        placeholder = { Text(text = "Encuentra lo que buscas...",
+            modifier = Modifier
+                .clickable {
+                    if (searchText.isEmpty()) {
+                        navController.navigate("customer/reserva")
+                    }
+                }
+        )},
         trailingIcon = {
             Icon(
                 painter = painterResource(id = R.drawable.ic_search),
                 modifier = Modifier
-                    .size(32.dp),
+                    .size(32.dp)
+                    .clickable {
+                        if(searchText.isEmpty()){
+                            navController.navigate("customer/reserva")
+                        }
+                    },
                 contentDescription = null,
             )
         },

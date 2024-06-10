@@ -7,12 +7,14 @@ import android.widget.Space
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -30,6 +32,13 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.Button
+import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
@@ -46,6 +55,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -64,8 +74,9 @@ import com.example.unistylejc.viewmodel.WorkerServicesViewModel
 import com.google.firebase.Timestamp
 import java.util.UUID
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun WorkerServicesScreen(naController: NavHostController, viewModel: WorkerServicesViewModel = viewModel()){
+fun WorkerServicesScreen(navController: NavHostController, viewModel: WorkerServicesViewModel = viewModel()){
 
     val worker by viewModel.loggedWorker.observeAsState()
     val workerServices by viewModel.workerServices.observeAsState()
@@ -100,7 +111,7 @@ fun WorkerServicesScreen(naController: NavHostController, viewModel: WorkerServi
                         .size(40.dp)
                         .clip(CircleShape)
                         .background(MaterialTheme.colorScheme.onPrimary)
-                        .clickable {}
+                        .clickable {navController.navigate("worker/profile")}
                 )
             }
         }
@@ -110,20 +121,24 @@ fun WorkerServicesScreen(naController: NavHostController, viewModel: WorkerServi
         Row (modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Start) {
             Text(
                 text = "Mis servicios",
-                fontSize = 24.sp,
+                fontSize = 32.sp,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(bottom = 16.dp)
             )
         }
 
-        Button(
-            onClick = {showAddServiceDialog.value = true},
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-        ) {
-            Text(text = "Añadir Servicio")
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End){
+            ExtendedFloatingActionButton(
+                onClick = {showAddServiceDialog.value = true},
+                icon = { Icon(imageVector = Icons.Default.Add, "Add service.") },
+                text = {Text(text = "Añadir Servicio")},
+                containerColor = Color(0xFF5D16A6),
+                contentColor = Color.White
+            )
         }
+        Spacer(modifier = Modifier.height(16.dp))
+
+
 
         if(showAddServiceDialog.value){
             AddServiceDialog(
@@ -159,15 +174,22 @@ fun WorkerServicesScreen(naController: NavHostController, viewModel: WorkerServi
 @Composable
 fun ServiceCard(service: Service?){
     service?.let { s ->
-        Row {
-            Column {
-                Text(s.name)
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(s.price.toString())
-            }
-            Spacer(modifier = Modifier.weight(1f))
-            Button(onClick = { /*TODO*/ }) {
-                Text("Eliminar")
+        Box(modifier = Modifier
+            .fillMaxWidth()
+            .background(color = Color(0xFFF2E8FC), shape = RoundedCornerShape(16.dp))
+            .padding(16.dp)
+        ){
+            Row (Modifier.fillMaxHeight()){
+                Column {
+                    Text(s.name, fontWeight = FontWeight.Bold, fontSize = 24.sp)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text("$"+s.price.toString(), fontSize = 18.sp)
+                }
+                Spacer(modifier = Modifier.weight(1f))
+                Column(verticalArrangement = Arrangement.Bottom, modifier = Modifier.fillMaxHeight()){
+                    Icon(modifier = Modifier.clickable {  }.size(24.dp), imageVector = Icons.Default.Delete, contentDescription = "Delete",
+                        tint = Color.Red)
+                }
             }
         }
     }
