@@ -28,6 +28,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
@@ -62,6 +63,8 @@ import com.example.unistylejc.viewmodel.WorkerCommunityViewmodel
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import kotlinx.coroutines.delay
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 
 @Composable
@@ -186,6 +189,20 @@ fun CommentCard(viewModel: WorkerCommunityViewmodel,comment: CommentEntity,userS
                 Spacer(modifier = Modifier.width(8.dp))
                 Column {
                     Text(text = "${comment.customer?.name}", fontWeight = FontWeight.Bold, fontSize = 14.sp,color = Color(0xFF5D16A6) )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    comment.date?.toDate()?.let {
+
+                        val sdf = SimpleDateFormat("dd/MM/yyyy hh:mm a", Locale.getDefault())
+
+                        val date = comment.date?.toDate()?.let { d -> sdf.format(d) } ?: "Unknown date"
+
+                        Text(text = date, style = MaterialTheme.typography.bodyMedium)
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
                     RatingStars(comment.score)
                 }
             }

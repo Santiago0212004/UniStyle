@@ -214,7 +214,7 @@ fun ReservationCard(reservation: ReservationEntity) {
 
                     val date = reservation.initDate?.toDate()?.let { d -> sdf.format(d) } ?: "Unknown date"
                     val time = reservation.initDate?.toDate()?.let { t -> sdfTime.format(t) } ?: "Unknown time"
-                    
+
 
                     reservation.establishment?.let { e -> Text(e.name, fontSize = 20.sp, fontWeight = FontWeight.Bold) }
                     Spacer(modifier = Modifier.height(4.dp))

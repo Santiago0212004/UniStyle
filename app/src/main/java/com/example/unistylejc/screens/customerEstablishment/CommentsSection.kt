@@ -147,14 +147,10 @@ fun CommentCard(viewModel: CustomerEstablishmentViewModel, comment: Comment) {
                 Spacer(modifier = Modifier.height(8.dp))
 
                 comment.date?.toDate()?.let {
-                    val calendar = Calendar.getInstance()
-                    calendar.time = it
-                    calendar.add(Calendar.HOUR_OF_DAY, -5)
-                    val adjustedDate = calendar.time
 
-                    val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+                    val sdf = SimpleDateFormat("dd/MM/yyyy hh:mm a", Locale.getDefault())
 
-                    val date = adjustedDate.let { d -> sdf.format(d) } ?: "Unknown date"
+                    val date = comment.date?.toDate()?.let { d -> sdf.format(d) } ?: "Unknown date"
 
                     Text(text = date, style = MaterialTheme.typography.bodyMedium)
                 }
