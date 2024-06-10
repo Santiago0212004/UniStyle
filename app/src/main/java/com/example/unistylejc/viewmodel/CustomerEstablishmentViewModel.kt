@@ -9,6 +9,7 @@ import com.example.unistylejc.domain.model.Customer
 import com.example.unistylejc.domain.model.Establishment
 import com.example.unistylejc.domain.model.PaymentMethod
 import com.example.unistylejc.domain.model.Reservation
+import com.example.unistylejc.domain.model.Response
 import com.example.unistylejc.domain.model.Service
 import com.example.unistylejc.domain.model.Worker
 import com.example.unistylejc.repository.EstablishmentRepository
@@ -115,6 +116,10 @@ class CustomerEstablishmentViewModel(
                 _comments.value = establishmentComments.toList()
             }
         }
+    }
+
+    suspend fun loadCommentResponse(responseId: String): Response? {
+        return userRepository.loadCommentResponse(responseId)
     }
 
     suspend fun findCustomerById(customerId: String): Customer? {

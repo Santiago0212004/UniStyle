@@ -1,5 +1,6 @@
 package com.example.unistylejc.services
 
+import android.util.Log
 import com.example.unistylejc.domain.model.Comment
 import com.example.unistylejc.domain.model.Service
 import com.example.unistylejc.domain.model.Worker
@@ -10,6 +11,7 @@ import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
+import com.google.firebase.firestore.getField
 import kotlinx.coroutines.tasks.await
 
 class WorkerService {
@@ -99,22 +101,66 @@ class WorkerService {
         }.await()
     }
 
+
     suspend fun deleteAccount(email:String, pass:String, id:String) {
         val user = Firebase.auth.currentUser ?: throw Exception("User not logged in")
         val credential = EmailAuthProvider.getCredential(email, pass)
         try {
             user.reauthenticate(credential).await()
             user.delete().await()
+
+            val worker = Firebase.firestore.collection("worker").document(id).get().await()
+            val establishmentID = worker.get("establishmentRef").toString()
+
             val updates = mapOf(
                 "name" to "Usuario inexistente",
                 "email" to "Delete",
                 "username" to "Delete",
-                "picture" to "https://firebasestorage.googleapis.com/v0/b/unistyle-940e2.appspot.com/o/no_user.png?alt=media&token=51c4f2b4-e1da-4b3f-bad9-016bc0416d81"
+                "picture" to "https://firebasestorage.googleapis.com/v0/b/unistyle-940e2.appspot.com/o/no_user.png?alt=media&token=51c4f2b4-e1da-4b3f-bad9-016bc0416d81",
+                "establishmentRef" to ""
             )
-            Firebase.firestore.collection("customer").document(id).update(updates).await()
+            Firebase.firestore.collection("worker").document(id).update(updates).await()
+
+            val establishmentDoc = Firebase.firestore.collection("establishment").document(establishmentID).get().await()
+            val workersRefs = establishmentDoc.get("workersRefs") as List<*>
+            val updatedWorkersRefs = workersRefs.filter { it != id }
+            Firebase.firestore.collection("establishment").document(establishmentID).update(mapOf("workersRefs" to updatedWorkersRefs)).await()
+
+
             Result.success(Unit)
         } catch (e: Exception) {
             throw Exception("Error al eliminar la cuenta: ${e.message}")
         }
+    }
+
+
+    suspend fun deleteEstablishmentFromWorker(email:String, pass:String, id:String) {
+        val user = Firebase.auth.currentUser ?: throw Exception("User not logged in")
+        val credential = EmailAuthProvider.getCredential(email, pass)
+        try {
+            user.reauthenticate(credential).await()
+            val worker = Firebase.firestore.collection("worker").document(id).get().await()
+            val establishmentID = worker.get("establishmentRef").toString()
+            val updatesWorker = mapOf(
+                "establishmentRef" to ""
+            )
+            Firebase.firestore.collection("worker").document(id).update(updatesWorker).await()
+
+            val establishmentDoc = Firebase.firestore.collection("establishment").document(establishmentID).get().await()
+            val workersRefs = establishmentDoc.get("workersRefs") as List<*>
+            val updatedWorkersRefs = workersRefs.filter { it != id }
+            Firebase.firestore.collection("establishment").document(establishmentID).update(mapOf("workersRefs" to updatedWorkersRefs)).await()
+
+            Result.success(Unit)
+        } catch (e: Exception) {
+            throw Exception("Error al desvincular: ${e.message}")
+        }
+    }
+
+    suspend fun addEstablishmentToWorker(id: String, establishmentId: String ){
+        val updatesWorker = mapOf(
+            "establishmentRef" to establishmentId
+        )
+        Firebase.firestore.collection("worker").document(id).update(updatesWorker).await()
     }
 }

@@ -9,6 +9,7 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -122,6 +123,7 @@ fun WorkerInfoCard(worker: Worker, onReserveClick: () -> Unit) {
     Column(
         modifier = Modifier
             .padding(16.dp)
+            .fillMaxWidth()
     ) {
         Text(
             text = "¡Te atenderá ${worker.name}!",
@@ -134,17 +136,6 @@ fun WorkerInfoCard(worker: Worker, onReserveClick: () -> Unit) {
         Text(
             text = worker.description,
             style = MaterialTheme.typography.bodyLarge,
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        Image(
-            painter = rememberAsyncImagePainter(model = worker.picture),
-            contentDescription = null,
-            modifier = Modifier
-                .size(40.dp)
-                .padding(end = 8.dp),
-            contentScale = ContentScale.Crop
         )
 
         Spacer(modifier = Modifier.height(8.dp))

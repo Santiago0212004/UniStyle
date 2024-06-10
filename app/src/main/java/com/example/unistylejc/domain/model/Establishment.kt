@@ -14,6 +14,7 @@ data class Establishment(
     var picture: String? = "",
     var postalcode: String = "",
     var state: String = "",
+    var category: String = "",
     var workersRefs: List<String> = listOf<String>(),
     var commentsRef: List<String> = listOf<String>(),
     var reservationRefs: List<String> = listOf<String>(),

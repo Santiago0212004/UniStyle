@@ -22,8 +22,6 @@ import com.example.unistylejc.services.WorkerService
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
-
-import edu.co.icesi.unistyle.domain.model.AppAuthState
 import java.util.UUID
 
 interface UserRepository {
@@ -45,12 +43,14 @@ interface UserRepository {
     suspend fun getCustomerReservationsPastFuture(customerId: String): Pair<List<ReservationEntity>, List<ReservationEntity>>
     suspend fun getWorkerReservations(workerId: String): Pair<List<ReservationEntity>, List<ReservationEntity>>
     suspend fun deleteAccount(email: String, pass: String,id:String)
+    suspend fun deleteEstablishmentFromWorker(email: String, pass: String,id:String)
     suspend fun getWorkerComments(): List<CommentEntity>
     suspend fun sendResponse(commentId: String, commenterId: String, content: String)
     suspend fun updateProfileCustomer(name: String, username: String)
-
     suspend fun loadAllWorkerReservations(workerId: String): List<Reservation>
     suspend fun workerDeleteAccount(email: String, pass: String,id:String)
+    suspend fun loadCommentResponse(responseId: String): Response?
+    suspend fun addEstablishmentToWorker(id: String, establishmentId: String)
 }
 
 class UserRepositoryImpl(
@@ -160,6 +160,12 @@ class UserRepositoryImpl(
             }
         }
         return reservations
+    }
+
+    override suspend fun loadCommentResponse(responseId: String): Response? {
+        val response = commentServices.getResponseById(responseId)
+        val responseObject = response.toObject(Response::class.java)
+        return responseObject
     }
 
     override suspend fun getCustomerReservationsPastFuture(customerId: String): Pair<List<ReservationEntity>, List<ReservationEntity>> {
@@ -289,8 +295,13 @@ class UserRepositoryImpl(
         customerServices.deleteAccount(email,pass,id)
     }
 
+
     override suspend fun workerDeleteAccount(email: String, pass: String,id:String) {
-        workerServices.deleteAccount(email,pass,id)
+        workerServices.deleteAccount(email, pass, id)
+    }
+
+    override suspend fun deleteEstablishmentFromWorker(email: String, pass: String,id:String) {
+        workerServices.deleteEstablishmentFromWorker(email, pass, id)
     }
 
     override suspend fun sendResponse(commentId: String, commenterId: String,content:String) {
@@ -302,6 +313,10 @@ class UserRepositoryImpl(
 
     override suspend fun updateProfileCustomer(name: String, username: String) {
         customerServices.updateProfile(name,username)
+    }
+
+    override suspend fun addEstablishmentToWorker(id: String, establishmentId: String){
+        workerServices.addEstablishmentToWorker(id, establishmentId)
     }
 }
 

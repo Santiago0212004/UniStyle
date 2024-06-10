@@ -55,6 +55,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
 import com.example.unistylejc.domain.model.Establishment
+import com.example.unistylejc.screens.resources.RatingStars
 import com.example.unistylejc.viewmodel.MainCustomerViewModel
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
@@ -72,6 +73,7 @@ fun MainCustomerScreen(navController: NavHostController, viewModel: MainCustomer
     val context = LocalContext.current
     var isDialogOpen by remember { mutableStateOf(false) }
     var isMapView by remember { mutableStateOf(false) }
+    var sortOptionsExpanded by remember { mutableStateOf(false) }
 
     val loggedCustomer by viewModel.loggedCustomer.observeAsState()
     val establishments by viewModel.establishments.observeAsState(emptyList())
@@ -79,7 +81,11 @@ fun MainCustomerScreen(navController: NavHostController, viewModel: MainCustomer
 
     var searchQuery by remember { mutableStateOf("") }
     var selectedCity by remember { mutableStateOf("") }
+    var selectedCategory by remember { mutableStateOf("") }
+    var selectedSortOption by remember { mutableStateOf("Alfabético") }
     val cities = allEstablishments?.mapNotNull { it?.city }?.distinct()
+    val categories = allEstablishments?.mapNotNull { it?.category }?.distinct()
+    val sortOptions = listOf("Alfabético", "Por puntuación")
 
     Column(
         modifier = Modifier
@@ -122,7 +128,7 @@ fun MainCustomerScreen(navController: NavHostController, viewModel: MainCustomer
                 value = searchQuery,
                 onValueChange = {
                     searchQuery = it
-                    viewModel.filterEstablishments(searchQuery, selectedCity)
+                    viewModel.filterEstablishments(searchQuery, selectedCity, selectedCategory)
                 },
                 label = { Text("Busca el mejor lugar!") },
                 shape = RoundedCornerShape(24.dp),
@@ -192,13 +198,48 @@ fun MainCustomerScreen(navController: NavHostController, viewModel: MainCustomer
             if (isMapView) {
                 establishments?.let { EstablishmentsMap(it, navController) }
             } else {
+                Column (modifier = Modifier.padding(horizontal = 16.dp).fillMaxWidth()) {
+                    ExposedDropdownMenuBox(
+                        modifier = Modifier.fillMaxWidth(),
+                        expanded = sortOptionsExpanded,
+                        onExpandedChange = { sortOptionsExpanded = !sortOptionsExpanded }
+                    ) {
+                        OutlinedTextField(
+                            value = selectedSortOption,
+                            onValueChange = {},
+                            readOnly = true,
+                            label = { Text("Ordenar por") },
+                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = sortOptionsExpanded) },
+                            modifier = Modifier
+                                .weight(1f)
+                                .menuAnchor()
+                                .fillMaxWidth()
+                                .clickable { sortOptionsExpanded = true }
+                        )
+                        ExposedDropdownMenu(
+                            expanded = sortOptionsExpanded,
+                            onDismissRequest = { sortOptionsExpanded = false }
+                        ) {
+                            sortOptions.forEach { option ->
+                                DropdownMenuItem(
+                                    text = { Text(text = option) },
+                                    onClick = {
+                                        selectedSortOption = option
+                                        sortOptionsExpanded = false
+                                        viewModel.sortEstablishments(option)
+                                    },
+                                )
+                            }
+                        }
+                    }
+                }
                 val scrollState = rememberScrollState()
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
                         .verticalScroll(scrollState)
                 ) {
-                    establishments!!.forEach { establishment ->
+                    establishments?.forEach { establishment ->
                         EstablishmentCard(establishment, navController)
                     }
                 }
@@ -212,25 +253,34 @@ fun MainCustomerScreen(navController: NavHostController, viewModel: MainCustomer
             val customerId = currentUser.uid
             viewModel.getLoggedCustomer(customerId)
             viewModel.getEstablishments()
+            establishments?.let {
+                viewModel.sortEstablishments(selectedSortOption)
+            }
         } else {
             Toast.makeText(context, "No se ha autenticado ningún usuario", Toast.LENGTH_LONG).show()
         }
     }
 
-    cities?.let {
-        if (isDialogOpen) {
-            FiltersDialog(
-                onDismissRequest = { isDialogOpen = false },
-                viewModel = viewModel,
-                searchQuery = searchQuery,
-                selectedCity = selectedCity,
-                onCitySelected = { selectedCity = it },
-                cities = it
-            )
+    cities?.let { it ->
+        categories?.let { it1 ->
+            if (isDialogOpen) {
+                FiltersDialog(
+                    onDismissRequest = { isDialogOpen = false },
+                    viewModel = viewModel,
+                    searchQuery = searchQuery,
+                    selectedCity = selectedCity,
+                    selectedCategory = selectedCategory,
+                    onCitySelected = { selectedCity = it },
+                    onCategorySelected = {selectedCategory = it},
+                    cities = it,
+                    categories = it1
+                )
+            }
         }
     }
-
 }
+
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FiltersDialog(
@@ -238,8 +288,11 @@ fun FiltersDialog(
     viewModel: MainCustomerViewModel,
     searchQuery: String,
     selectedCity: String,
+    selectedCategory: String,
     onCitySelected: (String) -> Unit,
-    cities: List<String>
+    onCategorySelected: (String) -> Unit,
+    cities: List<String>,
+    categories: List<String>
 ) {
     BasicAlertDialog(onDismissRequest = onDismissRequest,
         modifier = Modifier
@@ -247,8 +300,11 @@ fun FiltersDialog(
             .background(Color.White),
         properties = DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false),
         content = {
-            var expanded by remember { mutableStateOf(false) }
+            var citiesExpanded by remember { mutableStateOf(false) }
             var localSelectedCity by remember { mutableStateOf(selectedCity) }
+
+            var categoriesExpanded by remember { mutableStateOf(false) }
+            var localSelectedCategory by remember { mutableStateOf(selectedCategory) }
 
             Column (
                 modifier = Modifier.padding(horizontal = 16.dp)
@@ -256,29 +312,29 @@ fun FiltersDialog(
                 Text(text = "Filtros", style = MaterialTheme.typography.titleMedium)
                 Spacer(modifier = Modifier.height(16.dp))
                 ExposedDropdownMenuBox(
-                    expanded = expanded,
-                    onExpandedChange = { expanded = !expanded }
+                    expanded = citiesExpanded,
+                    onExpandedChange = { citiesExpanded = !citiesExpanded }
                 ) {
                     OutlinedTextField(
                         value = localSelectedCity,
                         onValueChange = {},
                         readOnly = true,
                         label = { Text("Selecciona una ciudad") },
-                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = citiesExpanded) },
                         modifier = Modifier
                             .fillMaxWidth()
                             .menuAnchor()
-                            .clickable { expanded = true }
+                            .clickable { citiesExpanded = true }
                     )
                     ExposedDropdownMenu(
-                        expanded = expanded,
-                        onDismissRequest = { expanded = false }
+                        expanded = citiesExpanded,
+                        onDismissRequest = { citiesExpanded = false }
                     ) {
                         DropdownMenuItem(
                             text = { Text(text = "TODAS LAS CIUDADES") },
                             onClick = {
                                 localSelectedCity = "TODAS LAS CIUDADES"
-                                expanded = false
+                                citiesExpanded = false
                             }
                         )
                         cities.forEach { city ->
@@ -286,13 +342,56 @@ fun FiltersDialog(
                                 text = { Text(text = city) },
                                 onClick = {
                                     localSelectedCity = city
-                                    expanded = false
+                                    citiesExpanded = false
                                 }
                             )
                         }
                     }
                 }
+
                 Spacer(modifier = Modifier.height(16.dp))
+
+                ExposedDropdownMenuBox(
+                    expanded = categoriesExpanded,
+                    onExpandedChange = { categoriesExpanded = !categoriesExpanded }
+                ) {
+                    OutlinedTextField(
+                        value = localSelectedCategory,
+                        onValueChange = {},
+                        readOnly = true,
+                        label = { Text("Selecciona una categoría") },
+                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = categoriesExpanded) },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .menuAnchor()
+                            .clickable { categoriesExpanded = true }
+                    )
+                    ExposedDropdownMenu(
+                        expanded = categoriesExpanded,
+                        onDismissRequest = { categoriesExpanded = false }
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text(text = "TODAS LAS CATEGORIAS") },
+                            onClick = {
+                                localSelectedCategory = "TODAS LAS CATEGORIAS"
+                                categoriesExpanded = false
+                            }
+                        )
+                        categories.forEach { category ->
+                            DropdownMenuItem(
+                                text = { Text(text = category) },
+                                onClick = {
+                                    localSelectedCategory = category
+                                    categoriesExpanded = false
+                                }
+                            )
+                        }
+                    }
+                }
+
+
+                Spacer(modifier = Modifier.height(16.dp))
+
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.End
@@ -303,8 +402,9 @@ fun FiltersDialog(
                     Spacer(modifier = Modifier.width(8.dp))
                     TextButton(onClick = {
                         onDismissRequest()
-                        viewModel.filterEstablishments(searchQuery, localSelectedCity)
+                        viewModel.filterEstablishments(searchQuery, localSelectedCity, localSelectedCategory)
                         onCitySelected(localSelectedCity)
+                        onCategorySelected(localSelectedCategory)
                     }) {
                         Text("Aplicar filtros")
                     }
@@ -326,16 +426,35 @@ fun EstablishmentCard(establishment: Establishment?, navController: NavHostContr
                 defaultElevation = 10.dp
             )
         ) {
-            Column(
-                modifier = Modifier.padding(16.dp)
-            ) {
-                Text(text = it.name, style = MaterialTheme.typography.titleMedium)
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(text = it.city, style = MaterialTheme.typography.bodyMedium)
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(text = it.address, style = MaterialTheme.typography.bodySmall)
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(text = it.email, style = MaterialTheme.typography.bodySmall)
+            Row (verticalAlignment = Alignment.CenterVertically) {
+                Column (
+                    modifier = Modifier.padding(16.dp),
+                ) {
+                    Text(text = it.name, style = MaterialTheme.typography.titleLarge)
+                    Spacer(modifier = Modifier.height(4.dp))
+                    RatingStars(it.score)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(text = it.city, style = MaterialTheme.typography.bodyMedium)
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(text = it.category, style = MaterialTheme.typography.bodyMedium)
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(text = it.address, style = MaterialTheme.typography.bodySmall)
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(text = it.email, style = MaterialTheme.typography.bodySmall)
+                }
+                Spacer(modifier = Modifier.weight(1f))
+                Column(modifier = Modifier.padding(end = 16.dp)) {
+                    Image(
+                        painter = rememberAsyncImagePainter(it.picture),
+                        contentDescription = "Establishment pic",
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .size(120.dp)
+                            .clip(RoundedCornerShape(16.dp))
+                            .background(MaterialTheme.colorScheme.onPrimary)
+                            .clickable {}
+                    )
+                }
             }
         }
     }
