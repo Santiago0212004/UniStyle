@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.unistylejc.domain.model.Customer
 import com.example.unistylejc.domain.model.Establishment
 import com.example.unistylejc.domain.model.Service
@@ -15,6 +16,7 @@ import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.UUID
 
 class WorkerServicesViewModel(private val userRepository: UserRepository = UserRepositoryImpl()): ViewModel() {
     private val _loggedWorker = MutableLiveData<Worker?>()
@@ -41,6 +43,20 @@ class WorkerServicesViewModel(private val userRepository: UserRepository = UserR
                 withContext(Dispatchers.Main){
                     _workerServices.value = servicesList
                 }
+            }
+        }
+    }
+
+    fun addServiceToWorker(name: String, price: Double){
+        viewModelScope.launch(Dispatchers.IO) {
+
+            val service = Service(UUID.randomUUID().toString(), name, price,
+                _loggedWorker.value?.let { listOf(it.id) })
+
+            _loggedWorker.value?.let { userRepository.addServiceToWorker(service, it.id) }
+
+            withContext(Dispatchers.Main){
+                loadWorkerServices()
             }
         }
     }
