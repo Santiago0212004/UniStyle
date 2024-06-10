@@ -78,7 +78,7 @@ fun CustomerEstablishmentScreen(navController: NavHostController, establishmentI
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Start
+                horizontalArrangement = Arrangement.End
             ) {
                 IconButton(onClick = { navController.navigate("customer/reserva")},
                     modifier = Modifier

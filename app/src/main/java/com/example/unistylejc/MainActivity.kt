@@ -16,7 +16,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -46,7 +45,6 @@ import com.example.unistylejc.screens.CustomerReservationCalendarScreen
 import com.example.unistylejc.screens.MainCustomerScreen
 import com.example.unistylejc.screens.WorkerNavBar
 import com.example.unistylejc.viewmodel.LogInViewmodel
-import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -62,6 +60,7 @@ import edu.co.icesi.unistyle.domain.model.AppAuthState
 import kotlinx.coroutines.delay
 import androidx.compose.foundation.Canvas
 import androidx.compose.ui.geometry.Offset
+import com.example.unistylejc.screens.WorkerServicesScreen
 
 class MainActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
@@ -77,7 +76,6 @@ class MainActivity : ComponentActivity() {
                     val loginViewModel: LogInViewmodel = viewModel()
                     val signUpViewModel: SignUpViewmodel = viewModel()
 
-                    // Load user session
                     LaunchedEffect(Unit) {
                         loginViewModel.loadUserSession(applicationContext)
                         signUpViewModel.loadUserSession(applicationContext)
@@ -144,6 +142,7 @@ fun MainScreen(navController: NavHostController = rememberNavController(), login
             composable("worker/changePassword") { WorkerChangePasswordScreen(navController) }
             composable("worker/reservations") { WorkerReservationsScreen(navController) }
             composable("worker/community") { WorkerCommunityScreen(navController) }
+            composable("worker/services") { WorkerServicesScreen(navController) }
             composable("uploadPicture") { UploadPictureScreen(navController) }
             composable("establishmentDetail/{establishmentId}") { backStackEntry ->
                 val establishmentId = backStackEntry.arguments?.getString("establishmentId")
