@@ -209,16 +209,12 @@ fun ReservationCard(reservation: ReservationEntity) {
 
                 reservation.initDate?.toDate()?.let {
 
-                    val calendar = Calendar.getInstance()
-                    calendar.time = it
-                    calendar.add(Calendar.HOUR_OF_DAY, -5)
-                    val adjustedDate = calendar.time
-
                     val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
                     val sdfTime = SimpleDateFormat("hh:mm a", Locale.getDefault())
 
-                    val date = adjustedDate.let { d -> sdf.format(d) } ?: "Unknown date"
-                    val time = adjustedDate.let { t -> sdfTime.format(t) } ?: "Unknown time"
+                    val date = reservation.initDate?.toDate()?.let { d -> sdf.format(d) } ?: "Unknown date"
+                    val time = reservation.initDate?.toDate()?.let { t -> sdfTime.format(t) } ?: "Unknown time"
+                    
 
                     reservation.establishment?.let { e -> Text(e.name, fontSize = 20.sp, fontWeight = FontWeight.Bold) }
                     Spacer(modifier = Modifier.height(4.dp))
