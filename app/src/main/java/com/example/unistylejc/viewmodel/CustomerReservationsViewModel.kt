@@ -32,11 +32,21 @@ class CustomerReservationsViewModel(
 
 
     fun loadCustomerReservations() {
-        viewModelScope.launch {
-
+        viewModelScope.launch (Dispatchers.IO){
             val (past, future) = userRepo.getCustomerReservationsPastFuture(Firebase.auth.uid!!)
-            _pastReservations.value = past
-            _futureReservations.value = future
+            withContext(Dispatchers.Main){
+                _pastReservations.value = past
+                _futureReservations.value = future
+            }
+        }
+    }
+
+    fun deleteReservation(reservationId: String?, cusctomerId: String?, workerId: String?, establishmentId: String?){
+        viewModelScope.launch (Dispatchers.IO){
+            userRepo.deleteReservation(reservationId, cusctomerId, workerId,establishmentId)
+            withContext(Dispatchers.Main){
+                loadCustomerReservations()
+            }
         }
     }
 }
