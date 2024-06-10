@@ -202,7 +202,7 @@ private fun OutlinedTextFieldBackground(
                 .background(
                     color.copy(alpha = 0.5f),
 
-                    shape = RoundedCornerShape(4.dp)
+                shape = RoundedCornerShape(4.dp)
                 )
         )
         content()
