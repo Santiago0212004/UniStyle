@@ -39,14 +39,18 @@ import coil.compose.rememberAsyncImagePainter
 import com.example.unistylejc.R
 import com.example.unistylejc.domain.model.Customer
 import com.example.unistylejc.viewmodel.CustomerProfileViewModel
+import com.example.unistylejc.viewmodel.LogInViewmodel
 import com.example.unistylejc.viewmodel.MainCustomerViewModel
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
+import android.content.Context
+import androidx.compose.ui.platform.LocalContext
 
 @Composable
-private fun ScreenContent(navController: NavHostController, userState: Customer?) {
+private fun ScreenContent(navController: NavHostController, userState: Customer?, loginViewModel:LogInViewmodel= viewModel()) {
     val viewModel: CustomerProfileViewModel = viewModel()
     var showDialogLO by remember { mutableStateOf(false) }
+    val context = LocalContext.current
 
     Column(
         modifier = Modifier
@@ -88,6 +92,7 @@ private fun ScreenContent(navController: NavHostController, userState: Customer?
         SignOutConfirmationDialog(
             onConfirm = {
                 viewModel.signOut()
+                loginViewModel.clearUserSession(context)
                 navController.navigate("login")
                 showDialogLO = false
             },

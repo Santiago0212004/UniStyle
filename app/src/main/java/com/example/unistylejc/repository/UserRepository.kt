@@ -18,6 +18,7 @@ import com.example.unistylejc.services.CustomerService
 import com.example.unistylejc.services.EstablishmentService
 import com.example.unistylejc.services.FileService
 import com.example.unistylejc.services.ReservationService
+import com.example.unistylejc.services.ServiceService
 import com.example.unistylejc.services.WorkerService
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.ktx.auth
@@ -52,6 +53,8 @@ interface UserRepository {
     suspend fun loadCommentResponse(responseId: String): Response?
     suspend fun addEstablishmentToWorker(id: String, establishmentId: String)
     suspend fun deleteReservation(reservationId: String?, cusctomerId: String?, workerId: String?, establishmentId: String?)
+    suspend fun addServiceToWorker(service: Service, workerId: String)
+    suspend fun deleteServiceFromWorker(service: Service, workerId: String)
 }
 
 class UserRepositoryImpl(
@@ -60,7 +63,8 @@ class UserRepositoryImpl(
     private val fileService: FileService = FileService(),
     private val reservationServices: ReservationService = ReservationService(),
     private val establishmentServices: EstablishmentService = EstablishmentService(),
-    private val commentServices: CommentService = CommentService()
+    private val commentServices: CommentService = CommentService(),
+    private val serviceServices: ServiceService = ServiceService()
 ) : UserRepository {
     override suspend fun loadCustomer(): Customer? {
         val document = customerServices.loadCustomer(Firebase.auth.uid!!)
@@ -138,6 +142,14 @@ class UserRepositoryImpl(
             establishmentServices.addReservation(reservation.establishmentId,reservation.id)
         }
     }
+
+    override suspend fun addServiceToWorker(service: Service, workerId: String){
+        serviceServices.addServiceToWorker(service, workerId)
+    }
+    override suspend fun deleteServiceFromWorker(service: Service, workerId: String){
+        serviceServices.deleteServiceFromWorker(service, workerId)
+    }
+
 
     override suspend fun getCustomerReservations(customerId: String): List<Reservation> {
         val customer = customerServices.loadCustomer(customerId)

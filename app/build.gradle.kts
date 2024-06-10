@@ -79,4 +79,5 @@ dependencies {
     implementation("com.maxkeppeler.sheets-compose-dialogs:core:1.2.0")
     implementation("com.maxkeppeler.sheets-compose-dialogs:calendar:1.2.0")
     implementation("androidx.navigation:navigation-compose:2.7.6")
+    implementation("com.google.accompanist:accompanist-pager:0.29.0-alpha")
 }

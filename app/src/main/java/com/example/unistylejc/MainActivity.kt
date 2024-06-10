@@ -12,9 +12,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -41,6 +44,23 @@ import com.example.unistylejc.screens.CustomerNavBar
 import com.example.unistylejc.screens.CustomerReservationCalendarScreen
 import com.example.unistylejc.screens.MainCustomerScreen
 import com.example.unistylejc.screens.WorkerNavBar
+import com.example.unistylejc.viewmodel.LogInViewmodel
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import com.example.unistylejc.viewmodel.SignUpViewmodel
+import edu.co.icesi.unistyle.domain.model.AppAuthState
+import kotlinx.coroutines.delay
+import androidx.compose.foundation.Canvas
+import androidx.compose.ui.geometry.Offset
+import com.example.unistylejc.screens.WorkerServicesScreen
 
 class MainActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
@@ -52,7 +72,15 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                     ){
-                    MainScreen()
+                    val navController = rememberNavController()
+                    val loginViewModel: LogInViewmodel = viewModel()
+                    val signUpViewModel: SignUpViewmodel = viewModel()
+
+                    LaunchedEffect(Unit) {
+                        loginViewModel.loadUserSession(applicationContext)
+                        signUpViewModel.loadUserSession(applicationContext)
+                    }
+                    MainScreen(navController, loginViewModel)
                 }
             }
         }
@@ -60,11 +88,28 @@ class MainActivity : ComponentActivity() {
 }
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun MainScreen(navController: NavHostController = rememberNavController()) {
+fun MainScreen(navController: NavHostController = rememberNavController(), loginViewModel: LogInViewmodel = viewModel()) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
+    val showBottomBar = currentRoute !in listOf("login", "signup", "splash")
 
-    val showBottomBar = currentRoute !in listOf("login", "signup")
+    val authState by loginViewModel.authStatus.observeAsState()
+
+    LaunchedEffect(authState) {
+        when (val state = authState) {
+            is AppAuthState.SuccessLogin -> {
+                when (state.role) {
+                    "worker" -> navController.navigate("worker/community") {
+                        popUpTo("splash") { inclusive = true }
+                    }
+                    "customer" -> navController.navigate("customer/discover") {
+                        popUpTo("splash") { inclusive = true }
+                    }
+                }
+            }
+            else -> Unit
+        }
+    }
 
     Scaffold(
         bottomBar = {
@@ -78,9 +123,10 @@ fun MainScreen(navController: NavHostController = rememberNavController()) {
             }
         }
     ) { innerPadding ->
-        NavHost(navController, startDestination = "login", modifier = Modifier.padding(innerPadding)) {
+        NavHost(navController, startDestination = "splash", modifier = Modifier.padding(innerPadding)) {
             composable("login") { LoginScreen(navController) }
             composable("signup") { SignUpScreen(navController) }
+            composable("splash") { SplashScreen(navController, loginViewModel) }
             composable("customer/reserva") { MainCustomerScreen(navController) }
             composable("customer/agenda") { CustomerReservationCalendarScreen(navController) }
             composable("customer/profile") { CustomerProfileScreen(navController) }
@@ -96,6 +142,7 @@ fun MainScreen(navController: NavHostController = rememberNavController()) {
             composable("worker/changePassword") { WorkerChangePasswordScreen(navController) }
             composable("worker/reservations") { WorkerReservationsScreen(navController) }
             composable("worker/community") { WorkerCommunityScreen(navController) }
+            composable("worker/services") { WorkerServicesScreen(navController) }
             composable("uploadPicture") { UploadPictureScreen(navController) }
             composable("establishmentDetail/{establishmentId}") { backStackEntry ->
                 val establishmentId = backStackEntry.arguments?.getString("establishmentId")
@@ -115,6 +162,93 @@ fun MainScreen(navController: NavHostController = rememberNavController()) {
         }
     }
 }
+
+@Composable
+fun SplashScreen(navController: NavHostController, loginViewModel: LogInViewmodel) {
+    var showSplash by remember { mutableStateOf(true) }
+
+    LaunchedEffect(Unit) {
+        delay(2500)
+        showSplash = false
+    }
+
+    if (showSplash) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.White),
+            contentAlignment = Alignment.Center
+        ) {
+            Box(modifier = Modifier.fillMaxSize()) {
+                Canvas(modifier = Modifier.fillMaxSize()) {
+                    val canvasWidth = size.width
+                    val canvasHeight = size.height
+
+                    drawCircle(
+                        color = Color(0xFFFFC0CB),
+                        center = Offset(x = 0.1f * canvasWidth, y = 0.1f * canvasHeight),
+                        radius = 0.2f * canvasWidth
+                    )
+
+                    drawCircle(
+                        color = Color(0xFFA7A7FF),
+                        center = Offset(x = 0.9f * canvasWidth, y = 0.3f * canvasHeight),
+                        radius = 0.15f * canvasWidth
+                    )
+
+                    drawCircle(
+                        color = Color(0xFFFFE1B5),
+                        center = Offset(x = 0.2f * canvasWidth, y = 0.9f * canvasHeight),
+                        radius = 0.25f * canvasWidth
+                    )
+
+                    drawCircle(
+                        color = Color(0xFFE4C2FF),
+                        center = Offset(x = 0.8f * canvasWidth, y = 0.8f * canvasHeight),
+                        radius = 0.1f * canvasWidth
+                    )
+                }
+            }
+
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.logo),
+                    contentDescription = null
+                )
+            }
+        }
+    } else {
+        CheckAuthState(navController, loginViewModel)
+    }
+}
+
+@Composable
+fun CheckAuthState(navController: NavHostController, loginViewModel: LogInViewmodel) {
+    val authState by loginViewModel.authStatus.observeAsState()
+
+    LaunchedEffect(authState) {
+        when (val state = authState) {
+            is AppAuthState.SuccessLogin -> {
+                when (state.role) {
+                    "worker" -> navController.navigate("worker/community") {
+                        popUpTo("splash") { inclusive = true }
+                    }
+                    "customer" -> navController.navigate("customer/discover") {
+                        popUpTo("splash") { inclusive = true }
+                    }
+                }
+            }
+            else -> {
+                navController.navigate("login") {
+                    popUpTo("splash") { inclusive = true }
+                }
+            }
+        }
+    }
+}
+
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Preview(showBackground = true)
