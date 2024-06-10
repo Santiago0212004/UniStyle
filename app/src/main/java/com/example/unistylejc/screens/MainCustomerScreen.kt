@@ -72,6 +72,7 @@ fun MainCustomerScreen(navController: NavHostController, viewModel: MainCustomer
     val context = LocalContext.current
     var isDialogOpen by remember { mutableStateOf(false) }
     var isMapView by remember { mutableStateOf(false) }
+    var sortOptionsExpanded by remember { mutableStateOf(false) }
 
     val loggedCustomer by viewModel.loggedCustomer.observeAsState()
     val establishments by viewModel.establishments.observeAsState(emptyList())
@@ -80,8 +81,10 @@ fun MainCustomerScreen(navController: NavHostController, viewModel: MainCustomer
     var searchQuery by remember { mutableStateOf("") }
     var selectedCity by remember { mutableStateOf("") }
     var selectedCategory by remember { mutableStateOf("") }
+    var selectedSortOption by remember { mutableStateOf("Alfabético") }
     val cities = allEstablishments?.mapNotNull { it?.city }?.distinct()
     val categories = allEstablishments?.mapNotNull { it?.category }?.distinct()
+    val sortOptions = listOf("Alfabético", "Por puntuación")
 
     Column(
         modifier = Modifier
@@ -194,13 +197,48 @@ fun MainCustomerScreen(navController: NavHostController, viewModel: MainCustomer
             if (isMapView) {
                 establishments?.let { EstablishmentsMap(it, navController) }
             } else {
+                Column (modifier = Modifier.padding(horizontal = 16.dp).fillMaxWidth()) {
+                    ExposedDropdownMenuBox(
+                        modifier = Modifier.fillMaxWidth(),
+                        expanded = sortOptionsExpanded,
+                        onExpandedChange = { sortOptionsExpanded = !sortOptionsExpanded }
+                    ) {
+                        OutlinedTextField(
+                            value = selectedSortOption,
+                            onValueChange = {},
+                            readOnly = true,
+                            label = { Text("Ordenar por") },
+                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = sortOptionsExpanded) },
+                            modifier = Modifier
+                                .weight(1f)
+                                .menuAnchor()
+                                .fillMaxWidth()
+                                .clickable { sortOptionsExpanded = true }
+                        )
+                        ExposedDropdownMenu(
+                            expanded = sortOptionsExpanded,
+                            onDismissRequest = { sortOptionsExpanded = false }
+                        ) {
+                            sortOptions.forEach { option ->
+                                DropdownMenuItem(
+                                    text = { Text(text = option) },
+                                    onClick = {
+                                        selectedSortOption = option
+                                        sortOptionsExpanded = false
+                                        viewModel.sortEstablishments(option)
+                                    },
+                                )
+                            }
+                        }
+                    }
+                }
                 val scrollState = rememberScrollState()
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
                         .verticalScroll(scrollState)
                 ) {
-                    establishments!!.forEach { establishment ->
+                    establishments?.forEach { establishment ->
                         EstablishmentCard(establishment, navController)
                     }
                 }
@@ -214,6 +252,9 @@ fun MainCustomerScreen(navController: NavHostController, viewModel: MainCustomer
             val customerId = currentUser.uid
             viewModel.getLoggedCustomer(customerId)
             viewModel.getEstablishments()
+            establishments?.let {
+                viewModel.sortEstablishments(selectedSortOption)
+            }
         } else {
             Toast.makeText(context, "No se ha autenticado ningún usuario", Toast.LENGTH_LONG).show()
         }
@@ -236,8 +277,9 @@ fun MainCustomerScreen(navController: NavHostController, viewModel: MainCustomer
             }
         }
     }
-
 }
+
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FiltersDialog(
