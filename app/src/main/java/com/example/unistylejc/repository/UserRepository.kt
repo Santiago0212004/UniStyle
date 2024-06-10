@@ -53,6 +53,8 @@ interface UserRepository {
     suspend fun loadCommentResponse(responseId: String): Response?
     suspend fun addEstablishmentToWorker(id: String, establishmentId: String)
     suspend fun addServiceToWorker(service: Service, workerId: String)
+
+    suspend fun deleteServiceFromWorker(service: Service, workerId: String)
 }
 
 class UserRepositoryImpl(
@@ -144,6 +146,10 @@ class UserRepositoryImpl(
     override suspend fun addServiceToWorker(service: Service, workerId: String){
         serviceServices.addServiceToWorker(service, workerId)
     }
+    override suspend fun deleteServiceFromWorker(service: Service, workerId: String){
+        serviceServices.deleteServiceFromWorker(service, workerId)
+    }
+
 
     override suspend fun getCustomerReservations(customerId: String): List<Reservation> {
         val customer = customerServices.loadCustomer(customerId)
