@@ -251,7 +251,7 @@ fun SignUpScreen(navController: NavHostController, viewModel: SignUpViewmodel = 
                 Toast.makeText(context, "Cuenta creada exitosamente", Toast.LENGTH_LONG).show()
             }
             is AppAuthState.SuccessLogin -> {
-                Toast.makeText(context, "Bienvenido ${state.userID}", Toast.LENGTH_LONG).show()
+                Toast.makeText(context, "Bienvenido", Toast.LENGTH_LONG).show()
                 navController.navigate("uploadPicture"){
                     popUpTo("signup"){ inclusive = true }
                 }
