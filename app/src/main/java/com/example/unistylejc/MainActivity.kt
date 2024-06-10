@@ -41,6 +41,7 @@ import com.example.unistylejc.screens.CustomerNavBar
 import com.example.unistylejc.screens.CustomerReservationCalendarScreen
 import com.example.unistylejc.screens.MainCustomerScreen
 import com.example.unistylejc.screens.WorkerNavBar
+import com.example.unistylejc.screens.WorkerServicesScreen
 
 class MainActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
@@ -96,6 +97,7 @@ fun MainScreen(navController: NavHostController = rememberNavController()) {
             composable("worker/changePassword") { WorkerChangePasswordScreen(navController) }
             composable("worker/reservations") { WorkerReservationsScreen(navController) }
             composable("worker/community") { WorkerCommunityScreen(navController) }
+            composable("worker/services") { WorkerServicesScreen(navController) }
             composable("uploadPicture") { UploadPictureScreen(navController) }
             composable("establishmentDetail/{establishmentId}") { backStackEntry ->
                 val establishmentId = backStackEntry.arguments?.getString("establishmentId")

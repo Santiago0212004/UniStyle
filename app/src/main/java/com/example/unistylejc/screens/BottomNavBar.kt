@@ -86,6 +86,7 @@ fun WorkerNavBar(navController: NavController) {
     val items = listOf(
         NavItem.WorkerCommunity,
         NavItem.WorkerReservations,
+        NavItem.WorkerServices,
         NavItem.WorkerProfile
     )
     NavigationBar(
@@ -146,5 +147,7 @@ sealed class NavItem(val route: String, val icon: Int, val title: String) {
 
     object WorkerCommunity : NavItem("worker/community", R.drawable.stars,"Comunidad")
     object WorkerReservations : NavItem("worker/reservations", R.drawable.calendar, "Agenda")
+
+    object WorkerServices : NavItem("worker/services", R.drawable.perfil, "Servicios")
     object WorkerProfile : NavItem("worker/profile", R.drawable.perfil, "Perfil")
 }
