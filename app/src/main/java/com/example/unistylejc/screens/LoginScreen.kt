@@ -127,7 +127,7 @@ fun LoginScreen(navController: NavHostController, loginViewModel: LogInViewmodel
                 Toast.makeText(context, "Bienvenido ${state.userID}", Toast.LENGTH_LONG).show()
                  when (state.role) {
                     "worker" -> navController.navigate("worker/community")
-                    "customer" -> navController.navigate("customer/main")
+                    "customer" -> navController.navigate("customer/discover")
                 }
             }
             else -> Unit

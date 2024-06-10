@@ -135,16 +135,6 @@ fun CommentsSection(viewModel: WorkerCommunityViewmodel,comments: List<CommentEn
 
     LazyColumn {
         item(){
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center){
-                Button(onClick = { navHostController.navigate("worker/reservations") }, colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF7F2FA))) {
-                    Text("Reservas", color = Color(0xFF5D16A6))
-                }
-                Button(onClick = { /* Handle Comments */ }, colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF5D16A6))) {
-                    Text("Comentarios", color = Color.White)
-                }
-            }
-        }
-        item(){
             Spacer(modifier = Modifier.height(16.dp))
             comments?.forEach() {
                 CommentCard(viewModel,it,userState,expanded)
@@ -259,9 +249,6 @@ fun CommentCard(viewModel: WorkerCommunityViewmodel,comment: CommentEntity,userS
                             },
                         )
                     }
-
-
-
                 }
             }
         }

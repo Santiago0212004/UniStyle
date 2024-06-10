@@ -21,7 +21,10 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
@@ -36,13 +39,16 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
+import com.example.unistylejc.R
 import com.example.unistylejc.screens.resources.RatingStars
 import com.example.unistylejc.viewmodel.CustomerEstablishmentViewModel
 
@@ -72,8 +78,21 @@ fun CustomerEstablishmentScreen(navController: NavHostController, establishmentI
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.End
+                horizontalArrangement = Arrangement.Start
             ) {
+                IconButton(onClick = { navController.popBackStack()},
+                    modifier = Modifier
+                        .size(48.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .shadow(8.dp, RoundedCornerShape(12.dp))
+                        .background(Color.White)) {
+                    Icon(
+                        painter = painterResource(R.drawable.back),
+                        contentDescription = "Back",
+                        modifier = Modifier.size(24.dp),
+                    )
+                }
+                Spacer(modifier = Modifier.width(8.dp))
                 loggedCustomer?.let { customer ->
                     Text(text = customer.username, style = MaterialTheme.typography.bodyMedium)
                     Spacer(modifier = Modifier.width(4.dp))
@@ -93,7 +112,7 @@ fun CustomerEstablishmentScreen(navController: NavHostController, establishmentI
             Spacer(modifier = Modifier.height(16.dp))
 
             Surface(
-                color = Color.Cyan,
+                color = Color(0xFFD4BEEB),
                 modifier = Modifier
                     .padding(8.dp)
                     .clip(shape = RoundedCornerShape(16.dp))
@@ -107,11 +126,11 @@ fun CustomerEstablishmentScreen(navController: NavHostController, establishmentI
                         contentDescription = "Establishment image",
                         contentScale = ContentScale.Crop,
                         modifier = Modifier
-                            .size(80.dp)
+                            .size(70.dp)
                             .clip(CircleShape)
                             .background(MaterialTheme.colorScheme.primary)
                     )
-                    Spacer(modifier = Modifier.width(16.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
 
                     val descriptionScrollState = rememberScrollState()
 
@@ -134,7 +153,7 @@ fun CustomerEstablishmentScreen(navController: NavHostController, establishmentI
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .heightIn(max = 64.dp)
+                                .heightIn(max = 50.dp)
                                 .verticalScroll(descriptionScrollState)
                         ) {
                             Text(
