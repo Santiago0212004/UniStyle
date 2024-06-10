@@ -15,6 +15,8 @@ import edu.co.icesi.unistyle.domain.model.AppAuthState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import android.content.Context
+import android.content.SharedPreferences
 
 class SignUpViewmodel(
     private val authRepo: AuthRepository = AuthRepositoryImpl(),
@@ -25,17 +27,27 @@ class SignUpViewmodel(
     private val _establishmentState = MutableLiveData<ArrayList<Establishment?>?>()
     val establishmentState: LiveData<ArrayList<Establishment?>?> get() = _establishmentState
 
-    fun signupUser(customer: Customer, pass: String) {
+    fun signupUser(context: Context, customer: Customer, pass: String) {
         viewModelScope.launch(Dispatchers.IO) {
             val status = authRepo.signupUser(customer, pass)
-            withContext(Dispatchers.Main) { authStatus.value = status }
+            withContext(Dispatchers.Main) {
+                authStatus.value = status
+                if (status is AppAuthState.SuccessLogin) {
+                    saveSignUpState(context, customer.email, pass, "customer")
+                }
+            }
         }
     }
 
-    fun signupWorker(worker: Worker, pass: String) {
+    fun signupWorker(context: Context, worker: Worker, pass: String) {
         viewModelScope.launch(Dispatchers.IO) {
             val status = authRepo.signupWorker(worker, pass)
-            withContext(Dispatchers.Main) { authStatus.value = status }
+            withContext(Dispatchers.Main) {
+                authStatus.value = status
+                if (status is AppAuthState.SuccessLogin) {
+                    saveSignUpState(context, worker.email, pass, "worker")
+                }
+            }
         }
     }
 
@@ -45,6 +57,39 @@ class SignUpViewmodel(
             withContext(Dispatchers.Main) {
                 _establishmentState.value = establishments
             }
+        }
+    }
+
+    private fun saveSignUpState(context: Context, email: String, pass: String, role: String) {
+        val sharedPreferences: SharedPreferences = context.getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
+        val editor = sharedPreferences.edit()
+        editor.putString("email", email)
+        editor.putString("password", pass)
+        editor.putString("role", role)
+        editor.apply()
+    }
+
+    fun loadUserSession(context: Context) {
+        val sharedPreferences = context.getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
+        val email = sharedPreferences.getString("email", null)
+        val password = sharedPreferences.getString("password", null)
+        val role = sharedPreferences.getString("role", null)
+        if (email != null && password != null && role != null) {
+            if (role == "customer") {
+                val customer = Customer(id = "", email = email, name = "", username = "", reservationRefs = listOf(), commentsRef = listOf())
+                signupUser(context, customer, password)
+            } else {
+                val worker = Worker(id = "", email = email, name = "", username = "", description = "", reservationRefs = listOf(), commentsRef = listOf(), establishmentRef = "")
+                signupWorker(context, worker, password)
+            }
+        }
+    }
+
+    fun clearUserSession(context: Context) {
+        val sharedPreferences = context.getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
+        with(sharedPreferences.edit()) {
+            clear()
+            apply()
         }
     }
 }

@@ -96,7 +96,7 @@ fun SignUpScreen(navController: NavHostController, viewModel: SignUpViewmodel = 
             painter = painterResource(R.drawable.logo),
             contentDescription = "Logo",
             modifier = Modifier
-                .size(230.dp)
+                .size(250.dp)
                 .padding(top = 76.dp)
         )
         Spacer(modifier = Modifier.height(16.dp))
@@ -207,7 +207,7 @@ fun SignUpScreen(navController: NavHostController, viewModel: SignUpViewmodel = 
             onClick = {
                 if (!isWorker) {
                     val customer = Customer(id = "", email = email, name = name, username = username, reservationRefs =  listOf(), commentsRef = listOf())
-                    viewModel.signupUser(customer, password)
+                    viewModel.signupUser(context, customer, password)
                 } else {
                     val worker = selectedEstablishment?.let {
                         Worker(id = "", email = email, name = name, username = username, description ="", reservationRefs = listOf(), commentsRef =  listOf(),
@@ -215,7 +215,7 @@ fun SignUpScreen(navController: NavHostController, viewModel: SignUpViewmodel = 
                         )
                     }
                     if (worker != null) {
-                        viewModel.signupWorker(worker, password)
+                        viewModel.signupWorker(context, worker, password)
                     }
                 }
             },
@@ -252,7 +252,9 @@ fun SignUpScreen(navController: NavHostController, viewModel: SignUpViewmodel = 
             }
             is AppAuthState.SuccessLogin -> {
                 Toast.makeText(context, "Bienvenido ${state.userID}", Toast.LENGTH_LONG).show()
-                navController.navigate("uploadPicture")
+                navController.navigate("uploadPicture"){
+                    popUpTo("signup"){ inclusive = true }
+                }
             }
             else -> Unit
         }
