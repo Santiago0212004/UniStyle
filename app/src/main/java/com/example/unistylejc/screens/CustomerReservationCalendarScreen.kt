@@ -1,7 +1,10 @@
 package com.example.unistylejc.screens
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,6 +20,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -39,6 +45,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.unistylejc.R
 import com.example.unistylejc.domain.model.ReservationEntity
@@ -87,7 +94,7 @@ fun CustomerReservationCalendarScreen(navController: NavHostController, viewMode
         upcomingReservations?.let { reservations ->
             if (reservations.isNotEmpty()) {
                 items(reservations.take(upcomingReservationsShown)) { reservation ->
-                    ReservationCardCustomer(reservation)
+                    UpcomingReservationCardCustomer(reservation, viewModel, navController)
                 }
             } else {
                 item {
@@ -249,6 +256,105 @@ fun ReservationCardCustomer(reservation: ReservationEntity) {
     }
 }
 
+@Composable
+fun UpcomingReservationCardCustomer(reservation: ReservationEntity, viewModel: CustomerReservationsViewModel, navController: NavHostController) {
+    var showDialogDR by remember { mutableStateOf(false) }
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(color = Color(0xFFF2E8FC), shape = RoundedCornerShape(16.dp))
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Image(
+                painter = rememberAsyncImagePainter(reservation.establishment?.picture),
+                contentDescription = "Logo",
+                modifier = Modifier
+                    .size(64.dp)
+                    .clip(CircleShape)
+            )
+            Spacer(modifier = Modifier.width(16.dp))
+            Column {
+
+
+                reservation.initDate?.toDate()?.let {
+
+                    val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+                    val sdfTime = SimpleDateFormat("hh:mm a", Locale.getDefault())
+
+                    val date = reservation.initDate?.toDate()?.let { d -> sdf.format(d) } ?: "Unknown date"
+                    val time = reservation.initDate?.toDate()?.let { t -> sdfTime.format(t) } ?: "Unknown time"
+
+                    reservation.establishment?.let { e -> Text(e.name, fontSize = 20.sp, fontWeight = FontWeight.Bold) }
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text("Servicio: ${reservation.service?.name}")
+                    Text("Trabajador: ${reservation.worker?.name}")
+                    Text("Precio: $${reservation.service?.price}")
+                    Text("Día: $date")
+                    Text("Hora: $time")
+                    reservation.establishment?.address?.let { a -> Text(a, fontSize = 12.sp, color = Color.Gray) }
+                }
+            }
+        }
+
+        Box(
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(16.dp)
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Row(horizontalArrangement = Arrangement.Start) {
+                    Icon(
+                        painter = painterResource(
+                            id = when (reservation.paymentMethod?.name) {
+                                "Efectivo" -> R.drawable.ic_cash
+                                "Daviplata" -> R.drawable.ic_credit_card
+                                else -> R.drawable.ic_credit_card
+                            }
+                        ),
+                        contentDescription = reservation.paymentMethod?.name ?: "Unknown",
+                        modifier = Modifier.size(12.dp)
+                    )
+                    reservation.paymentMethod?.name?.let {
+                        Text(it, fontSize = 11.sp)
+                    }
+                }
+            }
+        }
+
+        Box(
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(16.dp)
+        ) {
+            Icon(modifier = Modifier.clickable {
+                showDialogDR = true
+            }, imageVector = Icons.Default.Delete, contentDescription = "Delete",
+                tint = Color.Red)
+        }
+
+        if (showDialogDR) {
+            DeleteReservationConfirmationDialog(
+                onConfirm = {
+                    viewModel.deleteReservation(reservation.id, reservation.client?.id, reservation.worker?.id, reservation.establishment?.id)
+                    navController.navigate("customer/agenda")
+                    showDialogDR = false
+                },
+                onDismiss = {
+                    showDialogDR = false
+                }
+            )
+        }
+    }
+}
+
 
 @Composable
 fun NoReservationsMessageCustomer() {
@@ -277,5 +383,44 @@ fun NoReservationsMessageCustomer() {
         }
 
     }
+}
+
+@Composable
+fun DeleteReservationConfirmationDialog(onConfirm: () -> Unit, onDismiss: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            Button(
+                onClick = onConfirm,
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF5D16A6))
+            ) {
+                Text("Confirmar")
+            }
+        },
+        dismissButton = {
+            Button(
+                onClick = onDismiss,
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF2E8FC)),
+                modifier = Modifier.border(
+                    width = 1.dp,
+                    color = Color(0xFF5D16A6),
+                    shape = RoundedCornerShape(100.dp)
+                )
+            ) {
+                Text("Cancelar", color = Color(0xFF5D16A6))
+            }
+        },
+        title = {
+            Text(
+                "¿Seguro desea cancelar la reserva?",
+                textAlign = TextAlign.Center,
+                fontWeight = FontWeight.Bold
+            )
+        },
+        modifier = Modifier
+            .width(349.dp)
+            .height(224.dp)
+            .clip(RoundedCornerShape(16.dp))
+    )
 }
 
