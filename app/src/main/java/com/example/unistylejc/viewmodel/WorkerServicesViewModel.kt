@@ -54,6 +54,10 @@ class WorkerServicesViewModel(private val userRepository: UserRepository = UserR
                 _loggedWorker.value?.let { listOf(it.id) })
 
             _loggedWorker.value?.let { userRepository.addServiceToWorker(service, it.id) }
+
+            withContext(Dispatchers.Main){
+                loadWorkerServices()
+            }
         }
     }
 }

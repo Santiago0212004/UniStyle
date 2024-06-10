@@ -147,7 +147,6 @@ fun WorkerServicesScreen(navController: NavHostController, viewModel: WorkerServ
                     showAddServiceDialog.value = false
                     worker?.let {
                         viewModel.addServiceToWorker(name, price)
-                        viewModel.loadWorkerServices()
                     }
                 }
             )
@@ -162,6 +161,7 @@ fun WorkerServicesScreen(navController: NavHostController, viewModel: WorkerServ
                 Column (modifier = Modifier.verticalScroll(servicesScroll)) {
                     it.forEach{ service ->
                         ServiceCard(service)
+                        Spacer(modifier = Modifier.height(16.dp))
                     }
                 }
             }
