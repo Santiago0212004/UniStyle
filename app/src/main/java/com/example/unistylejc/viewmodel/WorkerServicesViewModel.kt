@@ -16,6 +16,7 @@ import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.UUID
 
 class WorkerServicesViewModel(private val userRepository: UserRepository = UserRepositoryImpl()): ViewModel() {
     private val _loggedWorker = MutableLiveData<Worker?>()
@@ -49,6 +50,10 @@ class WorkerServicesViewModel(private val userRepository: UserRepository = UserR
     fun addServiceToWorker(name: String, price: Double){
         viewModelScope.launch(Dispatchers.IO) {
 
+            val service = Service(UUID.randomUUID().toString(), name, price,
+                _loggedWorker.value?.let { listOf(it.id) })
+
+            _loggedWorker.value?.let { userRepository.addServiceToWorker(service, it.id) }
         }
     }
 }

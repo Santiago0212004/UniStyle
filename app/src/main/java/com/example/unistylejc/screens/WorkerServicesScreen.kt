@@ -132,6 +132,7 @@ fun WorkerServicesScreen(naController: NavHostController, viewModel: WorkerServi
                     showAddServiceDialog.value = false
                     worker?.let {
                         viewModel.addServiceToWorker(name, price)
+                        viewModel.loadWorkerServices()
                     }
                 }
             )
