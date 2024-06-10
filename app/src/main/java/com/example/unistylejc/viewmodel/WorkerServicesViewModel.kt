@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.unistylejc.domain.model.Customer
 import com.example.unistylejc.domain.model.Establishment
 import com.example.unistylejc.domain.model.Service
@@ -42,6 +43,12 @@ class WorkerServicesViewModel(private val userRepository: UserRepository = UserR
                     _workerServices.value = servicesList
                 }
             }
+        }
+    }
+
+    fun addServiceToWorker(name: String, price: Double){
+        viewModelScope.launch(Dispatchers.IO) {
+
         }
     }
 }
