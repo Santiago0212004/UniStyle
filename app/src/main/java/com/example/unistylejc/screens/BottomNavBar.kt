@@ -72,7 +72,7 @@ fun CustomerNavBar(navController: NavController) {
                         launchSingleTop = true
                         restoreState = true
                         popUpTo(navController.graph.startDestinationId) {
-                            saveState = true
+                            saveState = false
                         }
                     }
                 }
@@ -130,7 +130,7 @@ fun WorkerNavBar(navController: NavController) {
                         launchSingleTop = true
                         restoreState = true
                         popUpTo(navController.graph.startDestinationId) {
-                            saveState = true
+                            saveState = false
                         }
                     }
                 }
@@ -148,6 +148,6 @@ sealed class NavItem(val route: String, val icon: Int, val title: String) {
     object WorkerCommunity : NavItem("worker/community", R.drawable.stars,"Comunidad")
     object WorkerReservations : NavItem("worker/reservations", R.drawable.calendar, "Agenda")
 
-    object WorkerServices : NavItem("worker/services", R.drawable.perfil, "Servicios")
+    object WorkerServices : NavItem("worker/services", R.drawable.ic_services, "Servicios")
     object WorkerProfile : NavItem("worker/profile", R.drawable.perfil, "Perfil")
 }
