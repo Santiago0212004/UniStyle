@@ -92,8 +92,8 @@ fun UploadPictureScreen(navController: NavHostController, viewModel: UploadImage
                     viewModel.uploadProfilePicture(uri, isWorker) { success ->
                         if (success) {
                             when (currentRole) {
-                                "worker" -> navController.navigate("worker/profile")
-                                "customer" -> navController.navigate("customer/main")
+                                "worker" -> navController.navigate("worker/community")
+                                "customer" -> navController.navigate("customer/discover")
                             }
                         } else {
                             Toast.makeText(context, "Error al subir la imagen", Toast.LENGTH_LONG).show()
@@ -109,8 +109,8 @@ fun UploadPictureScreen(navController: NavHostController, viewModel: UploadImage
         Button(
             onClick = {
                 when (currentRole) {
-                    "worker" -> navController.navigate("worker/profile")
-                    "customer" -> navController.navigate("customer/main")
+                    "worker" -> navController.navigate("worker/community")
+                    "customer" -> navController.navigate("customer/discover")
                     else -> Toast.makeText(context, "No se pudo determinar el rol", Toast.LENGTH_LONG).show()
                 }
             }

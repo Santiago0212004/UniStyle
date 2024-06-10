@@ -35,7 +35,14 @@ fun TimeSlots(
 ) {
     val reservations by viewModel.selectedWorkerReservations.observeAsState(emptyList())
 
-    val startHour = LocalTime.of(8, 0)
+    val now = LocalTime.now()
+    val nextHalfHour = if (now.minute < 30) now.withMinute(30).withSecond(0).withNano(0) else now.plusHours(1).withMinute(0).withSecond(0).withNano(0)
+    val startHour = if (date.isEqual(LocalDate.now())) {
+        if (nextHalfHour.isBefore(LocalTime.of(8, 0))) LocalTime.of(8, 0) else nextHalfHour
+    } else {
+        LocalTime.of(8, 0)
+    }
+
     val endHour = LocalTime.of(22, 0)
     val timeSlots = generateTimeSlots(startHour, endHour)
 

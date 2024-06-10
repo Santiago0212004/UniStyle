@@ -50,6 +50,7 @@ import com.example.unistylejc.screens.resources.TimeSlots
 import com.example.unistylejc.screens.resources.rememberDatePickerState
 import com.example.unistylejc.viewmodel.CustomerEstablishmentViewModel
 import com.google.firebase.Timestamp
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.ZoneOffset
@@ -72,7 +73,7 @@ fun ReservationScreen(
 
     var selectedService by remember { mutableStateOf<Service?>(null) }
     var selectedPaymentMethod by remember { mutableStateOf<PaymentMethod?>(null) }
-    var selectedDate by remember { mutableStateOf(LocalDateTime.now().minusHours(5).toLocalDate()) }
+    var selectedDate by remember { mutableStateOf(LocalDate.now()) }
     var selectedTimeRange by remember { mutableStateOf<Pair<LocalTime, LocalTime>?>(null) }
 
     var showDatePicker by remember { mutableStateOf(false) }
@@ -110,7 +111,7 @@ fun ReservationScreen(
                     modifier = Modifier
                         .padding(paddingValues)
                         .padding(16.dp)
-                        .fillMaxWidth() // Ensure the column doesn't expand indefinitely
+                        .fillMaxWidth()
                 ) {
                     Spacer(modifier = Modifier.height(16.dp))
 
@@ -198,7 +199,11 @@ fun ReservationScreen(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.Center
                     ) {
-                        IconButton(onClick = { selectedDate = selectedDate.minusDays(1) }) {
+                        IconButton(onClick = {
+                            if(selectedDate.isAfter(LocalDate.now())) {
+                                selectedDate = selectedDate.minusDays(1)
+                            }
+                        }) {
                             Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Previous Date")
                         }
                         Text(
@@ -298,7 +303,9 @@ fun ReservationScreen(
                         state = datePickerState,
                         onDismissRequest = { showDatePicker = false },
                         onDateSelected = { date ->
-                            selectedDate = date
+                            if (date.isAfter(LocalDate.now()) || date.isEqual(LocalDate.now())) {
+                                selectedDate = date
+                            }
                             showDatePicker = false
                         }
                     )
