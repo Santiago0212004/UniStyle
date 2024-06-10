@@ -49,6 +49,7 @@ interface UserRepository {
     suspend fun updateProfileCustomer(name: String, username: String)
     suspend fun loadAllWorkerReservations(workerId: String): List<Reservation>
     suspend fun loadCommentResponse(responseId: String): Response?
+    suspend fun addEstablishmentToWorker(id: String, establishmentId: String)
 }
 
 class UserRepositoryImpl(
@@ -307,6 +308,10 @@ class UserRepositoryImpl(
 
     override suspend fun updateProfileCustomer(name: String, username: String) {
         customerServices.updateProfile(name,username)
+    }
+
+    override suspend fun addEstablishmentToWorker(id: String, establishmentId: String){
+        workerServices.addEstablishmentToWorker(id, establishmentId)
     }
 }
 

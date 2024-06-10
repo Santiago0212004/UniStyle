@@ -122,4 +122,11 @@ class WorkerService {
             throw Exception("Error al desvincular: ${e.message}")
         }
     }
+
+    suspend fun addEstablishmentToWorker(id: String, establishmentId: String ){
+        val updatesWorker = mapOf(
+            "establishmentRef" to establishmentId
+        )
+        Firebase.firestore.collection("worker").document(id).update(updatesWorker).await()
+    }
 }
