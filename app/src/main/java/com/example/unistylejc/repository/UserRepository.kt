@@ -51,6 +51,7 @@ interface UserRepository {
     suspend fun workerDeleteAccount(email: String, pass: String,id:String)
     suspend fun loadCommentResponse(responseId: String): Response?
     suspend fun addEstablishmentToWorker(id: String, establishmentId: String)
+    suspend fun deleteReservation(reservationId: String?, cusctomerId: String?, workerId: String?, establishmentId: String?)
 }
 
 class UserRepositoryImpl(
@@ -182,6 +183,10 @@ class UserRepositoryImpl(
         reservations.forEach{
             val reservationEntity = ReservationEntity()
             val worker =   findWorkerById(it.workerId)
+            reservationEntity.id = it.id
+            customerEntity?.let { c->
+                reservationEntity.client = c
+            }
             worker?.let{ w ->
                 reservationEntity.worker=w
             }
@@ -225,6 +230,7 @@ class UserRepositoryImpl(
         reservations.forEach{
             val reservationEntity = ReservationEntity()
             val customer =   findCustomerById(it.customerId)
+            reservationEntity.id = it.id
             customer?.let{ c ->
                 reservationEntity.client=c
             }
@@ -317,6 +323,10 @@ class UserRepositoryImpl(
 
     override suspend fun addEstablishmentToWorker(id: String, establishmentId: String){
         workerServices.addEstablishmentToWorker(id, establishmentId)
+    }
+
+    override suspend fun deleteReservation(reservationId: String?, cusctomerId: String?, workerId: String?, establishmentId: String?){
+        reservationServices.deleteReservation(reservationId,cusctomerId,workerId,establishmentId)
     }
 }
 
