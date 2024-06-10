@@ -62,4 +62,19 @@ class WorkerProfileViewModel(
         authRepo.signOut()
     }
 
+    fun deleteAccount(email: String, pass: String, id:String, onSuccess: () -> Unit){
+        viewModelScope.launch (Dispatchers.IO) {
+            try {
+                userRepo.workerDeleteAccount(email, pass, id)
+                withContext(Dispatchers.Main) {
+                    onSuccess()
+                }
+            }catch (e: Exception){
+                withContext(Dispatchers.Main) {
+                    _errorState.value = e.message ?: "Error al eliminar la cuenta"
+                }
+            }
+        }
+    }
+
 }

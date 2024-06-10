@@ -4,6 +4,7 @@ import com.example.unistylejc.domain.model.Comment
 import com.example.unistylejc.domain.model.Service
 import com.example.unistylejc.domain.model.Worker
 import com.google.firebase.Firebase
+import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.auth
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FieldValue
@@ -96,5 +97,24 @@ class WorkerService {
 
             null
         }.await()
+    }
+
+    suspend fun deleteAccount(email:String, pass:String, id:String) {
+        val user = Firebase.auth.currentUser ?: throw Exception("User not logged in")
+        val credential = EmailAuthProvider.getCredential(email, pass)
+        try {
+            user.reauthenticate(credential).await()
+            user.delete().await()
+            val updates = mapOf(
+                "name" to "Usuario inexistente",
+                "email" to "Delete",
+                "username" to "Delete",
+                "picture" to "https://firebasestorage.googleapis.com/v0/b/unistyle-940e2.appspot.com/o/no_user.png?alt=media&token=51c4f2b4-e1da-4b3f-bad9-016bc0416d81"
+            )
+            Firebase.firestore.collection("customer").document(id).update(updates).await()
+            Result.success(Unit)
+        } catch (e: Exception) {
+            throw Exception("Error al eliminar la cuenta: ${e.message}")
+        }
     }
 }

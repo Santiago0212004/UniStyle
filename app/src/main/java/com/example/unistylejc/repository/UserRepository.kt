@@ -50,6 +50,7 @@ interface UserRepository {
     suspend fun updateProfileCustomer(name: String, username: String)
 
     suspend fun loadAllWorkerReservations(workerId: String): List<Reservation>
+    suspend fun workerDeleteAccount(email: String, pass: String,id:String)
 }
 
 class UserRepositoryImpl(
@@ -286,6 +287,10 @@ class UserRepositoryImpl(
 
     override suspend fun deleteAccount(email: String, pass: String,id:String) {
         customerServices.deleteAccount(email,pass,id)
+    }
+
+    override suspend fun workerDeleteAccount(email: String, pass: String,id:String) {
+        workerServices.deleteAccount(email,pass,id)
     }
 
     override suspend fun sendResponse(commentId: String, commenterId: String,content:String) {

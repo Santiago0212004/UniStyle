@@ -80,7 +80,7 @@ fun CustomerEstablishmentScreen(navController: NavHostController, establishmentI
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Start
             ) {
-                IconButton(onClick = { navController.popBackStack()},
+                IconButton(onClick = { navController.navigate("customer/reserva")},
                     modifier = Modifier
                         .size(48.dp)
                         .clip(RoundedCornerShape(12.dp))

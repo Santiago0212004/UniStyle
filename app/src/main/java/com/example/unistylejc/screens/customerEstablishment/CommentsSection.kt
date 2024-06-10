@@ -74,8 +74,6 @@ fun CommentsSection(
             Text(text = "Añadir Comentario")
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
-
         val scrollState = rememberScrollState()
 
         Column(
@@ -108,7 +106,7 @@ fun CommentCard(viewModel: CustomerEstablishmentViewModel, comment: Comment) {
         if (worker != null && customer != null) {
             Card(
                 modifier = Modifier
-                    .padding(8.dp)
+                    .padding(4.dp)
                     .fillMaxWidth(),
                 elevation = CardDefaults.cardElevation(
                     defaultElevation = 10.dp
