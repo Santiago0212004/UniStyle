@@ -29,6 +29,8 @@ class MainCustomerViewModel(
     private val _allEstablishments = MutableLiveData<ArrayList<Establishment?>?>()
     val allEstablishments: LiveData<ArrayList<Establishment?>?> get() = _allEstablishments
 
+    private var lastOption: String = ""
+
     fun getLoggedCustomer(customerId: String) {
         viewModelScope.launch(Dispatchers.IO) {
             val customer = userRepository.findCustomerById(customerId)
@@ -59,8 +61,24 @@ class MainCustomerViewModel(
             }
             withContext(Dispatchers.Main) {
                 _establishments.value = filteredEstablishments?.let { ArrayList(it) }
+                sortEstablishments(lastOption)
             }
         }
     }
+
+    fun sortEstablishments(option: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val sortedEstablishments = when (option) {
+                "Alfabético" -> _establishments.value?.sortedBy { it?.name?.lowercase(Locale.ROOT) }
+                "Por puntuación" -> _establishments.value?.sortedByDescending { it?.score }
+                else -> _allEstablishments.value
+            }
+            withContext(Dispatchers.Main) {
+                lastOption = option
+                _establishments.value = sortedEstablishments?.let { ArrayList(it) }
+            }
+        }
+    }
+
 
 }
