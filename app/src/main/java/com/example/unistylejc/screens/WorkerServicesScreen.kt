@@ -160,7 +160,9 @@ fun WorkerServicesScreen(navController: NavHostController, viewModel: WorkerServ
                 val servicesScroll = rememberScrollState()
                 Column (modifier = Modifier.verticalScroll(servicesScroll)) {
                     it.forEach{ service ->
-                        ServiceCard(service)
+                        ServiceCard(service , onDelete = { s ->
+                            viewModel.deleteServiceFromWorker(s)
+                        })
                         Spacer(modifier = Modifier.height(16.dp))
                     }
                 }
@@ -172,7 +174,7 @@ fun WorkerServicesScreen(navController: NavHostController, viewModel: WorkerServ
 }
 
 @Composable
-fun ServiceCard(service: Service?){
+fun ServiceCard(service: Service?, onDelete: (Service) -> Unit){
     service?.let { s ->
         Box(modifier = Modifier
             .fillMaxWidth()
@@ -187,7 +189,7 @@ fun ServiceCard(service: Service?){
                 }
                 Spacer(modifier = Modifier.weight(1f))
                 Column(verticalArrangement = Arrangement.Bottom, modifier = Modifier.fillMaxHeight()){
-                    Icon(modifier = Modifier.clickable {  }.size(24.dp), imageVector = Icons.Default.Delete, contentDescription = "Delete",
+                    Icon(modifier = Modifier.clickable {onDelete(s)}.size(24.dp), imageVector = Icons.Default.Delete, contentDescription = "Delete",
                         tint = Color.Red)
                 }
             }

@@ -60,4 +60,15 @@ class WorkerServicesViewModel(private val userRepository: UserRepository = UserR
             }
         }
     }
+
+    fun deleteServiceFromWorker(service: Service){
+        viewModelScope.launch(Dispatchers.IO) {
+
+            _loggedWorker.value?.let { userRepository.deleteServiceFromWorker(service, it.id) }
+
+            withContext(Dispatchers.Main){
+                loadWorkerServices()
+            }
+        }
+    }
 }

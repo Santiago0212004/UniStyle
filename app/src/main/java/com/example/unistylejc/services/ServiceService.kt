@@ -12,4 +12,9 @@ class ServiceService {
         Firebase.firestore.collection("service").document(service.id).set(service).await()
         Firebase.firestore.collection("worker").document(workerId).update("servicesRef", FieldValue.arrayUnion(service.id)).await()
     }
+
+    suspend fun deleteServiceFromWorker(service: Service, workerId: String) {
+        Firebase.firestore.collection("worker").document(workerId).update("servicesRef", FieldValue.arrayRemove(service.id)).await()
+        Firebase.firestore.collection("service").document(service.id).update("workersRefs", FieldValue.arrayRemove(workerId)).await()
+    }
 }
