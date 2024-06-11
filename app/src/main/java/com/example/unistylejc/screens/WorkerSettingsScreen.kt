@@ -163,6 +163,7 @@ private fun ScreenContent(
                 text = "Desvincular",
                 iconResId = R.drawable.ic_logout
             )
+            Spacer(modifier = Modifier.height(32.dp))
         } else {
             OptionButton(
                 {
@@ -171,9 +172,8 @@ private fun ScreenContent(
                 text = "Vincular",
                 iconResId = R.drawable.ic_logout
             )
+            Spacer(modifier = Modifier.height(32.dp))
         }
-
-        Spacer(modifier = Modifier.height(32.dp))
 
         OptionButton({
             showDialogDA = true
@@ -217,7 +217,7 @@ private fun ScreenContent(
                 worker?.let {
                     viewModel.deleteEstablishmentFromWorker(it.email, pass, it.id,
                         onSuccess = {
-                            navController.navigate("worker/profile")
+                            navController.navigate("worker/settings")
                         }
                     )
                 }
