@@ -11,10 +11,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import android.content.Context
+import com.example.unistylejc.repository.UserRepository
+import com.example.unistylejc.repository.UserRepositoryImpl
 
-class LogInViewmodel(val repo: AuthRepository = AuthRepositoryImpl()) : ViewModel() {
+class LogInViewmodel(val repo: AuthRepository = AuthRepositoryImpl(), val authRepo: AuthRepository = AuthRepositoryImpl()) : ViewModel() {
 
     val authStatus = MutableLiveData<AppAuthState?>()
+    val changePasswordSuccess = MutableLiveData<Boolean?>(null)
 
     fun login(context: Context, email: String, pass: String) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -55,6 +58,14 @@ class LogInViewmodel(val repo: AuthRepository = AuthRepositoryImpl()) : ViewMode
         with(sharedPreferences.edit()) {
             clear()
             apply()
+        }
+    }
+
+    fun forgotPassword(email: String){
+        viewModelScope.launch(Dispatchers.IO) {
+            withContext(Dispatchers.Main) {
+                changePasswordSuccess.value = authRepo.forgotPassword(email)
+            }
         }
     }
 }

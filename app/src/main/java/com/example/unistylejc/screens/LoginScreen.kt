@@ -45,6 +45,13 @@ fun LoginScreen(navController: NavHostController, loginViewModel: LogInViewmodel
 
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    val success  by loginViewModel.changePasswordSuccess.observeAsState()
+
+    if(success == true){
+        Toast.makeText(context, "Revise su correo " +email,Toast.LENGTH_LONG).show()
+    } else if(success ==  false){
+        Toast.makeText(context, "Hubo un error", Toast.LENGTH_LONG).show()
+    }
 
     Column(
         modifier = Modifier
@@ -105,6 +112,15 @@ fun LoginScreen(navController: NavHostController, loginViewModel: LogInViewmodel
             text = "¿No tienes una cuenta?",
             modifier = Modifier.clickable {
                 navController.navigate("signup")
+            },
+            color = Color(0xFF9C27B0),
+            fontStyle = FontStyle.Italic
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            text = "¿Olvidaste tu contraseña?",
+            modifier = Modifier.clickable {
+                loginViewModel.forgotPassword(email)
             },
             color = Color(0xFF9C27B0),
             fontStyle = FontStyle.Italic

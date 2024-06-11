@@ -7,9 +7,7 @@ import com.example.unistylejc.services.AuthServices
 import com.example.unistylejc.services.CustomerService
 import com.example.unistylejc.services.EstablishmentService
 import com.example.unistylejc.services.WorkerService
-import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuthException
-import com.google.firebase.auth.auth
 import edu.co.icesi.unistyle.domain.model.AppAuthState
 
 interface AuthRepository {
@@ -20,6 +18,7 @@ interface AuthRepository {
     fun changePassword(newPassword: String)
     suspend fun getCurrentRole(uid: String): String
     fun signOut()
+    suspend fun forgotPassword(email: String): Boolean
 }
 
 class AuthRepositoryImpl(
@@ -90,5 +89,9 @@ class AuthRepositoryImpl(
 
     override fun signOut(){
         authServices.signOut()
+    }
+
+    override suspend fun forgotPassword(email: String): Boolean {
+        return authServices.forgotPassword(email)
     }
 }
