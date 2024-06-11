@@ -11,6 +11,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -36,6 +39,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -65,6 +69,10 @@ private fun ScreenContent(navController: NavHostController, userState: Customer?
     var showErrorDialog by remember { mutableStateOf(false) }
     var shouldNavigate by remember { mutableStateOf(false) }
     var passwordsMatch by remember { mutableStateOf(true) } // Add this state
+
+    var newPasswordVisible by remember { mutableStateOf(false) }
+    var confirmNewPasswordVisible by remember { mutableStateOf(false) }
+    var currentPasswordVisible by remember { mutableStateOf(false) }
 
     val authState = viewModel.authStatus.observeAsState()
 
@@ -177,7 +185,16 @@ private fun ScreenContent(navController: NavHostController, userState: Customer?
                     focusedLeadingIconColor = Color.Black,
                     focusedPlaceholderColor = Color.White
                 ),
-                visualTransformation = PasswordVisualTransformation()
+                visualTransformation = if (newPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                trailingIcon = {
+                    val image = if (newPasswordVisible)
+                        Icons.Default.Visibility
+                    else Icons.Default.VisibilityOff
+
+                    IconButton(onClick = { newPasswordVisible = !newPasswordVisible }) {
+                        Icon(imageVector = image, contentDescription = if (newPasswordVisible) "Ocultar contraseña" else "Mostrar contraseña")
+                    }
+                }
             )
         }
 
@@ -205,7 +222,16 @@ private fun ScreenContent(navController: NavHostController, userState: Customer?
                     focusedLeadingIconColor = Color.Black,
                     focusedPlaceholderColor = Color.White
                 ),
-                visualTransformation = PasswordVisualTransformation()
+                visualTransformation = if (confirmNewPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                trailingIcon = {
+                    val image = if (confirmNewPasswordVisible)
+                        Icons.Default.Visibility
+                    else Icons.Default.VisibilityOff
+
+                    IconButton(onClick = { confirmNewPasswordVisible = !confirmNewPasswordVisible }) {
+                        Icon(imageVector = image, contentDescription = if (confirmNewPasswordVisible) "Ocultar contraseña" else "Mostrar contraseña")
+                    }
+                }
             )
         }
 
@@ -241,7 +267,16 @@ private fun ScreenContent(navController: NavHostController, userState: Customer?
                     focusedLeadingIconColor = Color.Black,
                     focusedPlaceholderColor = Color.White
                 ),
-                visualTransformation = PasswordVisualTransformation()
+                visualTransformation = if (currentPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                trailingIcon = {
+                    val image = if (currentPasswordVisible)
+                        Icons.Default.Visibility
+                    else Icons.Default.VisibilityOff
+
+                    IconButton(onClick = { currentPasswordVisible = !currentPasswordVisible }) {
+                        Icon(imageVector = image, contentDescription = if (currentPasswordVisible) "Ocultar contraseña" else "Mostrar contraseña")
+                    }
+                }
             )
         }
 
