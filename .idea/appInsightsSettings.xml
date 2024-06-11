@@ -8,8 +8,8 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="edu.co.icesi.unistyle" />
-                  <option name="mobileSdkAppId" value="1:807456808102:android:5f2c2610d19d62cdbda867" />
+                  <option name="appId" value="com.example.unistylejc" />
+                  <option name="mobileSdkAppId" value="1:807456808102:android:22ecd293f4bc3131bda867" />
                   <option name="projectId" value="unistyle-940e2" />
                   <option name="projectNumber" value="807456808102" />
                 </ConnectionSetting>
