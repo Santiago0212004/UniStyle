@@ -1,6 +1,7 @@
 package com.example.unistylejc.services
 
 import android.util.Log
+import android.widget.Toast
 import com.google.firebase.Firebase
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.auth
@@ -52,5 +53,15 @@ class AuthServices {
 
     fun signOut(){
         Firebase.auth.signOut()
+    }
+
+    suspend fun forgotPassword(email: String): Boolean{
+        var success = false
+        Firebase.auth.sendPasswordResetEmail(email).addOnSuccessListener {
+            success = true
+        }.addOnFailureListener {
+            success = false
+        }.await()
+        return success
     }
 }
