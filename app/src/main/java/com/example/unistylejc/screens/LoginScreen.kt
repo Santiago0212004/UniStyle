@@ -119,7 +119,11 @@ fun LoginScreen(navController: NavHostController, loginViewModel: LogInViewmodel
         Spacer(modifier = Modifier.height(16.dp))
         Button(
             onClick = {
-                loginViewModel.login(context, email, password)
+                if(email.isNotEmpty() && password.isNotEmpty()){
+                    loginViewModel.login(context, email, password)
+                } else {
+                    Toast.makeText(context, "Escriba todos los campos", Toast.LENGTH_LONG).show()
+                }
             },
             modifier = Modifier.fillMaxWidth(),
             colors = ButtonDefaults.buttonColors(Color(0xFF9C27B0))
@@ -139,7 +143,17 @@ fun LoginScreen(navController: NavHostController, loginViewModel: LogInViewmodel
         Text(
             text = "¿Olvidaste tu contraseña?",
             modifier = Modifier.clickable {
-                loginViewModel.forgotPassword(email)
+
+                if(email.isNotEmpty()){
+                    try {
+                        loginViewModel.forgotPassword(email)
+                    } catch (e: Exception){
+                        Toast.makeText(context, "Error", Toast.LENGTH_LONG).show()
+                    }
+
+                } else {
+                    Toast.makeText(context, "Escriba un correo electrónico", Toast.LENGTH_LONG).show()
+                }
             },
             color = Color(0xFF9C27B0),
             fontStyle = FontStyle.Italic

@@ -56,12 +56,17 @@ class AuthServices {
     }
 
     suspend fun forgotPassword(email: String): Boolean{
-        var success = false
-        Firebase.auth.sendPasswordResetEmail(email).addOnSuccessListener {
-            success = true
-        }.addOnFailureListener {
-            success = false
-        }.await()
-        return success
+        try {
+            var success = false
+            Firebase.auth.sendPasswordResetEmail(email).addOnSuccessListener {
+                success = true
+            }.addOnFailureListener {
+                success = false
+            }.await()
+            return success
+        } catch (e: Exception){
+            return false
+        }
+
     }
 }

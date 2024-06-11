@@ -231,16 +231,33 @@ fun SignUpScreen(navController: NavHostController, viewModel: SignUpViewmodel = 
         Button(
             onClick = {
                 if (!isWorker) {
-                    val customer = Customer(id = "", email = email, name = name, username = username, reservationRefs =  listOf(), commentsRef = listOf())
-                    viewModel.signupUser(context, customer, password)
-                } else {
-                    val worker = selectedEstablishment?.let {
-                        Worker(id = "", email = email, name = name, username = username, description ="", reservationRefs = listOf(), commentsRef =  listOf(),
-                            establishmentRef = it.id
-                        )
+                    if(email.isNotEmpty() && name.isNotEmpty() && username.isNotEmpty() && password.isNotEmpty() && confirmPassword.isNotEmpty()){
+                        if(password == confirmPassword){
+                            val customer = Customer(id = "", email = email, name = name, username = username, reservationRefs =  listOf(), commentsRef = listOf())
+                            viewModel.signupUser(context, customer, password)
+                        } else {
+                            Toast.makeText(context, "Las contraseñas no coinciden", Toast.LENGTH_LONG).show()
+                        }
+                    } else {
+                        Toast.makeText(context, "Escriba todos los campos", Toast.LENGTH_LONG).show()
                     }
-                    if (worker != null) {
-                        viewModel.signupWorker(context, worker, password)
+
+                } else {
+                    if(email.isNotEmpty() && name.isNotEmpty() && username.isNotEmpty() && password.isNotEmpty() && confirmPassword.isNotEmpty()){
+                        if(password == confirmPassword){
+                            val worker = selectedEstablishment?.let {
+                                Worker(id = "", email = email, name = name, username = username, description ="", reservationRefs = listOf(), commentsRef =  listOf(),
+                                    establishmentRef = it.id
+                                )
+                            }
+                            if (worker != null) {
+                                viewModel.signupWorker(context, worker, password)
+                            }
+                        } else {
+                            Toast.makeText(context, "Las contraseñas no coinciden", Toast.LENGTH_LONG).show()
+                        }
+                    } else {
+                        Toast.makeText(context, "Escriba todos los campos", Toast.LENGTH_LONG).show()
                     }
                 }
             },
