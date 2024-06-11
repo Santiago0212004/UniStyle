@@ -15,6 +15,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.Button
@@ -45,6 +48,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -81,6 +85,7 @@ private fun ScreenContent(
     var selectedEstablishment by remember { mutableStateOf<Establishment?>(null) }
     val establishments by viewModel.establishmentState.observeAsState(emptyList())
     var expanded by remember { mutableStateOf(false) }
+    var passVisible by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         viewModel.loadEstablishmentList()
@@ -184,6 +189,8 @@ private fun ScreenContent(
         DeleteAccountConfirmationDialog(
             pass = pass,
             onPassChange = { pass = it },
+            passVisible = passVisible,
+            onPassVisibleChange = { passVisible = !passVisible },
             onConfirm = {
                 worker?.let {
                     viewModel.deleteAccount(it.email, pass, it.id,
@@ -204,6 +211,8 @@ private fun ScreenContent(
         DeleteEstablishmentFromWorkerConfirmationDialog(
             pass = pass,
             onPassChange = { pass = it },
+            passVisible = passVisible,
+            onPassVisibleChange = { passVisible = !passVisible },
             onConfirm = {
                 worker?.let {
                     viewModel.deleteEstablishmentFromWorker(it.email, pass, it.id,
@@ -454,7 +463,9 @@ fun DeleteEstablishmentFromWorkerConfirmationDialog(
     onConfirm: () -> Unit,
     onDismiss: () -> Unit,
     pass: String,
-    onPassChange: (String) -> Unit
+    onPassChange: (String) -> Unit,
+    passVisible: Boolean,
+    onPassVisibleChange: () -> Unit
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -493,7 +504,16 @@ fun DeleteEstablishmentFromWorkerConfirmationDialog(
                     label = { Text("Contraseña") },
                     placeholder = { Text("Ingrese su contraseña") },
                     keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Password),
-                    visualTransformation = PasswordVisualTransformation(),
+                    visualTransformation =  if (passVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                    trailingIcon = {
+                        val image = if (passVisible)
+                            Icons.Default.VisibilityOff
+                        else Icons.Default.Visibility
+
+                        IconButton(onClick = onPassVisibleChange) {
+                            Icon(imageVector = image, contentDescription = if (passVisible) "Ocultar contraseña" else "Mostrar contraseña")
+                        }
+                    },
                     modifier = Modifier.fillMaxWidth()
                 )
             }
@@ -606,7 +626,9 @@ fun AddEstablishmentFromWorkerConfirmationDialog(
 fun DeleteWorkerAccountConfirmationDialog(onConfirm: () -> Unit,
                                     onDismiss: () -> Unit,
                                     pass: String,
-                                    onPassChange: (String) -> Unit
+                                    onPassChange: (String) -> Unit,
+                                          passVisible: Boolean,
+                                          onPassVisibleChange: () -> Unit
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -645,7 +667,16 @@ fun DeleteWorkerAccountConfirmationDialog(onConfirm: () -> Unit,
                     label = { Text("Contraseña") },
                     placeholder = { Text("Ingrese su contraseña") },
                     keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Password),
-                    visualTransformation = PasswordVisualTransformation(),
+                    visualTransformation =  if (passVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                    trailingIcon = {
+                        val image = if (passVisible)
+                            Icons.Default.VisibilityOff
+                        else Icons.Default.Visibility
+
+                        IconButton(onClick = onPassVisibleChange) {
+                            Icon(imageVector = image, contentDescription = if (passVisible) "Ocultar contraseña" else "Mostrar contraseña")
+                        }
+                    },
                     modifier = Modifier.fillMaxWidth()
                 )
             }
